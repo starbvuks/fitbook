@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id              String        @id @default(cuid())
+  name            String?
+  username        String?       @unique
+  email           String?       @unique
+  emailVerified   DateTime?
+  image           String?
+  bio             String?       @db.Text
+  location        String?
+  website         String?
+  instagram       String?
+  pinterest       String?
+  tiktok          String?
+  currency        String        @default("USD")
+  language        String        @default("en")
+  emailNotifications Boolean    @default(true)
+  publicProfile   Boolean       @default(false)
+  darkMode        Boolean       @default(false)
+  totalSpent      Float         @default(0)
+  featuredOutfits String[]
+  featuredLookbook String?
+  accounts        Account[]
+  sessions        Session[]
+  wardrobe        WardrobeItem[]
+  outfits         Outfit[]
+  lookbooks       Lookbook[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model WardrobeItem {
+  id              String        @id @default(cuid())
+  name            String
+  category        String
+  brand           String?
+  price           Float
+  purchaseUrl     String?
+  size            String?
+  material        String?
+  condition       String?
+  isOwned         Boolean       @default(true)
+  purchaseDate    DateTime?
+  purchaseLocation String?
+  retailPrice     Float?
+  onSale          Boolean?
+  lastWorn        DateTime?
+  timesWorn       Int           @default(0)
+  wearDates       DateTime[]
+  careInstructions String?      @db.Text
+  dryCleanOnly    Boolean       @default(false)
+  lastCleaned     DateTime?
+  fitRating       Int?
+  fitNotes        String?       @db.Text
+  notes           String?       @db.Text
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images          Image[]
+  colors          Color[]
+  tags            Tag[]
+  outfitItems     OutfitItem[]
+  seasons         Season[]
+  occasions       Occasion[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Image {
+  id           String       @id @default(cuid())
+  url          String
+  publicId     String
+  isPrimary    Boolean     @default(false)
+  wardrobeItem WardrobeItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId       String
+  colors       Color[]
+}
+
+model Color {
+  id            String        @id @default(cuid())
+  hex           String
+  prevalence    Float
+  name          String?
+  wardrobeItems WardrobeItem[]
+  images        Image[]
+}
+
+model Tag {
+  id            String        @id @default(cuid())
+  name          String       @unique
+  wardrobeItems WardrobeItem[]
+  outfits       Outfit[]
+}
+
+model Outfit {
+  id            String       @id @default(cuid())
+  name          String
+  description   String?      @db.Text
+  totalCost     Float
+  rating        Int?
+  timesWorn     Int          @default(0)
+  lastWorn      DateTime?
+  favorited     Boolean      @default(false)
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         OutfitItem[]
+  tags          Tag[]
+  lookbooks     Lookbook[]
+  seasons       Season[]
+  occasions     Occasion[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model OutfitItem {
+  id            String      @id @default(cuid())
+  outfit        Outfit      @relation(fields: [outfitId], references: [id], onDelete: Cascade)
+  outfitId      String
+  wardrobeItem  WardrobeItem @relation(fields: [wardrobeItemId], references: [id], onDelete: Cascade)
+  wardrobeItemId String
+  position      String      // e.g., "head", "top", "bottom", etc.
+
+  @@unique([outfitId, position])
+}
+
+model Lookbook {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?   @db.Text
+  isPublic      Boolean   @default(false)
+  views         Int       @default(0)
+  likes         Int       @default(0)
+  shares        Int       @default(0)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outfits       Outfit[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Season {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  wardrobeItems WardrobeItem[]
+  outfits       Outfit[]
+}
+
+model Occasion {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  wardrobeItems WardrobeItem[]
+  outfits       Outfit[]
+} 
