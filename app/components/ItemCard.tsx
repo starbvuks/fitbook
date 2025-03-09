@@ -1,8 +1,8 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ExternalLink, ShoppingCart, BookmarkPlus } from 'lucide-react'
 import type { ClothingItem, Currency } from '@/app/models/types'
-import { formatPrice } from '@/lib/utils'
+import { formatCurrency } from '@/lib/currency'
 import { useState } from 'react'
 
 interface ItemCardProps {
@@ -14,9 +14,10 @@ interface ItemCardProps {
 
 export default function ItemCard({ item, currency, onToggleOwnership, viewMode = 'large' }: ItemCardProps) {
   const [isUpdating, setIsUpdating] = useState(false)
+  const router = useRouter()
 
   const handleToggleOwnership = async (e: React.MouseEvent) => {
-    e.preventDefault() // Prevent navigation
+    e.stopPropagation()
     if (!onToggleOwnership || isUpdating) return
 
     setIsUpdating(true)
@@ -27,6 +28,10 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
     } finally {
       setIsUpdating(false)
     }
+  }
+
+  const handleClick = () => {
+    router.push(`/catalog/${item.id}`)
   }
 
   const cardClasses = {
@@ -42,9 +47,9 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
   }
 
   return (
-    <Link
-      href={`/catalog/${item.id}`}
-      className={`group relative bg-background rounded-lg border border-border overflow-hidden hover:border-accent-purple transition-colors ${containerClasses[viewMode]}`}
+    <div
+      onClick={handleClick}
+      className={`group relative bg-background rounded-lg border border-border overflow-hidden hover:border-accent-purple transition-colors cursor-pointer ${containerClasses[viewMode]}`}
     >
       <div className={`relative ${cardClasses[viewMode]} ${viewMode === 'stack' ? 'w-24 flex-shrink-0' : 'w-full'}`}>
         {item.images[0] ? (
@@ -66,7 +71,7 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="p-1.5 bg-background/90 rounded-full hover:bg-background transition-colors"
+              className="p-2 bg-background/90 rounded-full hover:bg-background transition-colors"
               title="Purchase Link"
             >
               <ExternalLink className="w-4 h-4 text-foreground-soft hover:text-accent-purple" />
@@ -75,19 +80,17 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
           <button
             onClick={handleToggleOwnership}
             disabled={isUpdating}
-            className={`p-1.5 rounded-full transition-colors ${
-              isUpdating 
-                ? 'bg-background/50' 
-                : item.isOwned
-                ? 'bg-green-100/90 hover:bg-green-200/90'
-                : 'bg-blue-100/90 hover:bg-blue-200/90'
+            className={`p-2 rounded-lg transition-colors border border-gray-200 ${
+              item.isOwned
+                ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
             }`}
-            title={item.isOwned ? 'Mark as Want to Buy' : 'Mark as Owned'}
+            title={item.isOwned ? 'Owned' : 'Want to Buy'}
           >
             {item.isOwned ? (
-              <ShoppingCart className={`w-4 h-4 ${isUpdating ? 'text-foreground-soft' : 'text-green-600'}`} />
+              <ShoppingCart className="w-4 h-4" />
             ) : (
-              <BookmarkPlus className={`w-4 h-4 ${isUpdating ? 'text-foreground-soft' : 'text-blue-600'}`} />
+              <BookmarkPlus className="w-4 h-4" />
             )}
           </button>
         </div>
@@ -98,7 +101,7 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
         </h3>
         <div className="flex items-center justify-between text-sm text-foreground-soft">
           <span className="capitalize">{item.category}</span>
-          <span>{formatPrice(item.price, currency)}</span>
+          <span>{formatCurrency(item.price, currency)}</span>
         </div>
         {item.tags.length > 0 && viewMode !== 'stack' && (
           <div className="mt-2 flex flex-wrap gap-1">
@@ -118,6 +121,6 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
           </div>
         )}
       </div>
-    </Link>
+    </div>
   )
 } 

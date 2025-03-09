@@ -6,8 +6,9 @@ import { Plus, Filter, Search, LayoutGrid, LayoutList, Grid3X3 } from 'lucide-re
 import type { ClothingItem, ClothingCategory, Currency } from '@/app/models/types'
 import ItemCard from '@/app/components/ItemCard'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
-import { formatPrice } from '@/lib/utils'
+import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import PriceRangeSlider from '@/app/components/PriceRangeSlider'
+import { useRouter } from 'next/navigation'
 
 const categories: ClothingCategory[] = [
   'tops',
@@ -50,6 +51,7 @@ export default function CatalogPage() {
   const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>('all')
   const [priceRange, setPriceRange] = useState<{ min: number; max: number | null }>({ min: 0, max: null })
   const [showFilters, setShowFilters] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -59,7 +61,13 @@ export default function CatalogPage() {
           throw new Error('Failed to fetch user profile')
         }
         const data = await response.json()
-        setCurrency(data.currency || 'USD')
+        const userCurrency = data.currency || 'USD'
+        setCurrency(userCurrency)
+        const maxPrice = await getMaxPriceForCurrency(userCurrency)
+        setPriceRange(prev => ({
+          min: prev.min,
+          max: maxPrice
+        }))
       } catch (error) {
         console.error('Error fetching user profile:', error)
         setCurrency('USD')
@@ -131,6 +139,10 @@ export default function CatalogPage() {
     }
   }
 
+  const handleItemClick = (item: ClothingItem) => {
+    router.push(`/catalog/${item.id}`)
+  }
+
   const filteredItems = items.filter(item => {
     const matchesSearch = searchQuery === '' || 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -147,30 +159,30 @@ export default function CatalogPage() {
   })
 
   return (
-    <div className="min-h-screen pt-16 bg-background-soft">
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+    <div className="min-h-screen pt-16 bg-background">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
           <div>
-            <h1 className="text-3xl font-display font-bold">My Catalog</h1>
-            <p className="text-foreground-soft">
-              {items.length} items · Total value: {formatPrice(
+            <h1 className="text-2xl font-display font-bold mb-0.5">My Catalog</h1>
+            <p className="text-sm text-muted-foreground">
+              {items.length} items · Total value: {formatCurrency(
                 items.reduce((sum, item) => sum + item.price, 0),
                 currency
               )}
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-background rounded-lg border border-border p-1">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
               {(Object.entries(viewModeConfig) as [ViewMode, typeof viewModeConfig[ViewMode]][]).map(([mode, config]) => {
                 const Icon = config.icon
                 return (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className={`p-2 rounded-md transition-colors ${
+                    className={`p-1.5 rounded-md transition-colors ${
                       viewMode === mode
-                        ? 'bg-accent-purple text-white'
-                        : 'text-foreground-soft hover:text-accent-purple'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                     }`}
                     title={config.label}
                   >
@@ -181,48 +193,48 @@ export default function CatalogPage() {
             </div>
             <Link
               href="/catalog/add"
-              className="flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
+              className="btn btn-primary h-9 px-4"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-1.5" />
               Add Item
             </Link>
           </div>
         </div>
 
-        <div className="bg-background rounded-xl border border-border p-6 mb-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row gap-4">
+        <div className="bg-card rounded-xl border border-border p-4 mb-4 shadow-soft">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-soft" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search items..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="input pl-9 h-9 text-sm w-full"
                 />
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                className={`btn h-9 px-4 ${
                   showFilters
-                    ? 'bg-accent-purple text-white border-accent-purple'
-                    : 'bg-background-soft border-border hover:border-accent-purple'
+                    ? 'btn-primary'
+                    : 'btn-ghost'
                 }`}
               >
-                <Filter className="w-5 h-5" />
+                <Filter className="w-4 h-4 mr-1.5" />
                 Filters
               </button>
             </div>
 
             {showFilters && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-border">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Category</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-border">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Category</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value as ClothingCategory | 'all')}
-                    className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    className="select h-9 text-sm"
                   >
                     <option value="all">All Categories</option>
                     {categories.map((category) => (
@@ -233,12 +245,12 @@ export default function CatalogPage() {
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Status</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Status</label>
                   <select
                     value={ownershipFilter}
                     onChange={(e) => setOwnershipFilter(e.target.value as OwnershipFilter)}
-                    className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    className="select h-9 text-sm"
                   >
                     <option value="all">All Items</option>
                     <option value="owned">Owned</option>
@@ -246,13 +258,16 @@ export default function CatalogPage() {
                   </select>
                 </div>
 
-                <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-                  <PriceRangeSlider
-                    minPrice={0}
-                    maxPrice={Math.max(10000, ...items.map(item => item.price))}
-                    currency={currency}
-                    onChange={({ min, max }) => setPriceRange({ min, max })}
-                  />
+                <div className="sm:col-span-2 space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Price Range</label>
+                  <div className="px-2">
+                    <PriceRangeSlider
+                      minPrice={0}
+                      maxPrice={Math.max(10000, ...items.map(item => item.price))}
+                      currency={currency}
+                      onChange={({ min, max }) => setPriceRange({ min, max })}
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -260,42 +275,44 @@ export default function CatalogPage() {
         </div>
 
         {loading ? (
-          <LoadingSpinner text="Loading items..." />
+          <div className="flex items-center justify-center py-12">
+            <LoadingSpinner text="Loading items..." />
+          </div>
         ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-red-500 mb-4">{error}</p>
+          <div className="bg-card rounded-xl border border-border p-8 text-center">
+            <p className="text-destructive mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
+              className="btn btn-primary"
             >
               Try Again
             </button>
           </div>
         ) : filteredItems.length > 0 ? (
-          <div className={`grid ${viewModeConfig[viewMode].gridCols} gap-6`}>
+          <div className={`grid gap-3 ${viewModeConfig[viewMode].gridCols}`}>
             {filteredItems.map((item) => (
-              <ItemCard
+              <div
                 key={item.id}
-                item={item}
-                currency={currency}
-                onToggleOwnership={handleToggleOwnership}
-                viewMode={viewMode}
-              />
+                onClick={() => handleItemClick(item)}
+                className="cursor-pointer"
+              >
+                <ItemCard item={item} currency={currency} onToggleOwnership={handleToggleOwnership} viewMode={viewMode} />
+              </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
+          <div className="bg-card rounded-xl border border-border p-8 text-center">
             <h3 className="text-lg font-medium mb-2">No items found</h3>
-            <p className="text-foreground-soft mb-6">
+            <p className="text-muted-foreground mb-6">
               {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || priceRange.min > 0 || priceRange.max !== null
                 ? "Try adjusting your filters"
                 : "Start adding items to your catalog"}
             </p>
             <Link
               href="/catalog/add"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
+              className="btn btn-primary inline-flex"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-1.5" />
               Add Your First Item
             </Link>
           </div>

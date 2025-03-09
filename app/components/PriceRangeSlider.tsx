@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { formatPrice } from '@/lib/utils'
 import type { Currency } from '@/app/models/types'
 
@@ -8,7 +8,7 @@ interface PriceRangeSliderProps {
   minPrice: number
   maxPrice: number
   currency: Currency
-  onChange: (range: { min: number; max: number | null }) => void
+  onChange: (range: { min: number; max: number }) => void
 }
 
 export default function PriceRangeSlider({
@@ -17,95 +17,97 @@ export default function PriceRangeSlider({
   currency,
   onChange,
 }: PriceRangeSliderProps) {
-  const [range, setRange] = useState<{ min: number; max: number }>({
-    min: minPrice,
-    max: maxPrice,
-  })
+  const [range, setRange] = useState({ min: minPrice, max: maxPrice })
   const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null)
 
-  // Calculate the percentage for slider position
-  const getPercentage = (value: number) => {
-    return ((value - minPrice) / (maxPrice - minPrice)) * 100
-  }
+  // Calculate percentage for slider positioning
+  const getPercent = useCallback(
+    (value: number) => {
+      return Math.round(((value - minPrice) / (maxPrice - minPrice)) * 100)
+    },
+    [minPrice, maxPrice]
+  )
 
-  // Format the slider track style
-  const trackStyle = {
-    left: `${getPercentage(range.min)}%`,
-    width: `${getPercentage(range.max) - getPercentage(range.min)}%`,
-  }
+  // Handle mouse/touch move
+  const handleMove = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      if (!isDragging) return
 
-  // Handle slider thumb movement
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return
+      const slider = document.getElementById('price-range-slider')
+      if (!slider) return
 
-    const slider = document.getElementById('price-range-slider')
-    if (!slider) return
+      const rect = slider.getBoundingClientRect()
+      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
+      const percent = Math.min(Math.max(0, (clientX - rect.left) / rect.width), 1)
+      const value = Math.round(minPrice + percent * (maxPrice - minPrice))
 
-    const rect = slider.getBoundingClientRect()
-    const percentage = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1)
-    const value = Math.round(minPrice + percentage * (maxPrice - minPrice))
+      setRange(prev => {
+        const newRange = isDragging === 'min' 
+          ? { ...prev, min: Math.min(value, prev.max) }
+          : { ...prev, max: Math.max(value, prev.min) }
+        onChange(newRange)
+        return newRange
+      })
+    },
+    [isDragging, minPrice, maxPrice, onChange]
+  )
 
-    setRange(prev => ({
-      ...prev,
-      [isDragging]: value,
-    }))
-  }
-
-  // Handle slider thumb release
-  const handleMouseUp = () => {
-    if (!isDragging) return
+  // Handle mouse/touch up
+  const handleUp = useCallback(() => {
     setIsDragging(null)
-    onChange(range)
-  }
+  }, [])
 
-  // Add and remove event listeners for dragging
+  // Add and remove event listeners
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('mouseup', handleMouseUp)
+      window.addEventListener('mousemove', handleMove)
+      window.addEventListener('touchmove', handleMove)
+      window.addEventListener('mouseup', handleUp)
+      window.addEventListener('touchend', handleUp)
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
+      window.removeEventListener('mousemove', handleMove)
+      window.removeEventListener('touchmove', handleMove)
+      window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('touchend', handleUp)
     }
-  }, [isDragging])
+  }, [isDragging, handleMove, handleUp])
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between text-sm">
-        <span>Price Range:</span>
-        <span>
-          {formatPrice(range.min, currency)} - {formatPrice(range.max, currency)}
-        </span>
+    <div className="w-full px-2 py-4">
+      <div className="flex justify-between mb-2">
+        <span className="text-sm">{formatPrice(range.min, currency)}</span>
+        <span className="text-sm">{formatPrice(range.max, currency)}</span>
       </div>
-
+      
       <div
         id="price-range-slider"
-        className="relative h-2 bg-background-soft rounded-full"
+        className="relative w-full h-2 bg-background rounded-full"
       >
-        {/* Slider track */}
+        {/* Track fill */}
         <div
           className="absolute h-full bg-accent-purple rounded-full"
-          style={trackStyle}
+          style={{
+            left: `${getPercent(range.min)}%`,
+            width: `${getPercent(range.max) - getPercent(range.min)}%`,
+          }}
         />
 
         {/* Min thumb */}
         <div
-          className={`absolute top-1/2 -translate-y-1/2 -ml-3 w-6 h-6 bg-white border-2 border-accent-purple rounded-full cursor-pointer ${
-            isDragging === 'min' ? 'ring-2 ring-accent-purple ring-opacity-50' : ''
-          }`}
-          style={{ left: `${getPercentage(range.min)}%` }}
+          className="absolute w-4 h-4 -mt-1.5 bg-white border-2 border-accent-purple rounded-full cursor-pointer"
+          style={{ left: `${getPercent(range.min)}%` }}
           onMouseDown={() => setIsDragging('min')}
+          onTouchStart={() => setIsDragging('min')}
         />
 
         {/* Max thumb */}
         <div
-          className={`absolute top-1/2 -translate-y-1/2 -ml-3 w-6 h-6 bg-white border-2 border-accent-purple rounded-full cursor-pointer ${
-            isDragging === 'max' ? 'ring-2 ring-accent-purple ring-opacity-50' : ''
-          }`}
-          style={{ left: `${getPercentage(range.max)}%` }}
+          className="absolute w-4 h-4 -mt-1.5 bg-white border-2 border-accent-purple rounded-full cursor-pointer"
+          style={{ left: `${getPercent(range.max)}%` }}
           onMouseDown={() => setIsDragging('max')}
+          onTouchStart={() => setIsDragging('max')}
         />
       </div>
     </div>

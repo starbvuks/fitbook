@@ -29,18 +29,20 @@ export default function AddItemPage() {
   }
 
   return (
-    <div className="min-h-screen pt-16 bg-background-soft">
+    <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-6xl mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold">Add New Item</h1>
-          <p className="text-foreground-soft">Add a new item to your catalog</p>
+          <h1 className="text-2xl font-display font-bold mb-0.5">Add New Item</h1>
+          <p className="text-sm text-muted-foreground">Add a new item to your catalog</p>
         </div>
 
-        <AddItemForm
-          onSubmit={handleSubmit}
-          onCancel={() => router.push('/catalog')}
-          category="tops"
-        />
+        <div className="bg-card rounded-xl border border-border shadow-soft p-6">
+          <AddItemForm
+            onSubmit={handleSubmit}
+            onCancel={() => router.push('/catalog')}
+            category="tops"
+          />
+        </div>
       </div>
     </div>
   )

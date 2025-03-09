@@ -153,7 +153,7 @@ function FeatureCard({ icon, title, description, href }: {
   return (
     <Link
       href={href}
-      className="block group p-8 rounded-2xl bg-background hover:bg-background-softer transition-all duration-300 animate-fade-in hover:scale-[1.02]"
+      className="block group p-8 rounded-2xl bg-gray-900 hover:bg-background-softer transition-all duration-300 animate-fade-in hover:scale-[1.02]"
     >
       <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{icon}</div>
       <h3 className="font-display text-xl font-semibold mb-2">{title}</h3>

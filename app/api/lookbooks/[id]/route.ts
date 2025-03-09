@@ -4,10 +4,8 @@ import { lookbookSchema } from '@/lib/validations'
 import { prisma } from '@/lib/prisma'
 
 // GET /api/lookbooks/[id]
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return authenticatedHandler(req, async (userId) => {
     const lookbook = await prisma.lookbook.findUnique({
       where: {
@@ -40,10 +38,8 @@ export async function GET(
 }
 
 // PUT /api/lookbooks/[id]
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return authenticatedHandler(req, async (userId) => {
     const data = await validateBody(req, lookbookSchema)
 
@@ -112,10 +108,8 @@ export async function PUT(
 }
 
 // DELETE /api/lookbooks/[id]
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return authenticatedHandler(req, async (userId) => {
     // First check if the lookbook exists and belongs to the user
     const lookbook = await prisma.lookbook.findUnique({

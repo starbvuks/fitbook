@@ -47,14 +47,19 @@ export const outfitItemSchema = z.object({
 })
 
 export const outfitSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  items: z.array(outfitItemSchema),
-  tags: z.array(z.string()),
+  items: z.array(z.object({
+    wardrobeItemId: z.string(),
+    position: z.string()
+  })),
+  tags: z.array(z.string()).default([]),
   rating: z.number().min(1).max(5).optional(),
-  seasons: z.array(seasonEnum),
-  occasions: z.array(occasionEnum),
+  seasons: z.array(z.string()).default([]),
+  occasions: z.array(z.string()).default([])
 })
+
+export const updateOutfitSchema = outfitSchema.partial()
 
 export const lookbookSchema = z.object({
   name: z.string().min(1),

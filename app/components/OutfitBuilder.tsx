@@ -1,215 +1,196 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useDrop } from 'react-dnd'
 import Image from 'next/image'
-import type { ClothingItem, ClothingCategory } from '../models/types'
-import Modal from './Modal'
-import { Search } from 'lucide-react'
+import { X, Download, Save } from 'lucide-react'
+import type { ClothingItem, Currency } from '@/app/models/types'
+import { formatPrice } from '@/lib/utils'
 
-interface OutfitSlot {
-  category: ClothingCategory
-  item?: ClothingItem
-  order: number
-  label: string
+type ClothingItemWithPosition = ClothingItem & { position?: string }
+
+export interface OutfitBuilderProps {
+  slots: Record<string, ClothingItem | null>
+  onAddItem: (item: ClothingItem, slot: string) => void
+  onRemoveItem: (slot: string) => void
+  accessories: ClothingItemWithPosition[]
+  onAddAccessory: (item: ClothingItemWithPosition) => void
+  onRemoveAccessory: (index: number) => void
+  currency: Currency
+  onSave: () => void
+  isSaving: boolean
 }
 
-const OUTFIT_SLOTS: OutfitSlot[] = [
-  { category: 'accessories', order: 1, label: 'Accessories (Head)' },
-  { category: 'outerwear', order: 2, label: 'Outerwear' },
-  { category: 'tops', order: 3, label: 'Top' },
-  { category: 'bottoms', order: 4, label: 'Bottom' },
-  { category: 'shoes', order: 5, label: 'Shoes' },
-  { category: 'accessories', order: 6, label: 'Accessories (Other)' },
-]
-
-interface OutfitBuilderProps {
-  onOutfitChange: (items: ClothingItem[]) => void
+const SLOT_LABELS = {
+  headwear: 'Headwear',
+  top: 'Top',
+  outerwear: 'Outerwear',
+  bottom: 'Bottom',
+  shoes: 'Shoes'
 }
 
-export default function OutfitBuilder({ onOutfitChange }: OutfitBuilderProps) {
-  const [slots, setSlots] = useState<OutfitSlot[]>(OUTFIT_SLOTS)
-  const [activeSlot, setActiveSlot] = useState<number | null>(null)
-  const [showItemModal, setShowItemModal] = useState(false)
-  const [wardrobeItems, setWardrobeItems] = useState<ClothingItem[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export default function OutfitBuilder({
+  slots,
+  onAddItem,
+  onRemoveItem,
+  accessories,
+  onAddAccessory,
+  onRemoveAccessory,
+  currency,
+  onSave,
+  isSaving
+}: OutfitBuilderProps) {
+  const [hoveredSlot, setHoveredSlot] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchWardrobeItems()
-  }, [])
-
-  const fetchWardrobeItems = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await fetch('/api/wardrobe')
-      if (!response.ok) {
-        throw new Error('Failed to fetch wardrobe items')
+  const [{ isOver }, dropRef] = useDrop<ClothingItemWithPosition, void, { isOver: boolean }>(() => ({
+    accept: 'CLOTHING_ITEM',
+    hover: (item, monitor) => {
+      if (item.category === 'accessories') {
+        const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
+        setHoveredSlot(`${targetSlot}_accessory`)
+      } else {
+        const slot = item.category === 'tops' ? 'top' : 
+                    item.category === 'bottoms' ? 'bottom' : 
+                    (item as ClothingItemWithPosition).position === 'headwear' ? 'headwear' :
+                    item.category === 'outerwear' ? 'outerwear' :
+                    item.category === 'shoes' ? 'shoes' : null
+        setHoveredSlot(slot)
       }
-      const data = await response.json()
-      setWardrobeItems(data)
-    } catch (error) {
-      console.error('Error fetching wardrobe items:', error)
-      setError('Failed to load wardrobe items')
-    } finally {
-      setLoading(false)
-    }
+    },
+    drop: (item: ClothingItemWithPosition, monitor) => {
+      if (item.category === 'accessories') {
+        const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
+        onAddAccessory({ ...item, position: targetSlot })
+      } else {
+        const slot = item.category === 'tops' ? 'top' : 
+                    item.category === 'bottoms' ? 'bottom' : 
+                    item.position === 'headwear' ? 'headwear' :
+                    item.category === 'outerwear' ? 'outerwear' :
+                    item.category === 'shoes' ? 'shoes' : null
+        if (slot) onAddItem(item, slot)
+      }
+      setHoveredSlot(null)
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver()
+    })
+  }))
+
+  // Helper function to determine which slot the accessory is being dropped into
+  const getTargetSlot = (y: number | undefined): string => {
+    if (!y) return 'headwear'
+    const slots = ['headwear', 'top', 'outerwear', 'bottom', 'shoes']
+    const slotHeight = window.innerHeight / slots.length
+    const index = Math.min(Math.floor((y - 100) / slotHeight), slots.length - 1)
+    return slots[Math.max(0, index)]
   }
 
-  const handleAddItem = (slotIndex: number) => {
-    setActiveSlot(slotIndex)
-    setShowItemModal(true)
-  }
-
-  const handleItemSelect = (item: ClothingItem) => {
-    if (activeSlot === null) return
-
-    const newSlots = [...slots]
-    newSlots[activeSlot] = { ...newSlots[activeSlot], item }
-    setSlots(newSlots)
-    onOutfitChange(newSlots.map(slot => slot.item).filter(Boolean) as ClothingItem[])
-    setShowItemModal(false)
-    setActiveSlot(null)
-    setSearchQuery('')
-  }
-
-  const filteredItems = wardrobeItems.filter(item => {
-    if (activeSlot === null) return false
-    const slot = slots[activeSlot]
-    return (
-      item.category === slot.category &&
-      (searchQuery === '' ||
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
-    )
-  })
+  const totalCost = Object.values(slots)
+    .filter(item => item !== null)
+    .reduce((sum, item) => sum + (item?.price || 0), 0) +
+    accessories.reduce((sum, item) => sum + item.price, 0)
 
   return (
-    <div className="space-y-4">
-      {slots.map((slot, index) => (
-        <div
-          key={`${slot.category}-${slot.order}`}
-          className="bg-background rounded-lg border border-border p-6 transition-all hover:border-accent-purple"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium">{slot.label}</h3>
-            {!slot.item && (
-              <button
-                onClick={() => handleAddItem(index)}
-                className="px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors text-sm"
-              >
-                Add Item
-              </button>
-            )}
-          </div>
-
-          {slot.item && (
-            <div className="relative group">
-              <div className="aspect-[3/4] relative rounded-lg overflow-hidden">
-                <Image
-                  src={slot.item.images[0].url}
-                  alt={slot.item.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <button
-                  onClick={() => {
-                    const newSlots = [...slots]
-                    newSlots[index] = { ...newSlots[index], item: undefined }
-                    setSlots(newSlots)
-                    onOutfitChange(newSlots.map(slot => slot.item).filter(Boolean) as ClothingItem[])
-                  }}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                >
-                  Remove
-                </button>
-              </div>
-              <div className="mt-4 space-y-1">
-                <h4 className="font-medium">{slot.item.name}</h4>
-                <p className="text-sm text-foreground-soft">${slot.item.price.toFixed(2)}</p>
-                {slot.item.brand && (
-                  <p className="text-sm text-foreground-soft">{slot.item.brand}</p>
-                )}
-              </div>
-            </div>
-          )}
+    <div 
+      ref={dropRef as any}
+      className="h-full flex flex-col"
+      onMouseLeave={() => setHoveredSlot(null)}
+    >
+      <div className="flex items-center justify-between p-5 border-b border-border">
+        <h2 className="text-lg font-semibold">Outfit Builder</h2>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium">{formatPrice(totalCost, currency)}</span>
+          <button
+            className="btn btn-ghost h-8 w-8 p-0"
+            title="Download Outfit Image"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+          <button
+            className="btn btn-primary h-8 w-8 p-0"
+            title="Save Outfit"
+          >
+            <Save className="w-4 h-4" />
+          </button>
         </div>
-      ))}
+      </div>
 
-      <Modal
-        isOpen={showItemModal}
-        onClose={() => {
-          setShowItemModal(false)
-          setActiveSlot(null)
-          setSearchQuery('')
-        }}
-        title={`Select ${activeSlot !== null ? slots[activeSlot].label : 'Item'}`}
-      >
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-soft" />
-            <input
-              type="text"
-              placeholder="Search items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
-            />
-          </div>
+      <div className="flex-1 p-4 ">
+        <div className="grid h-full ">
+          {Object.entries(SLOT_LABELS).map(([slot, label]) => (
+            <div key={slot} className="grid grid-cols-[2fr_120px] gap-3 h-[120px]">
+              {/* Main Item Slot */}
+              <div className='mt-1.5'>
+                <div className={`h-[100px] rounded-lg border border-dashed ${
+                  isOver && hoveredSlot === slot ? 'border-primary bg-primary/5' : 'border-border/50'
+                } overflow-hidden ${
+                  !slots[slot] ? 'bg-muted/50 flex items-center justify-center' : ''
+                }`}>
+                  {slots[slot] ? (
+                    <div className="relative h-full group">
+                      <Image
+                        src={slots[slot]!.images[0].url}
+                        alt={slots[slot]!.name}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/80 to-transparent">
+                        {slots[slot]!.name}
+                      </div>
+                      <button
+                        onClick={() => onRemoveItem(slot)}
+                        className="absolute top-1 right-1 btn btn-ghost h-6 w-6 p-0 bg-black/40 hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3 text-white" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground/75 px-4 text-center">
+                      <span className="block text-xs">{label.toLowerCase()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin w-8 h-8 border-4 border-accent-purple border-t-transparent rounded-full mx-auto"></div>
-              <p className="text-foreground-soft mt-2">Loading items...</p>
+              {/* Companion Accessory Slot */}
+              <div>
+                
+                <div className={`h-[100px] mt-1.5 rounded-lg border border-dashed ${
+                  isOver && hoveredSlot === `${slot}_accessory` ? 'border-primary bg-primary/5' : 'border-border/30'
+                } overflow-hidden ${
+                  !accessories.find(acc => acc.position === slot) ? 'bg-muted/30 flex items-center justify-center' : ''
+                }`}>
+                  {accessories.find(acc => acc.position === slot) ? (
+                    <div className="relative h-full group">
+                      <Image
+                        src={accessories.find(acc => acc.position === slot)!.images[0].url}
+                        alt={accessories.find(acc => acc.position === slot)!.name}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/80 to-transparent">
+                        {accessories.find(acc => acc.position === slot)!.name}
+                      </div>
+                      <button
+                        onClick={() => onRemoveAccessory(accessories.findIndex(acc => acc.position === slot))}
+                        className="absolute top-1 right-1 btn btn-ghost h-6 w-6 p-0 bg-black/40 hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3 text-white" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground/50 px-2 text-center">
+                      <span className="block">Add accessory</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          ) : error ? (
-            <div className="text-center py-8">
-              <p className="text-red-500">{error}</p>
-              <button
-                onClick={fetchWardrobeItems}
-                className="mt-2 text-accent-purple hover:text-accent-purple-dark"
-              >
-                Try Again
-              </button>
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-foreground-soft">
-                {searchQuery
-                  ? 'No items match your search'
-                  : 'No items found in this category'}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-1">
-              {filteredItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleItemSelect(item)}
-                  className="text-left group"
-                >
-                  <div className="aspect-[3/4] relative rounded-lg overflow-hidden border border-border group-hover:border-accent-purple">
-                    <Image
-                      src={item.images[0].url}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="mt-2 space-y-1">
-                    <h4 className="font-medium truncate">{item.name}</h4>
-                    <p className="text-sm text-foreground-soft">${item.price.toFixed(2)}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+          ))}
         </div>
-      </Modal>
+      </div>
     </div>
   )
 } 

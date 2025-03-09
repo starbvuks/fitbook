@@ -1,158 +1,152 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authenticatedHandler, validateBody } from '@/lib/api-utils'
-import { outfitSchema } from '@/lib/validations'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
-import type { PrismaClient } from '@prisma/client'
+import { outfitSchema } from '@/lib/validations'
 
 // GET /api/outfits
-export async function GET(req: NextRequest) {
-  return authenticatedHandler(req, async (userId) => {
-    const { searchParams } = new URL(req.url)
-    const search = searchParams.get('search')
-    const season = searchParams.get('season')
-    const occasion = searchParams.get('occasion')
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const cursor = searchParams.get('cursor')
 
     const outfits = await prisma.outfit.findMany({
       where: {
-        userId,
-        ...(search && {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { tags: { some: { name: { contains: search, mode: 'insensitive' } } } },
-          ],
-        }),
-        ...(season && season !== 'all' && {
-          seasons: {
-            some: { name: season },
-          },
-        }),
-        ...(occasion && occasion !== 'all' && {
-          occasions: {
-            some: { name: occasion },
-          },
-        }),
+        userId: session.user.id
+      },
+      take: limit,
+      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+      orderBy: {
+        createdAt: 'desc'
       },
       include: {
         items: {
           include: {
             wardrobeItem: {
               include: {
-                images: true,
-              },
-            },
-          },
+                images: true
+              }
+            }
+          }
         },
         tags: true,
-        seasons: true,
         occasions: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+        seasons: true
+      }
     })
 
-    return NextResponse.json(outfits)
-  })
+    const nextCursor = outfits.length === limit ? outfits[outfits.length - 1].id : null
+
+    return NextResponse.json({
+      outfits,
+      nextCursor
+    })
+  } catch (error) {
+    console.error('Error fetching outfits:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch outfits' },
+      { status: 500 }
+    )
+  }
 }
 
 // POST /api/outfits
-export async function POST(req: NextRequest) {
-  return authenticatedHandler(req, async (userId) => {
-    const data = await validateBody(req, outfitSchema)
-
-    // Calculate total cost from wardrobe items
-    const wardrobeItems = await prisma.wardrobeItem.findMany({
-      where: {
-        id: {
-          in: data.items.map(item => item.wardrobeItemId),
-        },
-        userId, // Ensure user owns all items
-      },
-      select: {
-        id: true,
-        price: true,
-      },
-    })
-
-    if (wardrobeItems.length !== data.items.length) {
-      return NextResponse.json(
-        { error: 'One or more items not found in your wardrobe' },
-        { status: 400 }
-      )
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const totalCost = wardrobeItems.reduce((sum: number, item: { price: number }) => sum + item.price, 0)
+    const body = await request.json()
+    const data = outfitSchema.parse(body)
 
-    // Create the outfit with a transaction to ensure all relations are created
-    const outfit = await prisma.$transaction(async (tx) => {
-      // Create the outfit
-      const newOutfit = await tx.outfit.create({
-        data: {
-          name: data.name,
-          description: data.description,
-          totalCost,
-          rating: data.rating,
-          userId,
-          items: {
-            create: data.items.map(item => ({
-              position: item.position,
-              wardrobeItem: {
-                connect: { id: item.wardrobeItemId },
-              },
-            })),
-          },
-          tags: {
-            connectOrCreate: data.tags.map(tag => ({
-              where: { name: tag },
-              create: { name: tag },
-            })),
-          },
-          seasons: {
-            connectOrCreate: data.seasons.map(season => ({
-              where: { name: season },
-              create: { name: season },
-            })),
-          },
-          occasions: {
-            connectOrCreate: data.occasions.map(occasion => ({
-              where: { name: occasion },
-              create: { name: occasion },
-            })),
-          },
+    // Create or connect tags
+    const tagConnections = data.tags?.map((name) => ({
+      where: { name },
+      create: { name }
+    })) || []
+
+    // Create or connect seasons
+    const seasonConnections = data.seasons.map((name) => ({
+      where: { name },
+      create: { name }
+    }))
+
+    // Create or connect occasions
+    const occasionConnections = data.occasions.map((name) => ({
+      where: { name },
+      create: { name }
+    }))
+
+    // Calculate total cost from wardrobe items
+    const totalCost = await prisma.wardrobeItem.aggregate({
+      where: {
+        id: {
+          in: data.items.map(item => item.wardrobeItemId)
+        }
+      },
+      _sum: {
+        price: true
+      }
+    })
+
+    // Create the outfit
+    const outfit = await prisma.outfit.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        rating: data.rating,
+        totalCost: totalCost._sum.price || 0,
+        user: {
+          connect: {
+            id: session.user.id
+          }
         },
-        include: {
-          items: {
-            include: {
-              wardrobeItem: {
-                include: {
-                  images: true,
-                },
-              },
+        items: {
+          create: data.items.map(item => ({
+            wardrobeItem: {
+              connect: {
+                id: item.wardrobeItemId
+              }
             },
-          },
-          tags: true,
-          seasons: true,
-          occasions: true,
+            position: item.position
+          }))
         },
-      })
-
-      // Update user stats
-      await tx.userProfile.update({
-        where: { userId },
-        data: {
-          stats: {
-            update: {
-              outfitCount: {
-                increment: 1,
-              },
-            },
-          },
+        tags: {
+          connectOrCreate: tagConnections
         },
-      })
-
-      return newOutfit
+        seasons: {
+          connectOrCreate: seasonConnections
+        },
+        occasions: {
+          connectOrCreate: occasionConnections
+        }
+      },
+      include: {
+        items: {
+          include: {
+            wardrobeItem: true
+          }
+        },
+        tags: true,
+        seasons: true,
+        occasions: true
+      }
     })
 
     return NextResponse.json(outfit)
-  })
+  } catch (error) {
+    console.error('Error creating outfit:', error)
+    return NextResponse.json(
+      { error: 'Failed to create outfit' },
+      { status: 500 }
+    )
+  }
 } 

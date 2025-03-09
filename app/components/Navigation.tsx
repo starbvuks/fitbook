@@ -34,8 +34,8 @@ export default function Navigation() {
               <div className="hidden md:flex items-center space-x-8">
                 <NavLink href="/catalog">Catalog</NavLink>
                 <NavLink href="/outfits">Outfits</NavLink>
-                <NavLink href="/lookbooks">Lookbooks</NavLink>
-                <NavLink href="/discover">Discover</NavLink>
+                <NavLink href="/lookbooks" disabled>Lookbooks</NavLink>
+                <NavLink href="/discover" disabled>Discover</NavLink>
               </div>
             )}
           </div>
@@ -117,7 +117,32 @@ export default function Navigation() {
   )
 }
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({ href, children, disabled = false }: { 
+  href: string
+  children: React.ReactNode
+  disabled?: boolean
+}) {
+  const [showTooltip, setShowTooltip] = useState(false)
+
+  if (disabled) {
+    return (
+      <div className="relative">
+        <button
+          className="text-foreground-soft/50 cursor-not-allowed"
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          {children}
+        </button>
+        {showTooltip && (
+          <div className="absolute left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-background border border-border rounded-lg shadow-lg whitespace-nowrap z-50 animate-in fade-in slide-in-from-top-1">
+            <p className="text-sm">Coming Soon! 🎉</p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <Link
       href={href}

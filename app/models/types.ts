@@ -2,6 +2,9 @@ export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'INR' | 'CAD' | 'AUD'
 
 export type ClothingCategory = 'tops' | 'bottoms' | 'dresses' | 'outerwear' | 'shoes' | 'accessories'
 
+export type SeasonName = 'spring' | 'summer' | 'fall' | 'winter'
+export type OccasionName = 'casual' | 'formal' | 'business' | 'party' | 'sport' | 'beach' | 'evening' | 'wedding'
+
 export interface Color {
   hex: string
   prevalence: number
@@ -12,8 +15,8 @@ export interface Image {
   id: string
   url: string
   publicId: string
-  isPrimary: boolean
   colors: Color[]
+  isPrimary: boolean
 }
 
 export interface Tag {
@@ -23,32 +26,33 @@ export interface Tag {
 
 export interface Season {
   id: string
-  name: string
+  name: SeasonName
 }
 
 export interface Occasion {
   id: string
-  name: string
+  name: OccasionName
 }
 
 export interface ClothingItem {
   id: string
+  userId: string
   name: string
   category: ClothingCategory
-  brand?: string | null
+  brand?: string
   price: number
-  purchaseUrl?: string | null
-  size?: string | null
-  material?: string | null
-  condition?: string | null
+  purchaseUrl?: string
+  size?: string
+  material?: string
+  condition?: string
   isOwned: boolean
-  notes?: string | null
+  notes?: string
   images: Image[]
   tags: Tag[]
   seasons: Season[]
   occasions: Occasion[]
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface OutfitItem {
@@ -56,7 +60,7 @@ export interface OutfitItem {
   outfitId: string
   wardrobeItemId: string
   position: string
-  wardrobeItem: ClothingItem
+  wardrobeItem?: ClothingItem
 }
 
 export interface Outfit {
@@ -65,12 +69,12 @@ export interface Outfit {
   name: string
   description?: string
   items: OutfitItem[]
-  tags: string[]
+  tags: Tag[]
   occasions: Occasion[]
   seasons: Season[]
   rating?: number
   totalCost: number
-  stats?: {
+  stats: {
     timesWorn: number
     lastWorn?: Date
     favorited: boolean
@@ -118,4 +122,11 @@ export interface UserProfile extends User {
   totalSpent: number
   featuredOutfits: string[]
   featuredLookbook?: string | null
+  stats?: {
+    itemCount: number
+    outfitCount: number
+    lookbookCount: number
+    totalSpent: number
+    mostExpensiveItem: number
+  }
 } 

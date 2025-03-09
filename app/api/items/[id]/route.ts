@@ -18,11 +18,25 @@ const updateItemSchema = z.object({
   occasions: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().nullable().optional(),
+  images: z.array(z.object({
+    id: z.string(),
+    url: z.string(),
+    publicId: z.string(),
+    isPrimary: z.boolean(),
+    colors: z.array(z.object({
+      hex: z.string(),
+      prevalence: z.number(),
+      name: z.string().optional()
+    }))
+  })).optional(),
 })
+
+// Update the type definition for route handler params
+type RouteParams = { params: Promise<{ id: string }> }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: RouteParams
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -30,7 +44,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const id = await params.id
+    const params = await props.params
+    const { id } = params
 
     const body = await request.json()
     if (!body) {
@@ -45,6 +60,13 @@ export async function PATCH(
         id,
         userId: session.user.id,
       },
+      include: {
+        images: {
+          include: {
+            colors: true
+          }
+        }
+      }
     })
 
     if (!existingItem) {
@@ -90,6 +112,23 @@ export async function PATCH(
           })),
         },
       }),
+      ...(data.images !== undefined && {
+        images: {
+          deleteMany: {}, // First delete all existing images
+          create: data.images.map(image => ({
+            url: image.url,
+            publicId: image.publicId,
+            isPrimary: image.isPrimary,
+            colors: {
+              create: image.colors.map(color => ({
+                hex: color.hex,
+                prevalence: color.prevalence,
+                name: color.name
+              }))
+            }
+          }))
+        }
+      })
     }
 
     const updatedItem = await prisma.wardrobeItem.update({
@@ -119,7 +158,7 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: RouteParams
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -127,7 +166,9 @@ export async function GET(
       return new Response('Unauthorized', { status: 401 })
     }
 
-    const id = await params.id
+    // First await the params object itself
+    const params = await props.params
+    const { id } = params
 
     const item = await prisma.wardrobeItem.findFirst({
       where: {
@@ -156,7 +197,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: RouteParams
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -164,7 +205,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const id = await params.id
+    const params = await props.params
+    const { id } = params
 
     // Verify item ownership
     const existingItem = await prisma.wardrobeItem.findFirst({

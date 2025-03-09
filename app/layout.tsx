@@ -1,8 +1,8 @@
+import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Sora, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
-import Navigation from './components/Navigation'
 import { Providers } from './providers'
-import type { Metadata } from 'next'
+import Navigation from './components/Navigation'
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -30,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${sora.variable} ${jetbrains.variable}`}>
-      <body className="bg-background text-foreground antialiased">
+    <html lang="en" className={`${jakarta.variable} ${sora.variable} ${jetbrains.variable} dark`} suppressHydrationWarning>
+      <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
         <Providers>
           <Navigation />
           <main>

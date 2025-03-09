@@ -6,7 +6,7 @@ import ColorPalette from './ColorPalette'
 import ImageUpload from './ImageUpload'
 import type { UploadResult } from '@/lib/images'
 import Image from 'next/image'
-import { X } from 'lucide-react'
+import { X, ShoppingCart, BookmarkPlus } from 'lucide-react'
 
 interface AddItemFormProps {
   onSubmit: (item: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => void
@@ -64,16 +64,22 @@ const conditions = [
   { value: 'poor', label: 'Poor' },
 ]
 
-const seasons: Season[] = ['spring', 'summer', 'fall', 'winter']
+const seasons: Season[] = [
+  { id: 'spring', name: 'spring' },
+  { id: 'summer', name: 'summer' },
+  { id: 'fall', name: 'fall' },
+  { id: 'winter', name: 'winter' }
+]
+
 const occasions: Occasion[] = [
-  'casual',
-  'formal',
-  'business',
-  'party',
-  'sport',
-  'beach',
-  'evening',
-  'wedding'
+  { id: 'casual', name: 'casual' },
+  { id: 'formal', name: 'formal' },
+  { id: 'business', name: 'business' },
+  { id: 'party', name: 'party' },
+  { id: 'sport', name: 'sport' },
+  { id: 'beach', name: 'beach' },
+  { id: 'evening', name: 'evening' },
+  { id: 'wedding', name: 'wedding' }
 ]
 
 export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFormProps) {
@@ -117,15 +123,19 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
       isOwned: formData.isOwned,
       seasons: formData.seasons,
       occasions: formData.occasions,
-      tags: formData.tags,
+      tags: formData.tags.map(tag => ({
+        id: crypto.randomUUID(),
+        name: tag
+      })),
       notes: formData.notes || undefined,
       images: formData.images.map(image => ({
+        id: crypto.randomUUID(),
         url: image.url,
         publicId: image.publicId,
         colors: image.colors || [],
         isPrimary: image === formData.images[0]
       }))
-    } as const
+    }
 
     onSubmit(item)
   }
@@ -164,35 +174,41 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
 
           <FormSection title="Basic Information">
             <div className="space-y-4">
-              <div className="flex items-center space-x-4 mb-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    checked={formData.isOwned}
-                    onChange={() => setFormData({ ...formData, isOwned: true })}
-                    className="form-radio text-accent-purple focus:ring-accent-purple"
-                  />
-                  <span className="ml-2">I own this</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    checked={!formData.isOwned}
-                    onChange={() => setFormData({ ...formData, isOwned: false })}
-                    className="form-radio text-accent-purple focus:ring-accent-purple"
-                  />
-                  <span className="ml-2">I want this</span>
-                </label>
+              <div className="flex items-center justify-center gap-4 p-4 bg-background-soft rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, isOwned: true })}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    formData.isOwned
+                      ? 'bg-green-100 text-green-600'
+                      : 'bg-background text-foreground-soft'
+                  }`}
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>I Own This</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, isOwned: false })}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    !formData.isOwned
+                      ? 'bg-blue-100 text-blue-600'
+                      : 'bg-background text-foreground-soft'
+                  }`}
+                >
+                  <BookmarkPlus className="w-5 h-5" />
+                  <span>I Want This</span>
+                </button>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Category <span className="text-red-500">*</span>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  Category <span className="text-destructive">*</span>
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value as ClothingCategory })}
-                  className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="select h-9 text-sm w-full"
                   required
                 >
                   {categories.map((cat) => (
@@ -204,48 +220,48 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Name <span className="text-red-500">*</span>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                  Name <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="input h-9 text-sm w-full"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Brand</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Brand</label>
                 <input
                   type="text"
                   value={formData.brand}
                   onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                  className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="input h-9 text-sm w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Price</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Price</label>
                 <input
                   type="number"
                   min="0"
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="input h-9 text-sm w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Purchase URL</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Purchase URL</label>
                 <input
                   type="url"
                   value={formData.purchaseUrl}
                   onChange={(e) => setFormData({ ...formData, purchaseUrl: e.target.value })}
                   placeholder="https://"
-                  className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="input h-9 text-sm w-full"
                 />
               </div>
             </div>
@@ -257,32 +273,32 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
           <FormSection title="Details">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Size</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Size</label>
                 <input
                   type="text"
                   value={formData.size}
                   onChange={(e) => setFormData({ ...formData, size: e.target.value })}
-                  className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="input h-9 text-sm w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Material</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Material</label>
                 <input
                   type="text"
                   value={formData.material}
                   onChange={(e) => setFormData({ ...formData, material: e.target.value })}
-                  className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  className="input h-9 text-sm w-full"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Condition</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Condition</label>
               <select
                 value={formData.condition}
                 onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                className="select h-9 text-sm w-full"
               >
                 {conditions.map((condition) => (
                   <option key={condition.value} value={condition.value}>
@@ -296,51 +312,51 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
           <FormSection title="Categories">
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Seasons</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Seasons</label>
                 <div className="grid grid-cols-2 gap-2">
                   {seasons.map((season) => (
-                    <label
-                      key={season}
-                      className="flex items-center space-x-2 px-3 py-2 bg-background-soft rounded-lg cursor-pointer hover:bg-background-softer"
+                    <button
+                      key={season.id}
+                      type="button"
+                      onClick={() => {
+                        const newSeasons = formData.seasons.includes(season)
+                          ? formData.seasons.filter(s => s.id !== season.id)
+                          : [...formData.seasons, season]
+                        setFormData({ ...formData, seasons: newSeasons })
+                      }}
+                      className={`flex items-center justify-center px-4 py-2 rounded-lg transition-colors ${
+                        formData.seasons.some(s => s.id === season.id)
+                          ? 'bg-accent-purple text-white'
+                          : 'bg-background-soft text-foreground-soft'
+                      } hover:bg-accent-purple-dark`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={formData.seasons.includes(season)}
-                        onChange={(e) => {
-                          const newSeasons = e.target.checked
-                            ? [...formData.seasons, season]
-                            : formData.seasons.filter(s => s !== season)
-                          setFormData({ ...formData, seasons: newSeasons })
-                        }}
-                        className="rounded border-border text-accent-purple focus:ring-accent-purple"
-                      />
-                      <span className="capitalize">{season}</span>
-                    </label>
+                      <span className="capitalize">{season.name}</span>
+                    </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Occasions</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Occasions</label>
                 <div className="grid grid-cols-2 gap-2">
                   {occasions.map((occasion) => (
-                    <label
-                      key={occasion}
-                      className="flex items-center space-x-2 px-3 py-2 bg-background-soft rounded-lg cursor-pointer hover:bg-background-softer"
+                    <button
+                      key={occasion.id}
+                      type="button"
+                      onClick={() => {
+                        const newOccasions = formData.occasions.includes(occasion)
+                          ? formData.occasions.filter(o => o.id !== occasion.id)
+                          : [...formData.occasions, occasion]
+                        setFormData({ ...formData, occasions: newOccasions })
+                      }}
+                      className={`flex items-center justify-center px-4 py-2 rounded-lg transition-colors ${
+                        formData.occasions.some(o => o.id === occasion.id)
+                          ? 'bg-accent-purple text-white'
+                          : 'bg-background-soft text-foreground-soft'
+                      } hover:bg-accent-purple-dark`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={formData.occasions.includes(occasion)}
-                        onChange={(e) => {
-                          const newOccasions = e.target.checked
-                            ? [...formData.occasions, occasion]
-                            : formData.occasions.filter(o => o !== occasion)
-                          setFormData({ ...formData, occasions: newOccasions })
-                        }}
-                        className="rounded border-border text-accent-purple focus:ring-accent-purple"
-                      />
-                      <span className="capitalize">{occasion}</span>
-                    </label>
+                      <span className="capitalize">{occasion.name}</span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -349,7 +365,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
 
           <FormSection title="Tags">
             <div>
-              <label className="block text-sm font-medium mb-2">Tags</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Tags</label>
               <input
                 type="text"
                 value={formData.tags.join(', ')}
@@ -358,19 +374,19 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                   tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
                 })}
                 placeholder="Enter tags separated by commas"
-                className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                className="input h-9 text-sm w-full"
               />
             </div>
           </FormSection>
 
           <FormSection title="Additional Information">
             <div>
-              <label className="block text-sm font-medium mb-2">Notes</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Notes</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple resize-none"
+                className="input text-sm w-full min-h-[80px] resize-none"
               />
             </div>
           </FormSection>

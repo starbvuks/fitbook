@@ -54,7 +54,7 @@ model User {
   language        String        @default("en")
   emailNotifications Boolean    @default(true)
   publicProfile   Boolean       @default(false)
-  darkMode        Boolean       @default(false)
+  darkMode        Boolean       @default(true)
   totalSpent      Float         @default(0)
   featuredOutfits String[]
   featuredLookbook String?
