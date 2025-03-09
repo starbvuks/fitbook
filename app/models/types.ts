@@ -1,56 +1,54 @@
-export type ClothingCategory = 
-  | 'tops'
-  | 'bottoms'
-  | 'dresses'
-  | 'outerwear'
-  | 'shoes'
-  | 'accessories'
-
 export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'INR' | 'CAD' | 'AUD'
 
-export type Season = 'spring' | 'summer' | 'fall' | 'winter'
-
-export type Occasion = 
-  | 'casual'
-  | 'formal'
-  | 'business'
-  | 'party'
-  | 'sport'
-  | 'beach'
-  | 'evening'
-  | 'wedding'
+export type ClothingCategory = 'tops' | 'bottoms' | 'dresses' | 'outerwear' | 'shoes' | 'accessories'
 
 export interface Color {
   hex: string
   prevalence: number
+  name?: string
 }
 
 export interface Image {
+  id: string
   url: string
   publicId: string
-  colors: Color[]
   isPrimary: boolean
+  colors: Color[]
+}
+
+export interface Tag {
+  id: string
+  name: string
+}
+
+export interface Season {
+  id: string
+  name: string
+}
+
+export interface Occasion {
+  id: string
+  name: string
 }
 
 export interface ClothingItem {
   id: string
-  userId: string
   name: string
   category: ClothingCategory
-  brand?: string
+  brand?: string | null
   price: number
-  purchaseUrl?: string
-  size?: string
-  material?: string
-  condition?: string
+  purchaseUrl?: string | null
+  size?: string | null
+  material?: string | null
+  condition?: string | null
   isOwned: boolean
+  notes?: string | null
+  images: Image[]
+  tags: Tag[]
   seasons: Season[]
   occasions: Occasion[]
-  tags: string[]
-  notes?: string
-  images: Image[]
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
 }
 
 export interface OutfitItem {
@@ -98,30 +96,26 @@ export interface Lookbook {
   updatedAt: Date
 }
 
-export interface UserProfile {
+export interface User {
   id: string
-  name: string | null
-  username: string | null
-  email: string
-  image: string | null
-  bio: string | null
-  location: string | null
-  website: string | null
-  instagram: string | null
-  pinterest: string | null
-  tiktok: string | null
+  name?: string | null
+  email?: string | null
+  image?: string | null
   currency: Currency
   language: string
+  darkMode: boolean
+}
+
+export interface UserProfile extends User {
+  bio?: string | null
+  location?: string | null
+  website?: string | null
+  instagram?: string | null
+  pinterest?: string | null
+  tiktok?: string | null
   emailNotifications: boolean
   publicProfile: boolean
-  darkMode: boolean
-  stats: {
-    totalSpent: number
-    itemCount: number
-    outfitCount: number
-    lookbookCount: number
-    mostExpensiveItem: number
-  }
-  createdAt: Date
-  updatedAt: Date
+  totalSpent: number
+  featuredOutfits: string[]
+  featuredLookbook?: string | null
 } 

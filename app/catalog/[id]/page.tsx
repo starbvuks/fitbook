@@ -3,94 +3,103 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { ExternalLink, Trash2, ArrowLeft } from 'lucide-react'
-import type { ClothingItem, Outfit } from '@/app/models/types'
-import ColorPalette from '@/app/components/ColorPalette'
-import Link from 'next/link'
+import { ArrowLeft, Edit, Trash2, ExternalLink, ShoppingCart, BookmarkPlus } from 'lucide-react'
+import type { ClothingItem, Currency } from '@/app/models/types'
+import { formatPrice } from '@/lib/utils'
+import LoadingSpinner from '@/app/components/LoadingSpinner'
 
-export default function ItemPage({ params }: { params: { id: string } }) {
+export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [item, setItem] = useState<ClothingItem | null>(null)
-  const [relatedOutfits, setRelatedOutfits] = useState<Outfit[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currency, setCurrency] = useState<Currency>('USD')
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch('/api/profile')
+        if (!response.ok) throw new Error('Failed to fetch user profile')
+        const data = await response.json()
+        setCurrency(data.currency || 'USD')
+      } catch (error) {
+        console.error('Error fetching user profile:', error)
+        setCurrency('USD')
+      }
+    }
+
     const fetchItem = async () => {
       try {
         setLoading(true)
-        const [itemResponse, outfitsResponse] = await Promise.all([
-          fetch(`/api/items/${params.id}`),
-          fetch(`/api/outfits?itemId=${params.id}`)
-        ])
-
-        if (!itemResponse.ok) throw new Error('Failed to fetch item')
-        if (!outfitsResponse.ok) throw new Error('Failed to fetch outfits')
-
-        const [itemData, outfitsData] = await Promise.all([
-          itemResponse.json(),
-          outfitsResponse.json()
-        ])
-
-        setItem(itemData)
-        setRelatedOutfits(outfitsData)
+        setError(null)
+        const response = await fetch(`/api/items/${params.id}`)
+        if (!response.ok) throw new Error('Failed to fetch item')
+        const data = await response.json()
+        setItem(data)
       } catch (error) {
         console.error('Error fetching item:', error)
-        setError(error instanceof Error ? error.message : 'Failed to load item')
+        setError('Failed to load item details')
       } finally {
         setLoading(false)
       }
     }
 
+    fetchUserProfile()
     fetchItem()
   }, [params.id])
+
+  const handleToggleOwnership = async () => {
+    if (!item || isUpdating) return
+
+    setIsUpdating(true)
+    try {
+      const response = await fetch(`/api/items/${item.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isOwned: !item.isOwned }),
+      })
+
+      if (!response.ok) throw new Error('Failed to update item')
+      const updatedItem = await response.json()
+      setItem(updatedItem)
+    } catch (error) {
+      console.error('Error updating item:', error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this item?')) return
 
     try {
       const response = await fetch(`/api/items/${params.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       })
 
       if (!response.ok) throw new Error('Failed to delete item')
-
       router.push('/catalog')
     } catch (error) {
       console.error('Error deleting item:', error)
-      setError(error instanceof Error ? error.message : 'Failed to delete item')
+      alert('Failed to delete item')
     }
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen pt-16 bg-background-soft">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="animate-pulse">
-            <div className="h-8 w-48 bg-background-softer rounded mb-4" />
-            <div className="aspect-square w-full bg-background-softer rounded-lg mb-6" />
-            <div className="space-y-4">
-              <div className="h-4 w-3/4 bg-background-softer rounded" />
-              <div className="h-4 w-1/2 bg-background-softer rounded" />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner text="Loading item details..." />
   }
 
   if (error || !item) {
     return (
       <div className="min-h-screen pt-16 bg-background-soft">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="text-center">
-            <h2 className="text-xl font-medium mb-2">Error</h2>
-            <p className="text-foreground-soft mb-4">{error || 'Item not found'}</p>
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="text-center py-12">
+            <p className="text-red-500 mb-4">{error || 'Item not found'}</p>
             <button
               onClick={() => router.back()}
-              className="inline-flex items-center text-accent-purple hover:text-accent-purple-dark"
+              className="px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
             </button>
           </div>
@@ -101,38 +110,20 @@ export default function ItemPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen pt-16 bg-background-soft">
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center text-foreground-soft hover:text-foreground"
+            className="p-2 rounded-lg hover:bg-background transition-colors"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Catalog
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <div className="flex items-center gap-4">
-            <Link
-              href={`/catalog/${params.id}/edit`}
-              className="px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
-            >
-              Edit Item
-            </Link>
-            <button
-              onClick={handleDelete}
-              className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-              title="Delete Item"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          </div>
+          <h1 className="text-3xl font-display font-bold">{item.name}</h1>
         </div>
 
-        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Image and Colors */}
           <div className="space-y-6">
-            <div className="relative aspect-square rounded-lg overflow-hidden bg-background">
+            <div className="aspect-square relative rounded-xl overflow-hidden border border-border">
               {item.images[0] ? (
                 <Image
                   src={item.images[0].url}
@@ -141,152 +132,170 @@ export default function ItemPage({ params }: { params: { id: string } }) {
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-foreground-soft">
+                <div className="w-full h-full bg-background-soft flex items-center justify-center text-foreground-soft">
                   No Image
                 </div>
               )}
-              {item.purchaseUrl && (
-                <a
-                  href={item.purchaseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute top-4 right-4 p-2 bg-background/90 rounded-full hover:bg-background transition-colors"
-                  title="Purchase Link"
-                >
-                  <ExternalLink className="w-5 h-5" />
-                </a>
-              )}
             </div>
 
-            {item.images[0]?.colors && item.images[0].colors.length > 0 && (
-              <div className="p-6 bg-background rounded-lg border border-border">
-                <h3 className="text-lg font-medium mb-4">Color Palette</h3>
-                <ColorPalette colors={item.images[0].colors} readonly />
+            {item.images.length > 1 && (
+              <div className="grid grid-cols-4 gap-4">
+                {item.images.slice(1).map((image) => (
+                  <div
+                    key={image.id}
+                    className="aspect-square relative rounded-lg overflow-hidden border border-border"
+                  >
+                    <Image
+                      src={image.url}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Right Column - Details */}
-          <div className="space-y-6">
-            <div className="p-6 bg-background rounded-lg border border-border">
-              <h1 className="text-2xl font-medium mb-4">{item.name}</h1>
-              
-              <dl className="space-y-4">
+          <div className="space-y-8">
+            <div className="bg-background rounded-xl border border-border p-6 space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <dt className="text-sm text-foreground-soft">Category</dt>
-                  <dd className="mt-1 text-lg capitalize">{item.category}</dd>
+                  <p className="text-2xl font-medium">
+                    {formatPrice(item.price, currency)}
+                  </p>
+                  <p className="text-foreground-soft capitalize">{item.category}</p>
                 </div>
-
-                {item.brand && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Brand</dt>
-                    <dd className="mt-1">{item.brand}</dd>
-                  </div>
-                )}
-
-                <div>
-                  <dt className="text-sm text-foreground-soft">Price</dt>
-                  <dd className="mt-1">{item.price}</dd>
-                </div>
-
-                {item.size && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Size</dt>
-                    <dd className="mt-1">{item.size}</dd>
-                  </div>
-                )}
-
-                {item.material && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Material</dt>
-                    <dd className="mt-1">{item.material}</dd>
-                  </div>
-                )}
-
-                {item.condition && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Condition</dt>
-                    <dd className="mt-1 capitalize">{item.condition}</dd>
-                  </div>
-                )}
-
-                {item.seasons.length > 0 && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Seasons</dt>
-                    <dd className="mt-1 flex flex-wrap gap-2">
-                      {item.seasons.map(season => (
-                        <span
-                          key={season}
-                          className="px-2 py-1 text-sm bg-background-soft rounded-full capitalize"
-                        >
-                          {season}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
-                )}
-
-                {item.occasions.length > 0 && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Occasions</dt>
-                    <dd className="mt-1 flex flex-wrap gap-2">
-                      {item.occasions.map(occasion => (
-                        <span
-                          key={occasion}
-                          className="px-2 py-1 text-sm bg-background-soft rounded-full capitalize"
-                        >
-                          {occasion}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
-                )}
-
-                {item.tags.length > 0 && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Tags</dt>
-                    <dd className="mt-1 flex flex-wrap gap-2">
-                      {item.tags.map(tag => (
-                        <span
-                          key={tag}
-                          className="px-2 py-1 text-sm bg-background-soft rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
-                )}
-
-                {item.notes && (
-                  <div>
-                    <dt className="text-sm text-foreground-soft">Notes</dt>
-                    <dd className="mt-1 text-foreground-soft">{item.notes}</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
-
-            {/* Related Outfits */}
-            {relatedOutfits.length > 0 && (
-              <div className="p-6 bg-background rounded-lg border border-border">
-                <h3 className="text-lg font-medium mb-4">Used in Outfits</h3>
-                <div className="space-y-4">
-                  {relatedOutfits.map(outfit => (
-                    <Link
-                      key={outfit.id}
-                      href={`/outfits/${outfit.id}`}
-                      className="block p-4 bg-background-soft rounded-lg hover:bg-background-softer transition-colors"
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleToggleOwnership}
+                    disabled={isUpdating}
+                    className={`p-2 rounded-lg transition-colors ${
+                      item.isOwned
+                        ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                        : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                    }`}
+                    title={item.isOwned ? 'Owned' : 'Want to Buy'}
+                  >
+                    {item.isOwned ? (
+                      <ShoppingCart className="w-5 h-5" />
+                    ) : (
+                      <BookmarkPlus className="w-5 h-5" />
+                    )}
+                  </button>
+                  {item.purchaseUrl && (
+                    <a
+                      href={item.purchaseUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg hover:bg-background-soft transition-colors"
+                      title="Purchase Link"
                     >
-                      <h4 className="font-medium mb-1">{outfit.name}</h4>
-                      <p className="text-sm text-foreground-soft">
-                        {outfit.items.length} items • Created {new Date(outfit.createdAt).toLocaleDateString()}
-                      </p>
-                    </Link>
-                  ))}
+                      <ExternalLink className="w-5 h-5" />
+                    </a>
+                  )}
+                  <button
+                    onClick={() => router.push(`/catalog/${item.id}/edit`)}
+                    className="p-2 rounded-lg hover:bg-background-soft transition-colors"
+                    title="Edit Item"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="p-2 rounded-lg hover:bg-red-100 hover:text-red-600 transition-colors"
+                    title="Delete Item"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
-            )}
+
+              {item.brand && (
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Brand</h3>
+                  <p>{item.brand}</p>
+                </div>
+              )}
+
+              {item.size && (
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Size</h3>
+                  <p>{item.size}</p>
+                </div>
+              )}
+
+              {item.material && (
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Material</h3>
+                  <p>{item.material}</p>
+                </div>
+              )}
+
+              {item.condition && (
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Condition</h3>
+                  <p>{item.condition}</p>
+                </div>
+              )}
+
+              {item.notes && (
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Notes</h3>
+                  <p className="whitespace-pre-wrap">{item.notes}</p>
+                </div>
+              )}
+
+              {item.tags.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.map((tag) => (
+                      <span
+                        key={tag.name}
+                        className="px-3 py-1 bg-background-soft rounded-full text-sm"
+                      >
+                        {tag.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Seasons */}
+              {item.seasons.length > 0 && (
+                <div className="border-t border-border pt-4">
+                  <h3 className="text-sm font-medium mb-2">Seasons</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {item.seasons.map((season) => (
+                      <span
+                        key={season.id}
+                        className="px-3 py-1 bg-background-soft rounded-full text-sm"
+                      >
+                        {season.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Occasions */}
+              {item.occasions.length > 0 && (
+                <div className="border-t border-border pt-4">
+                  <h3 className="text-sm font-medium mb-2">Occasions</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {item.occasions.map((occasion) => (
+                      <span
+                        key={occasion.id}
+                        className="px-3 py-1 bg-background-soft rounded-full text-sm"
+                      >
+                        {occasion.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

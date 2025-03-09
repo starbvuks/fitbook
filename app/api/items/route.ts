@@ -31,6 +31,22 @@ const createItemSchema = z.object({
   })).optional().default([]),
 })
 
+const updateItemSchema = z.object({
+  name: z.string().min(1, "Name is required").optional(),
+  category: z.enum(['tops', 'bottoms', 'dresses', 'outerwear', 'shoes', 'accessories']).optional(),
+  brand: z.string().nullable().optional(),
+  price: z.number().nullable().optional(),
+  purchaseUrl: z.string().url().nullable().optional(),
+  size: z.string().nullable().optional(),
+  material: z.string().nullable().optional(),
+  condition: z.string().nullable().optional(),
+  isOwned: z.boolean().optional(),
+  seasons: z.array(z.string()).optional(),
+  occasions: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  notes: z.string().nullable().optional(),
+})
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -131,11 +147,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
     const search = searchParams.get('search')
+    const isOwned = searchParams.get('isOwned')
+    const minPrice = searchParams.get('minPrice')
+    const maxPrice = searchParams.get('maxPrice')
 
     const items = await prisma.wardrobeItem.findMany({
       where: {
         userId: session.user.id,
         ...(category && { category }),
+        ...(isOwned !== null && { isOwned: isOwned === 'true' }),
+        ...(minPrice && { price: { gte: parseFloat(minPrice) } }),
+        ...(maxPrice && { price: { lte: parseFloat(maxPrice) } }),
         ...(search && {
           OR: [
             { name: { contains: search, mode: 'insensitive' } },
@@ -164,6 +186,103 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching items:', error)
     return NextResponse.json(
       { error: 'Failed to fetch items' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+
+    const data = updateItemSchema.parse(body)
+    const itemId = request.url.split('/').pop()
+
+    if (!itemId) {
+      return NextResponse.json({ error: 'Item ID is required' }, { status: 400 })
+    }
+
+    // Verify item ownership
+    const existingItem = await prisma.wardrobeItem.findFirst({
+      where: {
+        id: itemId,
+        userId: session.user.id,
+      },
+    })
+
+    if (!existingItem) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 })
+    }
+
+    // Transform the data to match Prisma's expected types
+    const updateData = {
+      ...(data.name !== undefined && { name: data.name }),
+      ...(data.category !== undefined && { category: data.category }),
+      ...(data.brand !== undefined && { brand: data.brand }),
+      ...(data.price !== undefined && { price: data.price ?? 0 }), // Convert null to 0
+      ...(data.purchaseUrl !== undefined && { purchaseUrl: data.purchaseUrl }),
+      ...(data.size !== undefined && { size: data.size }),
+      ...(data.material !== undefined && { material: data.material }),
+      ...(data.condition !== undefined && { condition: data.condition }),
+      ...(data.isOwned !== undefined && { isOwned: data.isOwned }),
+      ...(data.notes !== undefined && { notes: data.notes }),
+      ...(data.seasons !== undefined && {
+        seasons: {
+          set: [], // Clear existing connections
+          connectOrCreate: data.seasons.map(season => ({
+            where: { name: season },
+            create: { name: season },
+          })),
+        },
+      }),
+      ...(data.occasions !== undefined && {
+        occasions: {
+          set: [], // Clear existing connections
+          connectOrCreate: data.occasions.map(occasion => ({
+            where: { name: occasion },
+            create: { name: occasion },
+          })),
+        },
+      }),
+      ...(data.tags !== undefined && {
+        tags: {
+          set: [], // Clear existing connections
+          connectOrCreate: data.tags.map(tag => ({
+            where: { name: tag },
+            create: { name: tag },
+          })),
+        },
+      }),
+    }
+
+    const updatedItem = await prisma.wardrobeItem.update({
+      where: { id: itemId },
+      data: updateData,
+      include: {
+        images: {
+          include: {
+            colors: true,
+          },
+        },
+        tags: true,
+        seasons: true,
+        occasions: true,
+      },
+    })
+
+    return NextResponse.json(updatedItem)
+  } catch (error) {
+    console.error('Error updating item:', error)
+    return NextResponse.json(
+      { error: 'Failed to update item' },
       { status: 500 }
     )
   }
