@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import Image from 'next/image'
-import { X, Download, Save } from 'lucide-react'
-import type { ClothingItem, Currency } from '@/app/models/types'
+import { X, Download, Save, ShoppingCart, BookmarkPlus } from 'lucide-react'
+import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
 
 type ClothingItemWithPosition = ClothingItem & { position?: string }
@@ -17,8 +17,18 @@ export interface OutfitBuilderProps {
   onAddAccessory: (item: ClothingItemWithPosition) => void
   onRemoveAccessory: (index: number) => void
   currency: Currency
-  onSave: () => void
+  onSave: (name: string) => Promise<void>
   isSaving: boolean
+  initialName?: string
+  initialDescription?: string
+  initialSeasons?: Season[]
+  initialOccasions?: Occasion[]
+  initialTags?: string[]
+  onNameChange?: (name: string) => void
+  onDescriptionChange?: (description: string) => void
+  onSeasonsChange?: (seasons: Season[]) => void
+  onOccasionsChange?: (occasions: Occasion[]) => void
+  onTagsChange?: (tags: string[]) => void
 }
 
 const SLOT_LABELS = {
@@ -38,9 +48,46 @@ export default function OutfitBuilder({
   onRemoveAccessory,
   currency,
   onSave,
-  isSaving
+  isSaving,
+  initialName = '',
+  initialDescription = '',
+  initialSeasons = [],
+  initialOccasions = [],
+  initialTags = [],
+  onNameChange,
+  onDescriptionChange,
+  onSeasonsChange,
+  onOccasionsChange,
+  onTagsChange
 }: OutfitBuilderProps) {
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null)
+  const [outfitName, setOutfitName] = useState(initialName)
+  const [description, setDescription] = useState(initialDescription)
+  const [seasons, setSeasons] = useState<Season[]>(initialSeasons)
+  const [occasions, setOccasions] = useState<Occasion[]>(initialOccasions)
+  const [tags, setTags] = useState<string[]>(initialTags)
+  const [error, setError] = useState<string | null>(null)
+
+  // Update parent state when local state changes
+  useEffect(() => {
+    if (onNameChange) onNameChange(outfitName)
+  }, [outfitName, onNameChange])
+
+  useEffect(() => {
+    if (onDescriptionChange) onDescriptionChange(description)
+  }, [description, onDescriptionChange])
+
+  useEffect(() => {
+    if (onSeasonsChange) onSeasonsChange(seasons)
+  }, [seasons, onSeasonsChange])
+
+  useEffect(() => {
+    if (onOccasionsChange) onOccasionsChange(occasions)
+  }, [occasions, onOccasionsChange])
+
+  useEffect(() => {
+    if (onTagsChange) onTagsChange(tags)
+  }, [tags, onTagsChange])
 
   const [{ isOver }, dropRef] = useDrop<ClothingItemWithPosition, void, { isOver: boolean }>(() => ({
     accept: 'CLOTHING_ITEM',
@@ -90,6 +137,101 @@ export default function OutfitBuilder({
     .reduce((sum, item) => sum + (item?.price || 0), 0) +
     accessories.reduce((sum, item) => sum + item.price, 0)
 
+  const ItemDisplay = ({ item, onRemove, isAccessory = false }: { 
+    item: ClothingItem
+    onRemove: () => void
+    isAccessory?: boolean 
+  }) => (
+    <div className="relative h-full group">
+      <div className={`flex h-full ${isAccessory ? 'w-full' : ''}`}>
+        {/* Image container */}
+        <div className={`relative ${isAccessory ? 'w-full h-full' : 'w-[100px] h-[100px] flex-shrink-0'}`}>
+          <Image
+            src={item.images[0].url}
+            alt={item.name}
+            fill
+            className={`object-cover ${isAccessory ? 'rounded-lg' : 'rounded-l-lg'}`}
+          />
+        </div>
+        
+        {isAccessory ? (
+          // Simple accessory hover overlay
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+            <div className="text-center px-2">
+              <p className="text-white text-xs font-medium line-clamp-2">{item.name}</p>
+              <p className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</p>
+            </div>
+            <button
+              onClick={onRemove}
+              className="absolute top-1 right-1 btn btn-ghost h-6 w-6 p-0 bg-black/40 hover:bg-black/60"
+            >
+              <X className="w-3 h-3 text-white" />
+            </button>
+          </div>
+        ) : (
+          // Main item details - always visible
+          <div className="flex-1 bg-background-soft/80 p-2 rounded-r-lg">
+            <div className="flex flex-col h-full group-hover:bg-background-soft transition-colors duration-200 rounded-r-lg p-2">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0"> {/* min-w-0 ensures truncation works */}
+                  <h4 className="text-sm font-medium truncate">{item.name}</h4>
+                  {item.brand && (
+                    <p className="text-xs text-foreground-soft truncate">{item.brand}</p>
+                  )}
+                </div>
+                <button
+                  onClick={onRemove}
+                  className="ml-2 btn btn-ghost h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="mt-auto flex items-center justify-between text-xs">
+                <span className="text-foreground-soft">{formatPrice(item.price, currency)}</span>
+                {item.isOwned ? (
+                  <div className="flex items-center gap-1 text-green-600">
+                    <ShoppingCart className="w-3 h-3" />
+                    <span>Owned</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 text-blue-600">
+                    <BookmarkPlus className="w-3 h-3" />
+                    <span>Want</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+
+  const handleSave = async () => {
+    // Reset error state
+    setError(null)
+
+    // Validate outfit name
+    if (!outfitName.trim()) {
+      setError('Please give your outfit a name')
+      return
+    }
+
+    // Check if at least one item is added
+    const hasMainItem = Object.values(slots).some(item => item !== null)
+    if (!hasMainItem) {
+      setError('Add at least one clothing item to your outfit')
+      return
+    }
+
+    // If validation passes, call onSave with the outfit name
+    try {
+      await onSave(outfitName.trim())
+    } catch (err) {
+      setError('Failed to save outfit. Please try again.')
+    }
+  }
+
   return (
     <div 
       ref={dropRef as any}
@@ -97,100 +239,204 @@ export default function OutfitBuilder({
       onMouseLeave={() => setHoveredSlot(null)}
     >
       <div className="flex items-center justify-between p-5 border-b border-border">
-        <h2 className="text-lg font-semibold">Outfit Builder</h2>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium">{formatPrice(totalCost, currency)}</span>
-          <button
-            className="btn btn-ghost h-8 w-8 p-0"
-            title="Download Outfit Image"
-          >
-            <Download className="w-4 h-4" />
-          </button>
-          <button
-            className="btn btn-primary h-8 w-8 p-0"
-            title="Save Outfit"
-          >
-            <Save className="w-4 h-4" />
-          </button>
+        <div className="flex-1 flex items-center gap-4">
+          <input
+            type="text"
+            value={outfitName}
+            onChange={(e) => setOutfitName(e.target.value)}
+            placeholder="Enter outfit name..."
+            className="text-2xl font-display font-bold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none transition-colors w-72 placeholder:text-muted-foreground"
+          />
         </div>
+        <div className="flex items-center gap-2 text-foreground-soft mr-10">
+          <span className="text-sm font-medium">Total Cost:</span>
+          <span className="text-lg font-semibold text-foreground">
+            {formatPrice(totalCost, currency)}
+          </span>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="flex items-center text-sm gap-2 px-3 py-2 ml-3 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors disabled:opacity-50"
+        >
+          <Save className="w-4 h-4" />
+          {isSaving ? 'Saving...' : 'Save'}
+        </button>
       </div>
 
-      <div className="flex-1 p-4 ">
-        <div className="grid h-full ">
+      <div className="flex-1 overflow-y-auto p-5">
+        {/* Outfit slots */}
+        <div className="space-y-4">
           {Object.entries(SLOT_LABELS).map(([slot, label]) => (
-            <div key={slot} className="grid grid-cols-[2fr_120px] gap-3 h-[120px]">
-              {/* Main Item Slot */}
-              <div className='mt-1.5'>
-                <div className={`h-[100px] rounded-lg border border-dashed ${
-                  isOver && hoveredSlot === slot ? 'border-primary bg-primary/5' : 'border-border/50'
-                } overflow-hidden ${
-                  !slots[slot] ? 'bg-muted/50 flex items-center justify-center' : ''
-                }`}>
-                  {slots[slot] ? (
-                    <div className="relative h-full group">
-                      <Image
-                        src={slots[slot]!.images[0].url}
-                        alt={slots[slot]!.name}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="absolute bottom-0 left-0 right-0 p-2 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/80 to-transparent">
-                        {slots[slot]!.name}
-                      </div>
-                      <button
-                        onClick={() => onRemoveItem(slot)}
-                        className="absolute top-1 right-1 btn btn-ghost h-6 w-6 p-0 bg-black/40 hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3 text-white" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground/75 px-4 text-center">
-                      <span className="block text-xs">{label.toLowerCase()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Companion Accessory Slot */}
-              <div>
-                
-                <div className={`h-[100px] mt-1.5 rounded-lg border border-dashed ${
-                  isOver && hoveredSlot === `${slot}_accessory` ? 'border-primary bg-primary/5' : 'border-border/30'
-                } overflow-hidden ${
-                  !accessories.find(acc => acc.position === slot) ? 'bg-muted/30 flex items-center justify-center' : ''
-                }`}>
-                  {accessories.find(acc => acc.position === slot) ? (
-                    <div className="relative h-full group">
-                      <Image
-                        src={accessories.find(acc => acc.position === slot)!.images[0].url}
-                        alt={accessories.find(acc => acc.position === slot)!.name}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="absolute bottom-0 left-0 right-0 p-2 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/80 to-transparent">
-                        {accessories.find(acc => acc.position === slot)!.name}
-                      </div>
-                      <button
-                        onClick={() => onRemoveAccessory(accessories.findIndex(acc => acc.position === slot))}
-                        className="absolute top-1 right-1 btn btn-ghost h-6 w-6 p-0 bg-black/40 hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3 text-white" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="text-xs text-muted-foreground/50 px-2 text-center">
-                      <span className="block">Add accessory</span>
-                    </div>
-                  )}
-                </div>
+            <div key={slot} className="relative">
+              <div className="text-sm font-medium mb-2">{label}</div>
+              <div
+                className={`h-[100px] rounded-lg border-2 transition-colors ${
+                  hoveredSlot === slot
+                    ? 'border-accent-purple bg-accent-purple/10'
+                    : slots[slot]
+                    ? 'border-border bg-background'
+                    : 'border-dashed border-border bg-background-soft'
+                }`}
+              >
+                {slots[slot] ? (
+                  <ItemDisplay
+                    item={slots[slot]!}
+                    onRemove={() => onRemoveItem(slot)}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-foreground-soft">
+                    Drop item here
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
+
+        {/* Accessories */}
+        <div className="mt-6">
+          <div className="text-sm font-medium mb-2">Accessories</div>
+          <div className="grid grid-cols-2 gap-4">
+            {accessories.map((item, index) => (
+              <div key={index} className="h-[100px]">
+                <ItemDisplay
+                  item={item}
+                  onRemove={() => onRemoveAccessory(index)}
+                  isAccessory
+                />
+              </div>
+            ))}
+            <div
+              className={`h-[100px] rounded-lg border-2 border-dashed transition-colors ${
+                hoveredSlot?.endsWith('_accessory')
+                  ? 'border-accent-purple bg-accent-purple/10'
+                  : 'border-border bg-background-soft'
+              }`}
+            >
+              <div className="flex items-center justify-center h-full text-sm text-foreground-soft">
+                Drop accessory here
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Metadata */}
+        <div className="mt-6 space-y-6">
+          <div>
+            <h3 className="text-sm font-medium mb-2">Description</h3>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add a description for this outfit..."
+              className="w-full h-24 p-3 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple resize-none"
+            />
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium mb-2">Seasons</h3>
+            <div className="flex flex-wrap gap-2">
+              {(['spring', 'summer', 'fall', 'winter'] as SeasonName[]).map((season) => (
+                <button
+                  key={season}
+                  onClick={() => {
+                    const isSelected = seasons.some(s => s.name === season)
+                    setSeasons(prev => 
+                      isSelected 
+                        ? prev.filter(s => s.name !== season)
+                        : [...prev, { id: season, name: season }]
+                    )
+                  }}
+                  className={`px-3 py-1 rounded-full text-sm capitalize transition-colors ${
+                    seasons.some(s => s.name === season)
+                      ? 'bg-accent-purple text-white'
+                      : 'bg-accent-blue/10 text-foreground-soft hover:bg-background'
+                  }`}
+                >
+                  {season}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium mb-2">Occasions</h3>
+            <div className="flex flex-wrap gap-2">
+              {(['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding'] as OccasionName[]).map((occasion) => (
+                <button
+                  key={occasion}
+                  onClick={() => {
+                    const isSelected = occasions.some(o => o.name === occasion)
+                    setOccasions(prev => 
+                      isSelected 
+                        ? prev.filter(o => o.name !== occasion)
+                        : [...prev, { id: occasion, name: occasion }]
+                    )
+                  }}
+                  className={`px-3 py-1 rounded-full text-sm capitalize transition-colors ${
+                    occasions.some(o => o.name === occasion)
+                      ? 'bg-accent-purple text-white'
+                      : 'bg-accent-blue/10 text-foreground-soft hover:bg-background'
+                  }`}
+                >
+                  {occasion}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium mb-2">Tags</h3>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <div
+                    key={tag}
+                    className="px-3 py-1 rounded-full text-sm bg-accent-purple text-white flex items-center gap-1 group"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => setTags(prev => prev.filter(t => t !== tag))}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <input
+                type="text"
+                placeholder="Add tags (separate with commas)..."
+                className="w-full p-2 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                onKeyDown={(e) => {
+                  if (e.key === ',' || e.key === 'Enter') {
+                    e.preventDefault()
+                    const input = e.currentTarget
+                    const value = input.value.trim()
+                    if (value && !tags.includes(value)) {
+                      setTags(prev => [...prev, value])
+                      input.value = ''
+                    }
+                  }
+                }}
+                onBlur={(e) => {
+                  const value = e.target.value.trim()
+                  if (value && !tags.includes(value)) {
+                    setTags(prev => [...prev, value])
+                    e.target.value = ''
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
+
+      {error && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20">
+          {error}
+        </div>
+      )}
     </div>
   )
 } 

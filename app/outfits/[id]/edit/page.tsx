@@ -1,36 +1,39 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Save, Search, Filter } from 'lucide-react'
-import type { ClothingItem, Currency, Season, Occasion } from '@/app/models/types'
+import type { Outfit, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import OutfitBuilder from '@/app/components/OutfitBuilder'
+import { Search, Filter } from 'lucide-react'
 import DraggableItem from '@/app/components/DraggableItem'
 
-export default function CreateOutfitPage() {
+export default function EditOutfitPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const router = useRouter()
+  const [outfit, setOutfit] = useState<Outfit | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [currency, setCurrency] = useState<Currency>('USD')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [outfitSlots, setOutfitSlots] = useState<Record<string, ClothingItem | null>>({
+  const [outfitSlots, setOutfitSlots] = useState<Record<string, any | null>>({
     headwear: null,
     top: null,
     outerwear: null,
     bottom: null,
     shoes: null
   })
-  const [accessories, setAccessories] = useState<ClothingItem[]>([])
-  const [availableItems, setAvailableItems] = useState<ClothingItem[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [accessories, setAccessories] = useState<any[]>([])
   const [selectedSeasons, setSelectedSeasons] = useState<Season[]>([])
   const [selectedOccasions, setSelectedOccasions] = useState<Occasion[]>([])
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [currency, setCurrency] = useState<Currency>('USD')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [availableItems, setAvailableItems] = useState<any[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,83 +41,109 @@ export default function CreateOutfitPage() {
         setLoading(true)
         setError(null)
 
-        const [profileResponse, itemsResponse] = await Promise.all([
+        const [profileResponse, outfitResponse] = await Promise.all([
           fetch('/api/profile'),
-          fetch('/api/items')
+          fetch(`/api/outfits/${resolvedParams.id}`)
         ])
 
         if (!profileResponse.ok) throw new Error('Failed to fetch profile')
         const profileData = await profileResponse.json()
         setCurrency(profileData.currency || 'USD')
 
+        if (!outfitResponse.ok) throw new Error('Failed to fetch outfit')
+        const outfitData = await outfitResponse.json()
+        setOutfit(outfitData)
+        setName(outfitData.name)
+        setDescription(outfitData.description || '')
+        setSelectedSeasons(outfitData.seasons || [])
+        setSelectedOccasions(outfitData.occasions || [])
+        setSelectedTags(outfitData.tags?.map((t: any) => t.name) || [])
+
+        // Set up outfit slots and accessories
+        const slots: Record<string, any | null> = {
+          headwear: null,
+          top: null,
+          outerwear: null,
+          bottom: null,
+          shoes: null
+        }
+        const accessoryItems: any[] = []
+
+        outfitData.items.forEach((item: any) => {
+          if (item.position.startsWith('accessory_')) {
+            accessoryItems.push(item.wardrobeItem)
+          } else {
+            slots[item.position] = item.wardrobeItem
+          }
+        })
+
+        setOutfitSlots(slots)
+        setAccessories(accessoryItems)
+
+        // Fetch available items
+        const itemsResponse = await fetch('/api/items')
         if (!itemsResponse.ok) throw new Error('Failed to fetch items')
         const itemsData = await itemsResponse.json()
         setAvailableItems(itemsData)
       } catch (error) {
         console.error('Error fetching data:', error)
-        setError(error instanceof Error ? error.message : 'Failed to load data')
+        setError(error instanceof Error ? error.message : 'Failed to load outfit')
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
-  }, [])
+  }, [resolvedParams.id])
 
-  const handleSave = async (outfitName: string) => {
-    if (!outfitName.trim()) {
-      setError('Please enter an outfit name')
-      return
-    }
-
-    const items = [
-      ...Object.entries(outfitSlots)
-        .filter(([_, item]) => item !== null)
-        .map(([slot, item]) => ({
-          wardrobeItemId: item!.id,
-          position: slot
-        })),
-      ...accessories.map((item, index) => ({
-        wardrobeItemId: item.id,
-        position: `accessory_${index}`
-      }))
-    ]
-
-    if (items.length === 0) {
-      setError('Please add at least one item to your outfit')
-      return
-    }
-
+  const handleSave = async (name: string) => {
+    if (!outfit || saving) return
     setSaving(true)
     setError(null)
 
     try {
-      const response = await fetch('/api/outfits', {
-        method: 'POST',
+      const items = [
+        ...Object.entries(outfitSlots)
+          .filter(([_, item]) => item !== null)
+          .map(([slot, item]) => ({
+            wardrobeItemId: item.id,
+            position: slot
+          })),
+        ...accessories.map((item, index) => ({
+          wardrobeItemId: item.id,
+          position: `accessory_${index}`
+        }))
+      ]
+
+      if (items.length === 0) {
+        setError('Please add at least one item to your outfit')
+        return
+      }
+
+      const response = await fetch(`/api/outfits/${outfit.id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: outfitName.trim(),
+          name,
           description,
           items,
-          seasons: selectedSeasons,
-          occasions: selectedOccasions
+          seasons: selectedSeasons.map(season => ({ name: season.name })),
+          occasions: selectedOccasions.map(occasion => ({ name: occasion.name })),
+          tags: selectedTags.map(tag => ({ name: tag }))
         })
       })
 
-      if (!response.ok) throw new Error('Failed to create outfit')
-      
-      // After successful save, redirect to /outfits
-      router.push('/outfits')
+      if (!response.ok) throw new Error('Failed to update outfit')
+      router.push(`/outfits/${outfit.id}`)
     } catch (error) {
-      console.error('Error creating outfit:', error)
-      setError(error instanceof Error ? error.message : 'Failed to create outfit')
-      throw error // Re-throw the error so OutfitBuilder knows the save failed
+      console.error('Error updating outfit:', error)
+      setError(error instanceof Error ? error.message : 'Failed to update outfit')
     } finally {
       setSaving(false)
     }
   }
 
-  const handleAddItem = (item: ClothingItem, slot: string) => {
+  const handleAddItem = (item: any, slot: string) => {
     setOutfitSlots(prev => ({
       ...prev,
       [slot]: item
@@ -128,7 +157,7 @@ export default function CreateOutfitPage() {
     }))
   }
 
-  const handleAddAccessory = (item: ClothingItem) => {
+  const handleAddAccessory = (item: any) => {
     setAccessories(prev => [...prev, item])
   }
 
@@ -143,6 +172,12 @@ export default function CreateOutfitPage() {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
     return matchesSearch && matchesCategory
   })
+
+  if (loading) return (
+    <div className="min-h-screen pt-16 bg-background flex items-center justify-center">
+      <LoadingSpinner text="Loading outfit..." />
+    </div>
+  )
 
   if (error) {
     return (
@@ -162,14 +197,15 @@ export default function CreateOutfitPage() {
     )
   }
 
+  if (!outfit) return null
+
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen pt-16 bg-background">
-        <div className="max-w-7xl mx-auto p-6">
+    <div className="min-h-screen pt-16 bg-background">
+      <div className="max-w-7xl mx-auto p-6">
+        <DndProvider backend={HTML5Backend}>
           <div className="grid grid-cols-[2fr_3fr] gap-6">
             {/* Left Column - Catalog */}
             <div>
-
               <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-11rem)]">
                 <div className="p-4 border-b border-border">
                   <h2 className="text-lg font-semibold mb-3">Available Items</h2>
@@ -224,7 +260,7 @@ export default function CreateOutfitPage() {
             </div>
 
             {/* Right Column - Outfit Builder */}
-            <div className="bg-card rounded-xl border border-border shadow-soft h-[calc(100vh-6rem)]">
+            <div className="bg-card rounded-xl border border-border shadow-soft h-[calc(100vh-11rem)]">
               <OutfitBuilder
                 slots={outfitSlots}
                 onAddItem={handleAddItem}
@@ -235,17 +271,27 @@ export default function CreateOutfitPage() {
                 currency={currency}
                 onSave={handleSave}
                 isSaving={saving}
+                initialName={name}
+                initialDescription={description}
+                initialSeasons={selectedSeasons}
+                initialOccasions={selectedOccasions}
+                initialTags={selectedTags}
+                onNameChange={setName}
+                onDescriptionChange={setDescription}
+                onSeasonsChange={setSelectedSeasons}
+                onOccasionsChange={setSelectedOccasions}
+                onTagsChange={setSelectedTags}
               />
             </div>
           </div>
+        </DndProvider>
 
-          {error && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20">
-              {error}
-            </div>
-          )}
-        </div>
+        {error && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20">
+            {error}
+          </div>
+        )}
       </div>
-    </DndProvider>
+    </div>
   )
 } 

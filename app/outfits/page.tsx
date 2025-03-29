@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useToast } from '@/components/ui/use-toast'
 import { 
   Plus, 
   Filter, 
@@ -13,14 +14,30 @@ import {
   Heart,
   Calendar,
   Tag,
-  DollarSign
+  DollarSign,
+  Pencil,
+  Trash2
 } from 'lucide-react'
-import type { Outfit, Season, Occasion, Currency } from '@/app/models/types'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import type { Outfit, Season, Occasion, Currency, ClothingItem } from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
-import { formatCurrency } from '@/lib/currency'
+import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
+import PriceRangeSlider from '@/app/components/PriceRangeSlider'
+import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 
 export default function OutfitsPage() {
+  const { toast } = useToast()
   const [outfits, setOutfits] = useState<Outfit[]>([])
   const [seasons, setSeasons] = useState<Season[]>([])
   const [occasions, setOccasions] = useState<Occasion[]>([])
@@ -30,9 +47,33 @@ export default function OutfitsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSeason, setSelectedSeason] = useState<string>('all')
   const [selectedOccasion, setSelectedOccasion] = useState<string>('all')
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number | null }>({ min: 0, max: null })
   const [sortBy, setSortBy] = useState<'recent' | 'price' | 'rating'>('recent')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch('/api/profile')
+        if (!response.ok) {
+          throw new Error('Failed to fetch user profile')
+        }
+        const data = await response.json()
+        const userCurrency = data.currency || 'USD'
+        setCurrency(userCurrency)
+        const maxPrice = await getMaxPriceForCurrency(userCurrency)
+        setPriceRange(prev => ({
+          min: prev.min,
+          max: maxPrice
+        }))
+      } catch (error) {
+        console.error('Error fetching user profile:', error)
+        setCurrency('USD')
+      }
+    }
+
+    fetchUserProfile()
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +93,7 @@ export default function OutfitsPage() {
 
         if (!outfitsResponse.ok) throw new Error('Failed to fetch outfits')
         const outfitsData = await outfitsResponse.json()
-        setOutfits(outfitsData.outfits || []) // Handle the case where outfits might be nested
+        setOutfits(outfitsData.outfits || [])
 
         // Only fetch seasons and occasions if we have outfits
         if (outfitsData.outfits?.length > 0) {
@@ -87,7 +128,8 @@ export default function OutfitsPage() {
       outfit.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
     const matchesSeason = selectedSeason === 'all' || outfit.seasons.some(s => s.name === selectedSeason)
     const matchesOccasion = selectedOccasion === 'all' || outfit.occasions.some(o => o.name === selectedOccasion)
-    const matchesPrice = outfit.totalCost >= priceRange[0] && outfit.totalCost <= priceRange[1]
+    const matchesPrice = (!priceRange.min || outfit.totalCost >= priceRange.min) &&
+      (!priceRange.max || outfit.totalCost <= priceRange.max)
     return matchesSearch && matchesSeason && matchesOccasion && matchesPrice
   }).sort((a, b) => {
     switch (sortBy) {
@@ -103,18 +145,47 @@ export default function OutfitsPage() {
 
   const handleShare = async (outfit: Outfit) => {
     try {
-      await navigator.share({
-        title: outfit.name,
-        text: `Check out my outfit: ${outfit.name}`,
-        url: `${window.location.origin}/outfits/${outfit.id}`
+      const url = `${window.location.origin}/outfits/${outfit.id}`
+      await navigator.clipboard.writeText(url)
+      toast({
+        title: "Link copied!",
+        description: "The outfit URL has been copied to your clipboard.",
+        duration: 2000
       })
     } catch (error) {
       console.error('Error sharing:', error)
+      toast({
+        title: "Failed to copy link",
+        description: "Please try again.",
+        variant: "destructive",
+        duration: 2000
+      })
     }
   }
 
-  const handleDownload = async (outfit: Outfit) => {
-    // TODO: Implement outfit image download functionality
+  const handleDelete = async (outfit: Outfit) => {
+    try {
+      const response = await fetch(`/api/outfits/${outfit.id}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) throw new Error('Failed to delete outfit')
+      
+      setOutfits(outfits.filter(o => o.id !== outfit.id))
+      toast({
+        title: "Outfit deleted",
+        description: "The outfit has been successfully deleted.",
+        duration: 2000
+      })
+    } catch (error) {
+      console.error('Error deleting outfit:', error)
+      toast({
+        title: "Failed to delete outfit",
+        description: "Please try again.",
+        variant: "destructive",
+        duration: 2000
+      })
+    }
   }
 
   // Only show filters if we have outfits
@@ -141,236 +212,214 @@ export default function OutfitsPage() {
   return (
     <div className="min-h-screen pt-16 bg-background-soft">
       <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-display font-bold">My Outfits</h1>
-            <p className="text-foreground-soft">
-              {outfits.length > 0 
-                ? "Create and manage your outfit combinations"
-                : "Start creating your first outfit"}
-            </p>
-          </div>
-          <Link
-            href="/outfits/create"
-            className="flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            {outfits.length > 0 ? "Create Outfit" : "Create Your First Outfit"}
-          </Link>
-        </div>
-
-        {/* Only show filters if we have outfits */}
-        {showFilters && (
-          <div className="bg-background rounded-xl border border-border p-6 mb-6 space-y-4">
-            {/* Search and View Toggle */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-soft" />
-                <input
-                  type="text"
-                  placeholder="Search outfits..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                />
-              </div>
-              <div className="flex items-center gap-4">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'recent' | 'price' | 'rating')}
-                  className="px-4 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                >
-                  <option value="recent" className="dark:bg-neutral-900">Most Recent</option>
-                  <option value="price" className="dark:bg-neutral-900">Price</option>
-                  <option value="rating" className="dark:bg-neutral-900">Rating</option>
-                </select>
-                <div className="flex items-center gap-2 p-1 bg-background-soft rounded-lg border border-border">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-1 rounded ${viewMode === 'grid' ? 'bg-accent-purple text-white' : ''}`}
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="3" width="7" height="7" />
-                      <rect x="14" y="3" width="7" height="7" />
-                      <rect x="3" y="14" width="7" height="7" />
-                      <rect x="14" y="14" width="7" height="7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-1 rounded ${viewMode === 'list' ? 'bg-accent-purple text-white' : ''}`}
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="3" y1="6" x2="21" y2="6" />
-                      <line x1="3" y1="12" x2="21" y2="12" />
-                      <line x1="3" y1="18" x2="21" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Advanced Filters */}
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="w-5 h-5 text-foreground-soft" />
-                <select
-                  value={selectedSeason}
-                  onChange={(e) => setSelectedSeason(e.target.value)}
-                  className="px-4 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                >
-                  <option value="all" className="dark:bg-neutral-900">All Seasons</option>
-                  {seasons.map(season => (
-                    <option key={season.id} value={season.name} className="capitalize dark:bg-neutral-900">
-                      {season.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <select
-                value={selectedOccasion}
-                onChange={(e) => setSelectedOccasion(e.target.value)}
-                className="px-4 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple"
-              >
-                <option value="all" className="dark:bg-neutral-900">All Occasions</option>
-                {occasions.map(occasion => (
-                  <option key={occasion.id} value={occasion.name} className="capitalize dark:bg-neutral-900">
-                    {occasion.name}
-                  </option>
-                ))}
-              </select>
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-foreground-soft" />
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={priceRange[0]}
-                  onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                  className="w-24 px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                />
-                <span className="text-foreground-soft">-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={priceRange[1]}
-                  onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                  className="w-24 px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Outfits Grid/List */}
         {loading ? (
-          <LoadingSpinner text="Loading outfits..." />
-        ) : filteredOutfits.length > 0 ? (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-            : "space-y-4"
-          }>
-            {filteredOutfits.map((outfit) => (
-              <div
-                key={outfit.id}
-                className={`bg-background rounded-lg border border-border overflow-hidden hover:border-accent-purple transition-colors ${
-                  viewMode === 'list' ? 'flex gap-4' : ''
-                }`}
-              >
-                <Link
-                  href={`/outfits/${outfit.id}`}
-                  className={viewMode === 'list' ? 'w-48' : 'block'}
-                >
-                  <div className="relative aspect-[3/4]">
-                    {outfit.items[0]?.wardrobeItem?.images[0] ? (
-                      <Image
-                        src={outfit.items[0].wardrobeItem.images[0].url}
-                        alt={outfit.name}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-background-soft flex items-center justify-center text-foreground-soft">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                </Link>
-                <div className="p-4 flex-1">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <Link href={`/outfits/${outfit.id}`}>
-                      <h3 className="font-medium hover:text-accent-purple transition-colors">
-                        {outfit.name}
-                      </h3>
-                    </Link>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleShare(outfit)}
-                        className="p-1 text-foreground-soft hover:text-accent-purple transition-colors"
-                        title="Share Outfit"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDownload(outfit)}
-                        className="p-1 text-foreground-soft hover:text-accent-purple transition-colors"
-                        title="Download Outfit Image"
-                      >
-                        <Download className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-foreground-soft mb-2">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span>{outfit.rating || '-'}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" />
-                      <span>{formatPrice(outfit.totalCost, currency)}</span>
-                    </div>
-                    {outfit.stats?.timesWorn && (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Worn {outfit.stats.timesWorn}x</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {outfit.occasions.slice(0, 2).map((occasion) => (
-                      <span
-                        key={occasion.id}
-                        className="px-2 py-1 text-xs bg-background-soft rounded-full text-foreground-soft capitalize"
-                      >
-                        {occasion.name}
-                      </span>
-                    ))}
-                    {outfit.occasions.length > 2 && (
-                      <span className="px-2 py-1 text-xs bg-background-soft rounded-full text-foreground-soft">
-                        +{outfit.occasions.length - 2}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+            <LoadingSpinner text="Loading outfits..." />
           </div>
         ) : (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium mb-2">No outfits found</h3>
-            <p className="text-foreground-soft mb-6">
-              {searchQuery || selectedSeason !== 'all' || selectedOccasion !== 'all'
-                ? "Try adjusting your filters"
-                : "Start creating outfits with your catalog items"}
-            </p>
-            <Link
-              href="/outfits/create"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Create Your First Outfit
-            </Link>
-          </div>
+          <>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+              <div>
+                <h1 className="text-3xl font-display font-bold">My Outfits</h1>
+                <p className="text-foreground-soft">
+                  {outfits.length > 0 
+                    ? "Create and manage your outfit combinations"
+                    : "Start creating your first outfit"}
+                </p>
+              </div>
+              <Link
+                href="/outfits/create"
+                className="flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                {outfits.length > 0 ? "Create Outfit" : "Create Your First Outfit"}
+              </Link>
+            </div>
+
+            {/* Only show filters if we have outfits */}
+            {showFilters && (
+              <div className="mb-6 space-y-4">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search outfits..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    >
+                      <option value="recent">Most Recent</option>
+                      <option value="price">Price</option>
+                    </select>
+                    <div className="flex items-center gap-1 border border-gray-300 dark:border-neutral-800 rounded-lg">
+                      <button
+                        onClick={() => setViewMode('grid')}
+                        className={`p-2 rounded-l ${viewMode === 'grid' ? 'bg-accent-purple text-white' : ''}`}
+                      >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="7" height="7" />
+                          <rect x="14" y="3" width="7" height="7" />
+                          <rect x="3" y="14" width="7" height="7" />
+                          <rect x="14" y="14" width="7" height="7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setViewMode('list')}
+                        className={`p-2 rounded-r ${viewMode === 'list' ? 'bg-accent-purple text-white' : ''}`}
+                      >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <line x1="3" y1="12" x2="21" y2="12" />
+                          <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Advanced Filters */}
+                <div className="flex flex-wrap items-center gap-4">
+                  <select
+                    value={selectedSeason}
+                    onChange={(e) => setSelectedSeason(e.target.value)}
+                    className="w-40 h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  >
+                    <option value="all">All Seasons</option>
+                    <option value="spring">Spring</option>
+                    <option value="summer">Summer</option>
+                    <option value="fall">Fall</option>
+                    <option value="winter">Winter</option>
+                  </select>
+                  <select
+                    value={selectedOccasion}
+                    onChange={(e) => setSelectedOccasion(e.target.value)}
+                    className="w-40 h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  >
+                    <option value="all">All Occasions</option>
+                    <option value="casual">Casual</option>
+                    <option value="work">Work</option>
+                    <option value="formal">Formal</option>
+                    <option value="sport">Sport</option>
+                    <option value="special">Special</option>
+                  </select>
+                  <div className="w-64">
+                    <PriceRangeSlider
+                      minPrice={0}
+                      maxPrice={Math.max(10000, ...outfits.map(outfit => outfit.totalCost))}
+                      currency={currency}
+                      onChange={({ min, max }) => setPriceRange({ min, max })}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Outfits Grid/List */}
+            <div className={viewMode === 'grid' 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              : "space-y-4"
+            }>
+              {filteredOutfits.map(outfit => (
+                <div key={outfit.id} 
+                  className={`bg-card border border-border overflow-hidden hover:border-accent-purple transition-colors ${
+                    viewMode === 'grid' ? 'rounded-xl' : 'rounded-lg'
+                  }`}
+                >
+                  <Link href={`/outfits/${outfit.id}`} className={viewMode === 'grid' ? "block" : "flex gap-4"}>
+                    <OutfitThumbnail 
+                      items={outfit.items
+                        .map(item => item.wardrobeItem)
+                        .filter((item): item is ClothingItem => item !== undefined)}
+                      className={viewMode === 'grid' ? "aspect-square w-full" : "w-48 h-48"}
+                    />
+                    <div className={`p-4 ${viewMode === 'list' ? "flex-1" : ""}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-medium line-clamp-1">{outfit.name}</h3>
+                      </div>
+                      
+                      <div className="mt-2 flex items-center gap-4 text-sm text-foreground-soft">
+                        <span>{formatPrice(outfit.totalCost, currency)}</span>
+                        {outfit.seasons.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{outfit.seasons[0].name}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {outfit.tags.length > 0 && (
+                        <div className="mt-2 flex items-center gap-1">
+                          <Tag className="w-3 h-3 text-foreground-soft" />
+                          <div className="flex items-center gap-1">
+                            {outfit.tags.slice(0, 3).map(tag => (
+                              <span key={tag.id} className="text-xs text-foreground-soft">
+                                {tag.name}
+                              </span>
+                            ))}
+                            {outfit.tags.length > 3 && (
+                              <span className="text-xs text-foreground-soft">+{outfit.tags.length - 3}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+
+                  <div className="flex items-center justify-end gap-2 p-4 pt-0">
+                    <Link
+                      href={`/outfits/${outfit.id}/edit`}
+                      className="btn btn-ghost btn-sm h-8 w-8 p-0"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => handleShare(outfit)}
+                      className="btn btn-ghost btn-sm h-8 w-8 p-0"
+                      title="Copy share link"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="btn btn-ghost btn-sm h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                          title="Delete outfit"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Outfit</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this outfit? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(outfit)}
+                            className="bg-red-500 hover:bg-red-600 text-white"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

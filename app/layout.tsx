@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Sora, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import Navigation from './components/Navigation'
+import { Toaster } from "@/components/ui/toaster"
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -38,6 +39,7 @@ export default function RootLayout({
             {children}
           </main>
         </Providers>
+        <Toaster />
       </body>
     </html>
   )

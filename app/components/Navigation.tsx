@@ -128,14 +128,14 @@ function NavLink({ href, children, disabled = false }: {
     return (
       <div className="relative">
         <button
-          className="text-foreground-soft/50 cursor-not-allowed"
+          className="text-foreground-soft/50 cursor-not-allowed text-neutral-600"
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >
           {children}
         </button>
         {showTooltip && (
-          <div className="absolute left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-background border border-border rounded-lg shadow-lg whitespace-nowrap z-50 animate-in fade-in slide-in-from-top-1">
+          <div className="absolute left-1/2 -translate-x-1/2 mt-2 ml-2 px-3 py-1.5 bg-background border border-border rounded-lg shadow-lg whitespace-nowrap z-50 animate-in fade-in slide-in-from-top-1">
             <p className="text-sm">Coming Soon! 🎉</p>
           </div>
         )}

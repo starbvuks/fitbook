@@ -3,54 +3,77 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
+import type { Outfit } from '@/app/models/types'
 
 type RouteParams = { params: Promise<{ id: string }> }
 
 export async function GET(
-  request: NextRequest,
-  props: RouteParams
+  req: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const params = await props.params
-    const { id } = params
-
-    const outfit = await prisma.outfit.findFirst({
-      where: {
-        id,
-        userId: session.user.id
-      },
+    const outfit = await prisma.outfit.findUnique({
+      where: { id: params.id },
       include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true
+          }
+        },
         items: {
           include: {
             wardrobeItem: {
               include: {
-                images: true
+                images: true,
+                tags: true
               }
             }
           }
         },
-        tags: true,
-        occasions: true,
-        seasons: true
+        seasons: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        occasions: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
       }
     })
 
     if (!outfit) {
-      return NextResponse.json({ error: 'Outfit not found' }, { status: 404 })
+      return new NextResponse(null, { status: 404 })
     }
 
-    return NextResponse.json(outfit)
+    // Calculate stats
+    const stats = {
+      timesWorn: outfit.timesWorn || 0
+    }
+
+    console.log('API Response:', {
+      ...outfit,
+      stats
+    });
+
+    return NextResponse.json({
+      ...outfit,
+      stats
+    })
   } catch (error) {
-    console.error('Error fetching outfit:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch outfit' },
-      { status: 500 }
-    )
+    console.error('[OUTFIT_GET]', error)
+    return new NextResponse(null, { status: 500 })
   }
 }
 
@@ -68,10 +91,10 @@ export async function PATCH(
     const { id } = params
 
     const body = await request.json()
-    const data = updateOutfitSchema.parse(body)
+    const { name, description, items, seasons, occasions } = body
 
-    // Verify outfit ownership
-    const existingOutfit = await prisma.outfit.findFirst({
+    // Verify outfit exists and belongs to user
+    const existingOutfit = await prisma.outfit.findUnique({
       where: {
         id,
         userId: session.user.id
@@ -82,85 +105,105 @@ export async function PATCH(
       return NextResponse.json({ error: 'Outfit not found' }, { status: 404 })
     }
 
-    // Calculate total cost if items are being updated
-    let totalCost = existingOutfit.totalCost
-    if (data.items) {
-      const wardrobeItems = await prisma.wardrobeItem.findMany({
-        where: {
-          id: {
-            in: data.items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId)
-          }
-        },
-        select: {
-          price: true
+    // Calculate total cost
+    const wardrobeItems = await prisma.wardrobeItem.findMany({
+      where: {
+        id: {
+          in: items.map((item: any) => item.wardrobeItemId)
         }
-      })
-      totalCost = wardrobeItems.reduce((sum, item) => sum + (item.price || 0), 0)
-    }
+      }
+    })
 
-    const updateData = {
-      ...(data.name !== undefined && { name: data.name }),
-      ...(data.description !== undefined && { description: data.description }),
-      ...(data.rating !== undefined && { rating: data.rating }),
-      ...(data.items !== undefined && {
-        items: {
-          deleteMany: {},
-          create: data.items.map((item: { wardrobeItemId: string; position: string }) => ({
-            wardrobeItemId: item.wardrobeItemId,
-            position: item.position
-          }))
-        }
-      }),
-      ...(data.tags !== undefined && {
-        tags: {
-          set: [],
-          connectOrCreate: data.tags.map((name: string) => ({
-            where: { name },
-            create: { name }
-          }))
-        }
-      }),
-      ...(data.occasions !== undefined && {
-        occasions: {
-          set: [],
-          connectOrCreate: data.occasions.map((name: string) => ({
-            where: { name },
-            create: { name }
-          }))
-        }
-      }),
-      ...(data.seasons !== undefined && {
-        seasons: {
-          set: [],
-          connectOrCreate: data.seasons.map((name: string) => ({
-            where: { name },
-            create: { name }
-          }))
-        }
-      }),
-      totalCost
-    }
+    const totalCost = wardrobeItems.reduce((sum, item) => sum + item.price, 0)
 
+    // Update outfit
     const updatedOutfit = await prisma.outfit.update({
-      where: { id },
-      data: updateData,
+      where: {
+        id
+      },
+      data: {
+        name,
+        description,
+        totalCost,
+        seasons: {
+          connectOrCreate: seasons.map((season: any) => ({
+            where: { name: season.name },
+            create: { name: season.name }
+          }))
+        },
+        occasions: {
+          connectOrCreate: occasions.map((occasion: any) => ({
+            where: { name: occasion.name },
+            create: { name: occasion.name }
+          }))
+        },
+        tags: {
+          connectOrCreate: body.tags?.map((tag: any) => ({
+            where: { name: tag.name },
+            create: { name: tag.name }
+          })) || []
+        }
+      },
       include: {
         items: {
           include: {
             wardrobeItem: {
               include: {
-                images: true
+                images: true,
+                tags: true,
+                seasons: true,
+                occasions: true
               }
             }
           }
         },
         tags: true,
-        occasions: true,
-        seasons: true
+        seasons: true,
+        occasions: true
       }
     })
 
-    return NextResponse.json(updatedOutfit)
+    // Delete existing items
+    await prisma.outfitItem.deleteMany({
+      where: {
+        outfitId: id
+      }
+    })
+
+    // Create new items
+    await prisma.outfitItem.createMany({
+      data: items.map((item: any) => ({
+        outfitId: id,
+        wardrobeItemId: item.wardrobeItemId,
+        position: item.position
+      }))
+    })
+
+    // Fetch the final outfit with all relations
+    const finalOutfit = await prisma.outfit.findUnique({
+      where: {
+        id
+      },
+      include: {
+        items: {
+          include: {
+            wardrobeItem: {
+              include: {
+                images: true,
+                tags: true,
+                seasons: true,
+                occasions: true
+              }
+            }
+          }
+        },
+        tags: true,
+        seasons: true,
+        occasions: true
+      }
+    })
+
+    return NextResponse.json(finalOutfit)
   } catch (error) {
     console.error('Error updating outfit:', error)
     return NextResponse.json(

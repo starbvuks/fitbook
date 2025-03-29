@@ -65,22 +65,21 @@ export interface OutfitItem {
 
 export interface Outfit {
   id: string
-  userId: string
   name: string
   description?: string
-  items: OutfitItem[]
-  tags: Tag[]
-  occasions: Occasion[]
-  seasons: Season[]
-  rating?: number
   totalCost: number
-  stats: {
+  rating?: number
+  createdAt: string
+  updatedAt: string
+  userId: string
+  user?: User
+  items: OutfitItem[]
+  seasons: Season[]
+  occasions: Occasion[]
+  tags: Tag[]
+  stats?: {
     timesWorn: number
-    lastWorn?: Date
-    favorited: boolean
   }
-  createdAt: Date
-  updatedAt: Date
 }
 
 export interface Lookbook {
