@@ -5,11 +5,11 @@ import { prisma } from '@/lib/prisma'
 import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
 import type { Outfit } from '@/app/models/types'
 
-type RouteParams = { params: Promise<{ id: string }> }
+type RouteParams = { params: { id: string } }
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: RouteParams
 ) {
   try {
     const outfit = await prisma.outfit.findUnique({
@@ -54,7 +54,7 @@ export async function GET(
     })
 
     if (!outfit) {
-      return new NextResponse(null, { status: 404 })
+      return NextResponse.json({ error: 'Outfit not found' }, { status: 404 })
     }
 
     // Calculate stats
@@ -62,18 +62,16 @@ export async function GET(
       timesWorn: outfit.timesWorn || 0
     }
 
-    console.log('API Response:', {
-      ...outfit,
-      stats
-    });
-
     return NextResponse.json({
       ...outfit,
       stats
     })
   } catch (error) {
     console.error('[OUTFIT_GET]', error)
-    return new NextResponse(null, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to fetch outfit' },
+      { status: 500 }
+    )
   }
 }
 

@@ -115,7 +115,7 @@ export default function ImageUpload({ onUploadSuccess, onUploadError, value }: I
     if (file) {
       await handleFileUpload(file)
     }
-  }, [handleFileUpload])
+  }, [])
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault()
