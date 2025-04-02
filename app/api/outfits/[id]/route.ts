@@ -5,13 +5,9 @@ import { prisma } from '@/lib/prisma'
 import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
 import type { Outfit } from '@/app/models/types'
 
-type Context = {
-  params: { id: string }
-}
-
 export async function GET(
-  req: NextRequest,
-  { params }: Context
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
     const outfit = await prisma.outfit.findUnique({
@@ -78,8 +74,8 @@ export async function GET(
 }
 
 export async function PATCH(
-  req: NextRequest,
-  { params }: Context
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -89,7 +85,7 @@ export async function PATCH(
 
     const { id } = params
 
-    const body = await req.json()
+    const body = await request.json()
     const { name, description, items, seasons, occasions } = body
 
     // Verify outfit exists and belongs to user
@@ -213,8 +209,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: Context
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
