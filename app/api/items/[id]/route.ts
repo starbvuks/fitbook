@@ -31,12 +31,9 @@ const updateItemSchema = z.object({
   })).optional(),
 })
 
-// Update the type definition for route handler params
-type RouteParams = { params: Promise<{ id: string }> }
-
 export async function PATCH(
   request: NextRequest,
-  props: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -44,7 +41,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const params = await props.params
     const { id } = params
 
     const body = await request.json()
@@ -158,7 +154,7 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  props: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -166,8 +162,6 @@ export async function GET(
       return new Response('Unauthorized', { status: 401 })
     }
 
-    // First await the params object itself
-    const params = await props.params
     const { id } = params
 
     const item = await prisma.wardrobeItem.findFirst({
@@ -197,7 +191,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  props: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -205,7 +199,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const params = await props.params
     const { id } = params
 
     // Verify item ownership

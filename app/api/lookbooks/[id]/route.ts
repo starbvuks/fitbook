@@ -4,9 +4,11 @@ import { lookbookSchema } from '@/lib/validations'
 import { prisma } from '@/lib/prisma'
 
 // GET /api/lookbooks/[id]
-export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  return authenticatedHandler(req, async (userId) => {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return authenticatedHandler(request, async (userId) => {
     const lookbook = await prisma.lookbook.findUnique({
       where: {
         id: params.id,
@@ -38,10 +40,12 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
 }
 
 // PUT /api/lookbooks/[id]
-export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  return authenticatedHandler(req, async (userId) => {
-    const data = await validateBody(req, lookbookSchema)
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return authenticatedHandler(request, async (userId) => {
+    const data = await validateBody(request, lookbookSchema)
 
     // First check if the lookbook exists and belongs to the user
     const existingLookbook = await prisma.lookbook.findUnique({
@@ -108,9 +112,11 @@ export async function PUT(req: NextRequest, props: { params: Promise<{ id: strin
 }
 
 // DELETE /api/lookbooks/[id]
-export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  return authenticatedHandler(req, async (userId) => {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return authenticatedHandler(request, async (userId) => {
     // First check if the lookbook exists and belongs to the user
     const lookbook = await prisma.lookbook.findUnique({
       where: {
