@@ -5,15 +5,13 @@ import { prisma } from '@/lib/prisma'
 import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
 import type { Outfit } from '@/app/models/types'
 
-type RouteParams = { params: { id: string } }
-
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  context: { params: { id: string } }
 ) {
   try {
     const outfit = await prisma.outfit.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
       include: {
         user: {
           select: {
@@ -77,7 +75,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  props: RouteParams
+  props: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -213,7 +211,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  props: RouteParams
+  props: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)

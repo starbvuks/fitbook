@@ -5,19 +5,22 @@ import { Providers } from './providers'
 import Navigation from './components/Navigation'
 import { Toaster } from "@/components/ui/toaster"
 
-const jakarta = Plus_Jakarta_Sans({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-sans',
+  variable: '--font-plus-jakarta',
+  display: 'swap',
 })
 
 const sora = Sora({
   subsets: ['latin'],
-  variable: '--font-display',
+  variable: '--font-sora',
+  display: 'swap',
 })
 
-const jetbrains = JetBrains_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-mono',
+  variable: '--font-jetbrains',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -31,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${sora.variable} ${jetbrains.variable} dark`} suppressHydrationWarning>
+    <html lang="en" className={`${plusJakartaSans.variable} ${sora.variable} ${jetbrainsMono.variable} dark`} suppressHydrationWarning>
       <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
         <Providers>
           <Navigation />

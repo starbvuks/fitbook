@@ -4,7 +4,9 @@ const nextConfig = {
     domains: ['images.unsplash.com', 'lh3.googleusercontent.com'],
   },
   experimental: {
-    serverActions: true,
+    serverActions: {
+      enabled: true
+    }
   },
   // Add performance optimizations
   swcMinify: true,
