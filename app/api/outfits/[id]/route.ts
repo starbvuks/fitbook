@@ -5,13 +5,17 @@ import { prisma } from '@/lib/prisma'
 import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
 import type { Outfit } from '@/app/models/types'
 
+type Context = {
+  params: { id: string }
+}
+
 export async function GET(
-  request: NextRequest,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: Context
 ) {
   try {
     const outfit = await prisma.outfit.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id },
       include: {
         user: {
           select: {
@@ -74,8 +78,8 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: NextRequest,
-  props: { params: { id: string } }
+  req: NextRequest,
+  { params }: Context
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -83,10 +87,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const params = await props.params
     const { id } = params
 
-    const body = await request.json()
+    const body = await req.json()
     const { name, description, items, seasons, occasions } = body
 
     // Verify outfit exists and belongs to user
@@ -210,8 +213,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  props: { params: { id: string } }
+  req: NextRequest,
+  { params }: Context
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -219,7 +222,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const params = await props.params
     const { id } = params
 
     // Verify outfit ownership
