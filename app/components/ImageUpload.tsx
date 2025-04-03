@@ -18,7 +18,7 @@ export default function ImageUpload({ onUploadSuccess, onUploadError, value }: I
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
       const error = new Error('Please upload an image file')
       setError(error.message)
@@ -52,7 +52,7 @@ export default function ImageUpload({ onUploadSuccess, onUploadError, value }: I
     } finally {
       setUploading(false)
     }
-  }
+  }, [onUploadSuccess, onUploadError]);
 
   const handleUrlUpload = async (url: string) => {
     if (!url) return

@@ -109,7 +109,7 @@ export async function PATCH(req: Request) {
       }
     })
 
-    const totalCost = wardrobeItems.reduce((sum, item) => sum + item.price, 0)
+    const totalCost = wardrobeItems.reduce((sum: number, item) => sum + item.price, 0)
 
     // Update outfit
     const updatedOutfit = await prisma.outfit.update({
