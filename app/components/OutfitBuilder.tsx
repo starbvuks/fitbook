@@ -134,8 +134,8 @@ export default function OutfitBuilder({
 
   const totalCost = Object.values(slots)
     .filter(item => item !== null)
-    .reduce((sum: number, item) => sum + (item?.price || 0), 0) +
-    accessories.reduce((sum: number, item) => sum + item.price, 0)
+    .reduce((sum: number, item: ClothingItem | null) => sum + (item?.price || 0), 0) +
+    accessories.reduce((sum: number, item: ClothingItemWithPosition) => sum + item.price, 0)
 
   const ItemDisplay = ({ item, onRemove, isAccessory = false }: { 
     item: ClothingItem

@@ -38,7 +38,7 @@ export default function OutfitAnalysis({ items }: OutfitAnalysisProps) {
     }
 
     // Calculate total cost
-    const totalCost = items.reduce((sum: number, item) => sum + item.price, 0)
+    const totalCost = items.reduce((sum: number, item: ClothingItem) => sum + item.price, 0)
 
     // Analyze colors
     const allColors = items.flatMap(item => 
@@ -51,7 +51,7 @@ export default function OutfitAnalysis({ items }: OutfitAnalysisProps) {
     )
 
     // Group colors by similarity and calculate prevalence
-    const groupedColors = allColors.reduce((groups: { hex: string; prevalence: number }[], color) => {
+    const groupedColors = allColors.reduce((groups: { hex: string; prevalence: number }[], color: { hex: string; prevalence: number }) => {
       const similarColor = groups.find(group => 
         isColorSimilar(group.hex, color.hex)
       )
@@ -73,7 +73,7 @@ export default function OutfitAnalysis({ items }: OutfitAnalysisProps) {
     const style = analyzeStyle(items)
 
     // Count items per category
-    const categoryCount = items.reduce((acc: Record<string, number>, item) => {
+    const categoryCount = items.reduce((acc: Record<string, number>, item: ClothingItem) => {
       acc[item.category] = (acc[item.category] || 0) + 1
       return acc
     }, {} as Record<string, number>)
@@ -298,7 +298,7 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } {
 
 function analyzeStyle(items: ClothingItem[]): Analysis['style'] {
   // Determine formality based on item categories and tags
-  const formalityScore = items.reduce((score: number, item) => {
+  const formalityScore = items.reduce((score: number, item: ClothingItem) => {
     if (item.tags.some(tag => ['formal', 'business', 'suit'].includes(tag.name))) {
       return score + 3
     }

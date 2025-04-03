@@ -166,7 +166,7 @@ export default function CatalogPage() {
             <h1 className="text-2xl font-display font-bold mb-0.5">My Catalog</h1>
             <p className="text-sm text-muted-foreground">
               {items.length} items · Total value: {formatCurrency(
-                items.reduce((sum, item) => sum + item.price, 0),
+                items.reduce((sum: number, item: ClothingItem) => sum + item.price, 0),
                 currency
               )}
             </p>
