@@ -8,11 +8,6 @@ const nextConfig = {
       enabled: true
     }
   },
-  // Add performance optimizations
-  swcMinify: true,
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
   // Optimize build output
   output: 'standalone',
   poweredByHeader: false,

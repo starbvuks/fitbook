@@ -299,13 +299,13 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } {
 function analyzeStyle(items: ClothingItem[]): Analysis['style'] {
   // Determine formality based on item categories and tags
   const formalityScore = items.reduce((score, item) => {
-    if (item.tags.some(tag => ['formal', 'business', 'suit'].includes(tag))) {
+    if (item.tags.some(tag => ['formal', 'business', 'suit'].includes(tag.name))) {
       return score + 3
     }
-    if (item.tags.some(tag => ['smart', 'business casual'].includes(tag))) {
+    if (item.tags.some(tag => ['smart', 'business casual'].includes(tag.name))) {
       return score + 2
     }
-    if (item.tags.some(tag => ['casual', 'sporty'].includes(tag))) {
+    if (item.tags.some(tag => ['casual', 'sporty'].includes(tag.name))) {
       return score + 1
     }
     return score + 1.5 // Default to smart casual
@@ -320,13 +320,13 @@ function analyzeStyle(items: ClothingItem[]): Analysis['style'] {
   // Determine seasonality
   const seasons = new Set<string>()
   items.forEach(item => {
-    item.seasons.forEach(season => seasons.add(season))
+    item.seasons.forEach(season => seasons.add(season.name))
   })
 
   // Determine occasions
   const occasions = new Set<string>()
   items.forEach(item => {
-    item.occasions.forEach(occasion => occasions.add(occasion))
+    item.occasions.forEach(occasion => occasions.add(occasion.name))
   })
 
   return {

@@ -4,9 +4,9 @@ import { signIn } from "next-auth/react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, Suspense } from "react"
 
-export default function SignIn() {
+function SignInContent() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get("callbackUrl") || "/"
   const error = searchParams?.get("error")
@@ -72,5 +72,26 @@ export default function SignIn() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background-soft">
+        <div className="max-w-md w-full space-y-8 p-8 bg-background rounded-2xl border border-border">
+          <div className="text-center">
+            <h2 className="text-3xl font-display font-bold">
+              Welcome to Fitbook
+            </h2>
+            <p className="mt-2 text-foreground-soft">
+              Loading sign in options...
+            </p>
+          </div>
+        </div>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   )
 } 

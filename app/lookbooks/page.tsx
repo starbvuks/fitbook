@@ -84,9 +84,9 @@ export default function LookbooksPage() {
                 className="group bg-background rounded-lg border border-border overflow-hidden hover:border-accent-purple transition-colors"
               >
                 <div className="relative aspect-[4/3]">
-                  {lookbook.outfits[0]?.images[0] ? (
+                  {lookbook.outfits[0]?.items?.[0]?.wardrobeItem?.images?.[0] ? (
                     <Image
-                      src={lookbook.outfits[0].images[0]}
+                      src={lookbook.outfits[0].items[0].wardrobeItem.images[0].url}
                       alt={lookbook.name}
                       fill
                       className="object-cover"

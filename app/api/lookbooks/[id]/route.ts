@@ -1,17 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { authenticatedHandler, validateBody } from '@/lib/api-utils'
 import { lookbookSchema } from '@/lib/validations'
 import { prisma } from '@/lib/prisma'
 
+// Helper function to extract ID from URL
+function getIdFromUrl(url: string): string {
+  const segments = new URL(url).pathname.split('/')
+  return segments[segments.length - 1]
+}
+
 // GET /api/lookbooks/[id]
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  return authenticatedHandler(request, async (userId) => {
+export async function GET(req: Request) {
+  return authenticatedHandler(req, async (userId) => {
+    const id = getIdFromUrl(req.url)
+    
     const lookbook = await prisma.lookbook.findUnique({
       where: {
-        id: params.id,
+        id,
         userId,
       },
       include: {
@@ -40,17 +45,15 @@ export async function GET(
 }
 
 // PUT /api/lookbooks/[id]
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  return authenticatedHandler(request, async (userId) => {
-    const data = await validateBody(request, lookbookSchema)
+export async function PUT(req: Request) {
+  return authenticatedHandler(req, async (userId) => {
+    const id = getIdFromUrl(req.url)
+    const data = await validateBody(req, lookbookSchema)
 
     // First check if the lookbook exists and belongs to the user
     const existingLookbook = await prisma.lookbook.findUnique({
       where: {
-        id: params.id,
+        id,
         userId,
       },
     })
@@ -81,7 +84,7 @@ export async function PUT(
 
     // Update the lookbook
     const lookbook = await prisma.lookbook.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: data.name,
         description: data.description,
@@ -112,15 +115,14 @@ export async function PUT(
 }
 
 // DELETE /api/lookbooks/[id]
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  return authenticatedHandler(request, async (userId) => {
+export async function DELETE(req: Request) {
+  return authenticatedHandler(req, async (userId) => {
+    const id = getIdFromUrl(req.url)
+    
     // First check if the lookbook exists and belongs to the user
     const lookbook = await prisma.lookbook.findUnique({
       where: {
-        id: params.id,
+        id,
         userId,
       },
     })
@@ -131,7 +133,7 @@ export async function DELETE(
 
     // Delete the lookbook
     await prisma.lookbook.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })

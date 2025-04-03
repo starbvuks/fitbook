@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -31,17 +31,54 @@ const updateItemSchema = z.object({
   })).optional(),
 })
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// Helper function to extract ID from URL
+function getIdFromUrl(url: string): string {
+  const segments = new URL(url).pathname.split('/')
+  return segments[segments.length - 1]
+}
+
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const id = getIdFromUrl(request.url)
+
+    const item = await prisma.wardrobeItem.findFirst({
+      where: {
+        id,
+        userId: session.user.id,
+      },
+      include: {
+        images: true,
+        tags: true,
+        colors: true,
+        seasons: true,
+        occasions: true,
+      },
+    })
+
+    if (!item) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(item)
+  } catch (error) {
+    console.error('Error fetching item:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const id = getIdFromUrl(request.url)
 
     const body = await request.json()
     if (!body) {
@@ -152,54 +189,14 @@ export async function PATCH(
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return new Response('Unauthorized', { status: 401 })
-    }
-
-    const { id } = params
-
-    const item = await prisma.wardrobeItem.findFirst({
-      where: {
-        id,
-        userId: session.user.id,
-      },
-      include: {
-        images: true,
-        tags: true,
-        colors: true,
-        seasons: true,
-        occasions: true,
-      },
-    })
-
-    if (!item) {
-      return new Response('Item not found', { status: 404 })
-    }
-
-    return Response.json(item)
-  } catch (error) {
-    console.error('Error fetching item:', error)
-    return new Response('Internal Server Error', { status: 500 })
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const id = getIdFromUrl(request.url)
 
     // Verify item ownership
     const existingItem = await prisma.wardrobeItem.findFirst({

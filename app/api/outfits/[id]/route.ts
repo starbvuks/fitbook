@@ -1,17 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
 import type { Outfit } from '@/app/models/types'
 
-export async function GET(
-  _request: Request,
-  { params }: { params: { id: string } }
-) {
+// Helper function to extract ID from URL
+function getIdFromUrl(url: string): string {
+  const segments = new URL(url).pathname.split('/')
+  return segments[segments.length - 1]
+}
+
+export async function GET(req: Request) {
   try {
     const outfit = await prisma.outfit.findUnique({
-      where: { id: params.id },
+      where: { id: getIdFromUrl(req.url) },
       include: {
         user: {
           select: {
@@ -73,19 +76,16 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const id = getIdFromUrl(req.url)
 
-    const body = await request.json()
+    const body = await req.json()
     const { name, description, items, seasons, occasions } = body
 
     // Verify outfit exists and belongs to user
@@ -208,17 +208,14 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const id = getIdFromUrl(req.url)
 
     // Verify outfit ownership
     const existingOutfit = await prisma.outfit.findFirst({

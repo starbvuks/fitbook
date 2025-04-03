@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { ZodError, ZodSchema } from 'zod'
 import { prisma } from './prisma'
 
 export async function authenticatedHandler(
-  req: NextRequest,
+  req: Request,
   handler: (userId: string) => Promise<Response>
 ): Promise<Response> {
   try {
@@ -25,7 +25,7 @@ export async function authenticatedHandler(
 }
 
 export async function validateBody<T>(
-  req: NextRequest,
+  req: Request,
   schema: ZodSchema<T>
 ): Promise<T> {
   try {
