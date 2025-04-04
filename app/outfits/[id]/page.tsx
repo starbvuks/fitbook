@@ -49,28 +49,35 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
   }
 
   return (
-    <div className="flex items-center gap-3 bg-background-soft p-3 rounded-lg">
-      <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-        {item.wardrobeItem.images[0]?.url ? (
-          <Image
-            src={item.wardrobeItem.images[0].url}
-            alt={item.wardrobeItem.name}
-            width={64}
-            height={64}
-            className="object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-background flex items-center justify-center">
-            <ImageIcon className="w-6 h-6 text-muted-foreground" />
+    <div className="bg-background-soft rounded-xl border border-border-bright overflow-hidden transition-all hover:border-accent-purple">
+      <div className="flex flex-col">
+        <div className="relative aspect-square overflow-hidden">
+          {item.wardrobeItem.images[0]?.url ? (
+            <Image
+              src={item.wardrobeItem.images[0].url}
+              alt={item.wardrobeItem.name}
+              width={300}
+              height={300}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full bg-background flex items-center justify-center">
+              <ImageIcon className="w-8 h-8 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        <div className="p-4">
+          <Link href={`/catalog/${item.wardrobeItem.id}`} className="text-lg font-medium hover:text-accent-purple transition-colors">
+            {item.wardrobeItem.name}
+          </Link>
+          <p className="text-sm text-muted-foreground">{item.wardrobeItem.brand}</p>
+          <div className="flex items-center justify-between mt-2">
+            <p className="font-semibold">{formatPrice(item.wardrobeItem.price, currency)}</p>
+            <Link href={`/catalog/${item.wardrobeItem.id}`} className="text-xs text-accent-purple flex items-center gap-1 hover:underline">
+              <ExternalLink className="w-3 h-3" /> View
+            </Link>
           </div>
-        )}
-      </div>
-      <div className="flex-1">
-        <Link href={`/catalog/${item.wardrobeItem.id}`} className="font-medium hover:underline">
-          {item.wardrobeItem.name}
-        </Link>
-        <p className="text-sm text-muted-foreground">{item.wardrobeItem.brand}</p>
-        <p className="text-sm font-semibold mt-1">{formatPrice(item.wardrobeItem.price, currency)}</p>
+        </div>
       </div>
     </div>
   );
@@ -262,7 +269,7 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
             {/* Individual items grid */}
             <div className="bg-card rounded-2xl border border-border p-6">
               <h2 className="text-xl font-semibold mb-4">Outfit Items</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {outfit.items.map((item) => (
                   <ItemDetails key={item.id} item={item} currency={currency} />
                 ))}

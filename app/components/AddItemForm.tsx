@@ -6,7 +6,7 @@ import ColorPalette from './ColorPalette'
 import ImageUpload from './ImageUpload'
 import type { UploadResult } from '@/lib/images'
 import Image from 'next/image'
-import { X, ShoppingCart, BookmarkPlus } from 'lucide-react'
+import { X, ShoppingCart, CircleCheck } from 'lucide-react'
 
 interface AddItemFormProps {
   onSubmit: (formData: any) => void
@@ -188,7 +188,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                       : 'bg-background text-foreground-soft'
                   }`}
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <CircleCheck className="w-5 h-5" />
                   <span>I Own This</span>
                 </button>
                 <button
@@ -200,8 +200,8 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                       : 'bg-background text-foreground-soft'
                   }`}
                 >
-                  <BookmarkPlus className="w-5 h-5" />
-                  <span>I Want This</span>
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>Want to Buy</span>
                 </button>
               </div>
 

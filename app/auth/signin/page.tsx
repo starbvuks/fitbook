@@ -50,7 +50,7 @@ function SignInContent() {
             className="relative w-full flex items-center justify-center px-4 py-3 border border-border-bright rounded-lg hover:bg-background-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Image
-              src="/google.svg"
+              src="/google.png"
               alt="Google"
               width={20}
               height={20}

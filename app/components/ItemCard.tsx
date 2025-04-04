@@ -1,9 +1,20 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ExternalLink, ShoppingCart, BookmarkPlus } from 'lucide-react'
+import { ExternalLink, ShoppingCart, CircleCheck, Trash2 } from 'lucide-react'
 import type { ClothingItem, Currency } from '@/app/models/types'
 import { formatCurrency } from '@/lib/currency'
 import { useState } from 'react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface ItemCardProps {
   item: ClothingItem
@@ -101,11 +112,52 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
             title={item.isOwned ? 'Owned' : 'Want to Buy'}
           >
             {item.isOwned ? (
-              <ShoppingCart className="w-4 h-4" />
+              <CircleCheck className="w-4 h-4" />
             ) : (
-              <BookmarkPlus className="w-4 h-4" />
+              <ShoppingCart className="w-4 h-4" />
             )}
           </button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors border border-gray-200"
+                title="Delete Item"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Item</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete "{item.name}"? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Add delete functionality
+                    fetch(`/api/items/${item.id}`, {
+                      method: 'DELETE',
+                    })
+                    .then(response => {
+                      if (response.ok) {
+                        window.location.reload();
+                      }
+                    })
+                    .catch(err => console.error('Error deleting item:', err));
+                  }}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
       <div className={`p-4 ${viewMode === 'stack' ? 'flex-1' : ''}`}>

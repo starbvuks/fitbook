@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Plus } from 'lucide-react'
 
 export default function Navigation() {
@@ -11,6 +11,7 @@ export default function Navigation() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [sessionChecked, setSessionChecked] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   // Handle session initialization
   useEffect(() => {
@@ -26,6 +27,20 @@ export default function Navigation() {
       })
     }
   }, [session, status])
+
+  // Handle click outside for profile dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [menuRef])
 
   // Force re-check session when route changes
   useEffect(() => {
@@ -106,7 +121,7 @@ export default function Navigation() {
                 Create Outfit
               </Link>
 
-              <div className="relative">
+              <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center space-x-2"
