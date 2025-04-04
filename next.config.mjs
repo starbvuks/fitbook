@@ -4,8 +4,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/diqddvoy/image/upload/**', // Adjust pathname if needed
       },
+      // Add other patterns if necessary
     ],
   },
 }
