@@ -278,7 +278,7 @@ export default function CatalogPage() {
                     id="maxPrice"
                     value={maxPrice}
                     onChange={handleMaxPriceChange}
-                    placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency, false).replace(/\.\d+$/, '') : 'Max'}
+                    placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency).replace(/\.\d+$/, '') : 'Max'}
                     className="input h-9 text-sm w-full"
                     inputMode="decimal"
                   />
