@@ -17,12 +17,15 @@ export default {
   	extend: {
   		fontFamily: {
   			sans: [
-  				'var(--font-sans)'
+  				'var(--font-plus-jakarta)',
+          'var(--font-sans)'
   			],
   			display: [
-  				'var(--font-display)'
+  				'var(--font-sora)',
+          'var(--font-display)'
   			],
   			mono: [
+  				'var(--font-jetbrains)',
   				'var(--font-mono)'
   			]
   		},

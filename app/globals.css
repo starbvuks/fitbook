@@ -4,8 +4,10 @@
 
 @layer base {
   :root {
+    --font-sans: var(--font-plus-jakarta);
+    --font-display: var(--font-sora);
+    --font-mono: var(--font-jetbrains);
     --font-inter: 'Inter', system-ui, sans-serif;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;

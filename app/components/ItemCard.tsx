@@ -16,6 +16,15 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
   const [isUpdating, setIsUpdating] = useState(false)
   const router = useRouter()
 
+  // Safeguard against undefined or malformed items
+  if (!item) {
+    return (
+      <div className="bg-background rounded-lg border border-border p-4 h-full flex items-center justify-center">
+        <p className="text-foreground-soft">Item not available</p>
+      </div>
+    )
+  }
+
   const handleToggleOwnership = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     if (!onToggleOwnership || isUpdating) return
@@ -46,21 +55,25 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
     stack: 'flex flex-row items-center gap-4',
   }
 
+  // Safe access to images and tags
+  const images = item.images || []
+  const tags = item.tags || []
+
   return (
     <div
       onClick={handleClick}
       className={`group relative bg-background rounded-lg border border-border overflow-hidden hover:border-accent-purple transition-colors cursor-pointer ${containerClasses[viewMode]}`}
     >
       <div className={`relative ${cardClasses[viewMode]} ${viewMode === 'stack' ? 'w-24 flex-shrink-0' : 'w-full'}`}>
-        {item.images[0] ? (
+        {images[0] ? (
           <Image
-            src={item.images[0].url}
+            src={images[0].url}
             alt={item.name}
             fill
             className="object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-background-soft flex items-center justify-center text-foreground-soft">
+          <div className="w-full h-full bg-card flex items-center justify-center text-foreground-soft">
             No Image
           </div>
         )}
@@ -103,9 +116,9 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
           <span className="capitalize">{item.category}</span>
           <span>{formatCurrency(item.price, currency)}</span>
         </div>
-        {item.tags.length > 0 && viewMode !== 'stack' && (
+        {tags.length > 0 && viewMode !== 'stack' && (
           <div className="mt-2 flex flex-wrap gap-1">
-            {item.tags.slice(0, 2).map((tag: { name: string }) => (
+            {tags.slice(0, 2).map((tag: { name: string }) => (
               <span
                 key={tag.name}
                 className="px-2 py-1 text-xs bg-background-soft rounded-full text-foreground-soft"
@@ -113,9 +126,9 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
                 {tag.name}
               </span>
             ))}
-            {item.tags.length > 2 && (
+            {tags.length > 2 && (
               <span className="px-2 py-1 text-xs bg-background-soft rounded-full text-foreground-soft">
-                +{item.tags.length - 2}
+                +{tags.length - 2}
               </span>
             )}
           </div>
