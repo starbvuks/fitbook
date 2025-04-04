@@ -238,17 +238,17 @@ export default function OutfitBuilder({
       className="h-full flex flex-col"
       onMouseLeave={() => setHoveredSlot(null)}
     >
-      <div className="flex items-center justify-between p-5 border-b border-border">
-        <div className="flex-1 flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-5 border-b border-border gap-3">
+        <div className="flex-1 flex items-center gap-4 w-full sm:w-auto">
           <input
             type="text"
             value={outfitName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOutfitName(e.target.value)}
             placeholder="Enter outfit name..."
-            className="text-2xl font-display font-bold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none transition-colors w-72 placeholder:text-muted-foreground"
+            className="text-xl sm:text-2xl font-display font-bold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none transition-colors w-full sm:w-72 placeholder:text-muted-foreground"
           />
         </div>
-        <div className="flex items-center gap-2 text-foreground-soft mr-10">
+        <div className="flex items-center gap-2 text-foreground-soft w-full sm:w-auto sm:mr-10 justify-between sm:justify-start">
           <span className="text-sm font-medium">Total Cost:</span>
           <span className="text-lg font-semibold text-foreground">
             {formatPrice(totalCost, currency)}
@@ -257,14 +257,14 @@ export default function OutfitBuilder({
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center text-sm gap-2 px-3 py-2 ml-3 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors disabled:opacity-50"
+          className="flex items-center text-sm gap-2 px-3 py-2 w-full sm:w-auto sm:ml-3 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors disabled:opacity-50 justify-center"
         >
           <Save className="w-4 h-4" />
           {isSaving ? 'Saving...' : 'Save'}
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-5">
         {/* Outfit slots */}
         <div className="space-y-4">
           {Object.entries(SLOT_LABELS).map(([slot, label]: [string, string]) => (
@@ -286,7 +286,7 @@ export default function OutfitBuilder({
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-sm text-foreground-soft">
-                    Drop item here
+                    {window.innerWidth > 640 ? 'Drop item here' : 'Tap to add item'}
                   </div>
                 )}
               </div>
@@ -297,7 +297,7 @@ export default function OutfitBuilder({
         {/* Accessories */}
         <div className="mt-6">
           <div className="text-sm font-medium mb-2">Accessories</div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {accessories.map((item, index) => (
               <div key={index} className="h-[100px]">
                 <ItemDisplay
@@ -315,7 +315,7 @@ export default function OutfitBuilder({
               }`}
             >
               <div className="flex items-center justify-center h-full text-sm text-foreground-soft">
-                Drop accessory here
+                {window.innerWidth > 640 ? 'Drop accessory here' : 'Tap to add accessory'}
               </div>
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function OutfitBuilder({
                         : [...prev, { id: season, name: season }]
                     )
                   }}
-                  className={`px-3 py-1 rounded-full text-sm capitalize transition-colors ${
+                  className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
                     seasons.some(s => s.name === season)
                       ? 'bg-accent-purple text-white'
                       : 'bg-accent-blue/10 text-foreground-soft hover:bg-background'
@@ -373,7 +373,7 @@ export default function OutfitBuilder({
                         : [...prev, { id: occasion, name: occasion }]
                     )
                   }}
-                  className={`px-3 py-1 rounded-full text-sm capitalize transition-colors ${
+                  className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
                     occasions.some(o => o.name === occasion)
                       ? 'bg-accent-purple text-white'
                       : 'bg-accent-blue/10 text-foreground-soft hover:bg-background'
@@ -392,12 +392,12 @@ export default function OutfitBuilder({
                 {tags.map((tag: string) => (
                   <div
                     key={tag}
-                    className="px-3 py-1 rounded-full text-sm bg-accent-purple text-white flex items-center gap-1 group"
+                    className="px-3 py-1.5 rounded-full text-sm bg-accent-purple text-white flex items-center gap-1 group"
                   >
                     <span>{tag}</span>
                     <button
                       onClick={() => setTags(prev => prev.filter(t => t !== tag))}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -433,7 +433,7 @@ export default function OutfitBuilder({
       </div>
 
       {error && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center">
           {error}
         </div>
       )}

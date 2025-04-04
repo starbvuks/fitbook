@@ -26,8 +26,8 @@ export default function DraggableItem({ item, currency }: DraggableItemProps) {
       className={`
         group relative aspect-square rounded-lg border border-dashed border-border/50
         overflow-hidden transition-all duration-200
-        ${isDragging ? 'opacity-50 scale-95' : 'hover:scale-[1.02]'}
-        cursor-grab active:cursor-grabbing
+        ${isDragging ? 'opacity-50 scale-95' : 'hover:scale-[1.02] active:scale-[0.98]'}
+        cursor-grab active:cursor-grabbing touch-manipulation
       `}
     >
       <Image
@@ -38,7 +38,7 @@ export default function DraggableItem({ item, currency }: DraggableItemProps) {
       />
       <div className="
         absolute inset-0 bg-black/60
-        opacity-0 group-hover:opacity-100 transition-opacity
+        opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200
         flex flex-col justify-center items-center p-3
       ">
         <h3 className="text-sm font-medium text-white text-center line-clamp-2 max-w-full">

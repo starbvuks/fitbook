@@ -284,33 +284,33 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
 
   return (
     <div className="min-h-screen pt-16 bg-background">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-8 gap-3">
+          <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => router.back()}
               className="btn btn-ghost p-2"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
             {isEditing ? (
               <input
                 type="text"
                 value={editedItem.name || item.name}
                 onChange={(e) => setEditedItem({ ...editedItem, name: e.target.value })}
-                className="text-3xl font-display font-bold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none transition-colors"
+                className="text-xl sm:text-3xl font-display font-bold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none transition-colors w-full"
               />
             ) : (
-              <h1 className="text-3xl font-display font-bold">{item.name}</h1>
+              <h1 className="text-xl sm:text-3xl font-display font-bold">{item.name}</h1>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
             {isEditing ? (
               <>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="btn btn-ghost h-9 px-4"
+                  className="btn btn-ghost h-9 px-3 sm:px-4 flex-1 sm:flex-initial justify-center"
                   title="Cancel"
                 >
                   <X className="w-4 h-4 mr-1.5" />
@@ -319,7 +319,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                 <button
                   onClick={handleSave}
                   disabled={isUpdating}
-                  className="btn btn-primary h-9 px-4"
+                  className="btn btn-primary h-9 px-3 sm:px-4 flex-1 sm:flex-initial justify-center"
                   title="Save Changes"
                 >
                   <Save className="w-4 h-4 mr-1.5" />
@@ -330,7 +330,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
               <>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="btn btn-ghost h-9 px-4"
+                  className="btn btn-ghost h-9 px-3 sm:px-4 flex-1 sm:flex-initial justify-center"
                   title="Edit Item"
                 >
                   <Edit className="w-4 h-4 mr-1.5" />
@@ -338,7 +338,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="btn btn-ghost h-9 px-4 hover:bg-destructive/10 hover:text-destructive"
+                  className="btn btn-ghost h-9 px-3 sm:px-4 flex-1 sm:flex-initial justify-center hover:bg-destructive/10 hover:text-destructive"
                   title="Delete Item"
                 >
                   <Trash2 className="w-4 h-4 mr-1.5" />
@@ -350,13 +350,13 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           {/* Left Column - Images and Basic Info */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <FormSection title="Images">
               {isEditing ? (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     {(editedItem.images || item.images).map((image, index) => (
                       <div key={image.id} className="relative aspect-square group">
                         <Image
@@ -367,7 +367,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                         />
                         <button
                           onClick={() => handleImageRemove(index)}
-                          className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/75"
+                          className="absolute top-2 right-2 p-1.5 bg-black/50 rounded-full text-white opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-black/75"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -380,7 +380,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   {item.images.map((image) => (
                     <div key={image.id} className="relative aspect-square">
                       <Image
@@ -398,10 +398,10 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
             <FormSection title="Basic Information">
               <div className="space-y-4">
                 {/* Ownership Toggle */}
-                <div className="flex items-center justify-center gap-4 p-4 bg-muted rounded-lg">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 p-3 sm:p-4 bg-muted rounded-lg">
                   <button
                     onClick={() => setEditedItem({ ...editedItem, isOwned: true })}
-                    className={`btn ${
+                    className={`btn w-full sm:w-auto ${
                       (editedItem.isOwned ?? item.isOwned)
                         ? 'p-3 bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
                         : 'btn-ghost p-3'
@@ -412,7 +412,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                   </button>
                   <button
                     onClick={() => setEditedItem({ ...editedItem, isOwned: false })}
-                    className={`btn ${
+                    className={`btn w-full sm:w-auto ${
                       !(editedItem.isOwned ?? item.isOwned)
                         ? 'p-3 bg-sky-100 text-sky-600 hover:bg-sky-200'
                         : 'btn-ghost p-3'
@@ -430,7 +430,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                     <select
                       value={editedItem.category || item.category}
                       onChange={(e) => setEditedItem({ ...editedItem, category: e.target.value as ClothingCategory })}
-                      className="select"
+                      className="select w-full"
                     >
                       {categories.map((cat) => (
                         <option key={cat} value={cat} className="capitalize">
@@ -517,9 +517,9 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
           </div>
 
           {/* Right Column - Details and Categories */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <FormSection title="Details">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Size */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Size</label>
@@ -528,7 +528,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                       type="text"
                       value={editedItem.size || item.size || ''}
                       onChange={(e) => setEditedItem({ ...editedItem, size: e.target.value })}
-                      className="input"
+                      className="input w-full"
                     />
                   ) : (
                     <p className="px-4 py-2 bg-muted rounded-lg">
@@ -545,7 +545,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                       type="text"
                       value={editedItem.material || item.material || ''}
                       onChange={(e) => setEditedItem({ ...editedItem, material: e.target.value })}
-                      className="input"
+                      className="input w-full"
                     />
                   ) : (
                     <p className="px-4 py-2 bg-muted rounded-lg">
@@ -562,7 +562,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                   <select
                     value={editedItem.condition || item.condition || 'new'}
                     onChange={(e) => setEditedItem({ ...editedItem, condition: e.target.value })}
-                    className="select"
+                    className="select w-full"
                   >
                     {conditions.map((condition) => (
                       <option key={condition.value} value={condition.value}>
@@ -692,7 +692,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
 function ErrorView({ error, onBack }: { error: string | null, onBack: () => void }) {
   return (
     <div className="min-h-screen pt-16 bg-background">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
         <div className="text-center py-12">
           <p className="text-red-500 mb-4">{error || 'Item not found'}</p>
           <button

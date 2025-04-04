@@ -34,6 +34,7 @@ import { formatPrice } from '@/lib/utils'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
+import OutfitCard from '@/app/components/OutfitCard'
 
 export default function OutfitsPage() {
   const { toast } = useToast()
@@ -51,6 +52,7 @@ export default function OutfitsPage() {
   const [sortBy, setSortBy] = useState<'recent' | 'price' | 'rating'>('recent')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [maxPriceLimit, setMaxPriceLimit] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -162,49 +164,58 @@ export default function OutfitsPage() {
     }
   };
 
-  const handleShare = async (outfit: Outfit) => {
+  const handleDeleteOutfit = async (outfitId: string) => {
     try {
-      const url = `${window.location.origin}/outfits/${outfit.id}`
-      await navigator.clipboard.writeText(url)
-      toast({
-        title: "Link copied!",
-        description: "The outfit URL has been copied to your clipboard.",
-        duration: 2000
-      })
-    } catch (error) {
-      console.error('Error sharing:', error)
-      toast({
-        title: "Failed to copy link",
-        description: "Please try again.",
-        variant: "destructive",
-        duration: 2000
-      })
-    }
-  }
+      setIsDeleting(true)
 
-  const handleDelete = async (outfit: Outfit) => {
-    try {
-      const response = await fetch(`/api/outfits/${outfit.id}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/outfits/${outfitId}`, {
+        method: 'DELETE',
       })
 
-      if (!response.ok) throw new Error('Failed to delete outfit')
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to delete outfit')
+      }
+
+      // Remove the deleted outfit from state
+      setOutfits(prev => prev.filter(outfit => outfit.id !== outfitId))
       
-      setOutfits(outfits.filter(o => o.id !== outfit.id))
       toast({
-        title: "Outfit deleted",
-        description: "The outfit has been successfully deleted.",
-        duration: 2000
+        title: 'Outfit deleted',
+        description: 'The outfit was successfully deleted.',
       })
     } catch (error) {
       console.error('Error deleting outfit:', error)
       toast({
-        title: "Failed to delete outfit",
-        description: "Please try again.",
-        variant: "destructive",
-        duration: 2000
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to delete outfit',
+        variant: 'destructive',
       })
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  const handleShareOutfit = (outfitId: string) => {
+    // Create the outfit URL
+    const outfitUrl = `${window.location.origin}/outfits/${outfitId}`
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(outfitUrl)
+      .then(() => {
+        toast({
+          title: 'Link copied',
+          description: 'Outfit link copied to clipboard',
+        })
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err)
+        toast({
+          title: 'Error',
+          description: 'Failed to copy link to clipboard',
+          variant: 'destructive',
+        })
+      })
   }
 
   // Only show filters if we have outfits
@@ -230,7 +241,7 @@ export default function OutfitsPage() {
 
   return (
     <div className="min-h-screen pt-16 bg-background-soft">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {loading ? (
           <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
             <LoadingSpinner text="Loading outfits..." />
@@ -238,9 +249,9 @@ export default function OutfitsPage() {
         ) : (
           <>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
               <div>
-                <h1 className="text-3xl font-display font-bold">My Outfits</h1>
+                <h1 className="text-2xl sm:text-3xl font-display font-bold">My Outfits</h1>
                 <p className="text-foreground-soft">
                   {outfits.length > 0 
                     ? "Create and manage your outfit combinations"
@@ -249,7 +260,7 @@ export default function OutfitsPage() {
               </div>
               <Link
                 href="/outfits/create"
-                className="flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors w-full sm:w-auto justify-center sm:justify-start"
               >
                 <Plus className="w-4 h-4" />
                 {outfits.length > 0 ? "Create Outfit" : "Create Your First Outfit"}
@@ -259,7 +270,7 @@ export default function OutfitsPage() {
             {/* Only show filters if we have outfits */}
             {showFilters && (
               <div className="mb-6 space-y-4">
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
@@ -270,7 +281,7 @@ export default function OutfitsPage() {
                       className="w-full pl-9 pr-4 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
                     />
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 self-end">
                     <select
                       value={sortBy}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as 'recent' | 'price' | 'rating')}
@@ -307,11 +318,11 @@ export default function OutfitsPage() {
                 </div>
 
                 {/* Advanced Filters */}
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                   <select
                     value={selectedSeason}
                     onChange={(e) => setSelectedSeason(e.target.value)}
-                    className="w-40 h-10 px-3 pr-8 mt-5 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    className="h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
                   >
                     <option value="all">All Seasons</option>
                     <option value="spring">Spring</option>
@@ -322,7 +333,7 @@ export default function OutfitsPage() {
                   <select
                     value={selectedOccasion}
                     onChange={(e) => setSelectedOccasion(e.target.value)}
-                    className="w-40 h-10 px-3 pr-8 mt-5 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    className="h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
                   >
                     <option value="all">All Occasions</option>
                     <option value="casual">Casual</option>
@@ -334,7 +345,7 @@ export default function OutfitsPage() {
                   
                   {/* Min/Max Price Inputs - The only change we're keeping */}
                   <div className="flex items-center gap-2">
-                    <div className="w-32">
+                    <div className="flex-1">
                       <label htmlFor="minOutfitPrice" className="text-xs font-medium text-muted-foreground mb-1 block">Min Price</label>
                       <input
                         type="text"
@@ -346,7 +357,7 @@ export default function OutfitsPage() {
                         inputMode="decimal"
                       />
                     </div>
-                    <div className="w-32">
+                    <div className="flex-1">
                       <label htmlFor="maxOutfitPrice" className="text-xs font-medium text-muted-foreground mb-1 block">Max Price</label>
                       <input
                         type="text"
@@ -364,99 +375,18 @@ export default function OutfitsPage() {
             )}
 
             <div className={viewMode === 'grid' 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              ? "grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
               : "space-y-4"
             }>
               {filteredOutfits.map(outfit => (
-                <div key={outfit.id} 
-                  className={`bg-card border border-border overflow-hidden hover:border-accent-purple transition-colors ${
-                    viewMode === 'grid' ? 'rounded-xl' : 'rounded-l-lg'
-                  }`}
-                >
-                  <Link href={`/outfits/${outfit.id}`} className={viewMode === 'grid' ? "block" : "flex h-36 gap-4"}>
-                    <div className={viewMode === 'list' ? "w-48 h-48" : "w-full"}>
-                      <OutfitThumbnail 
-                        items={outfit.items
-                          .map(item => item.wardrobeItem)
-                          .filter((item): item is ClothingItem => item !== undefined)}
-                        className="h-full w-full aspect-square"
-                      />
-                    </div>
-                    <div className={`p-4 ${viewMode === 'list' ? "flex-1" : ""}`}>
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-medium line-clamp-1">{outfit.name}</h3>
-                      </div>
-                      
-                      <div className="mt-2 flex items-center gap-4 text-sm text-foreground-soft">
-                        <span>{formatPrice(outfit.totalCost, currency)}</span>
-                        {outfit.seasons.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{outfit.seasons[0].name}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {outfit.tags.length > 0 && (
-                        <div className="mt-2 flex items-center gap-1">
-                          <Tag className="w-3 h-3 text-foreground-soft" />
-                          <div className="flex items-center gap-1">
-                            {outfit.tags.slice(0, 3).map(tag => (
-                              <span key={tag.id} className="px-1.5 py-0.5 text-[10px] bg-accent-purple/20 rounded text-foreground-soft whitespace-nowrap">
-                                {tag.name}
-                              </span>
-                            ))}
-                            {outfit.tags.length > 3 && (
-                              <span className="text-xs text-foreground-soft">+{outfit.tags.length - 3}</span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-
-                  <div className="flex items-center justify-end gap-2 p-4 pt-0">
-                    <Link
-                      href={`/outfits/${outfit.id}/edit`}
-                      className="btn btn-ghost btn-sm h-8 w-8 p-0"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Link>
-                    <button
-                      onClick={() => handleShare(outfit)}
-                      className="btn btn-ghost btn-sm h-8 w-8 p-0"
-                      title="Copy share link"
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button
-                          className="btn btn-ghost btn-sm h-8 w-8 p-0 text-red-500 hover:text-red-600"
-                          title="Delete outfit"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Outfit</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this outfit? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDelete(outfit)}
-                            className="bg-red-500 hover:bg-red-600 text-white"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
+                <div key={outfit.id} className="group">
+                  <OutfitCard
+                    outfit={outfit}
+                    currency={currency}
+                    viewMode={viewMode}
+                    onDelete={handleDeleteOutfit}
+                    onShare={handleShareOutfit}
+                  />
                 </div>
               ))}
             </div>

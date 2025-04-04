@@ -213,22 +213,22 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="min-h-screen pt-16 bg-background">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 rounded-lg hover:bg-background-soft transition-colors"
+              className="p-2 rounded-lg hover:bg-background-soft transition-colors self-start"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-4xl font-display font-bold">{outfit.name}</h1>
+              <h1 className="text-2xl md:text-4xl font-display font-bold">{outfit.name}</h1>
               {outfit.description && (
-                <p className="text-foreground-soft mt-2 text-lg">{outfit.description}</p>
+                <p className="text-foreground-soft mt-2 text-base md:text-lg">{outfit.description}</p>
               )}
-              <div className="flex items-center gap-4 mt-3 text-sm text-foreground-soft">
+              <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-foreground-soft">
                 <div className="flex items-center gap-1">
                   <User className="w-4 h-4" />
                   <span>By {outfit.user?.name || 'Anonymous'}</span>
@@ -240,7 +240,7 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleShare}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-foreground-soft hover:text-accent-purple transition-colors"
@@ -272,11 +272,11 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 md:gap-8">
           {/* Left Column - Outfit Display */}
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             {/* Main outfit display */}
-            <div className="bg-card rounded-2xl border border-border overflow-hidden">
+            <div className="bg-card rounded-xl md:rounded-2xl border border-border overflow-hidden">
               <div className="aspect-[4/3] relative">
                 <OutfitThumbnail 
                   items={outfit.items
@@ -288,9 +288,9 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
             </div>
 
             {/* Individual items grid */}
-            <div className="bg-card rounded-2xl border border-border p-6">
+            <div className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
               <h2 className="text-xl font-semibold mb-4">Outfit Items</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {outfit.items.map((item) => (
                   <ItemDetails key={item.id} item={item} currency={currency} />
                 ))}
@@ -299,13 +299,13 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
           </div>
 
           {/* Right Column - Outfit Details */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Price */}
-            <div className="bg-card rounded-2xl border border-border p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
+              <div className="flex items-center justify-between mb-4 md:mb-6">
                 <div>
                   <div className="text-sm text-foreground-soft mb-1">Total Cost</div>
-                  <div className="text-3xl font-semibold">
+                  <div className="text-2xl md:text-3xl font-semibold">
                     {formatPrice(outfit.totalCost, currency)}
                   </div>
                 </div>
@@ -314,13 +314,13 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Seasons */}
             {outfit.seasons.length > 0 && (
-              <div className="bg-card rounded-2xl border border-border p-6">
+              <div className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
                 <h3 className="text-sm font-medium mb-3">Seasons</h3>
                 <div className="flex flex-wrap gap-2">
                   {outfit.seasons.map((season) => (
                     <span
                       key={season.id}
-                      className="px-4 py-2 bg-background-soft rounded-full text-sm capitalize"
+                      className="px-3 py-1.5 bg-background-soft rounded-full text-sm capitalize"
                     >
                       {season.name}
                     </span>
@@ -331,13 +331,13 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Occasions */}
             {outfit.occasions.length > 0 && (
-              <div className="bg-card rounded-2xl border border-border p-6">
+              <div className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
                 <h3 className="text-sm font-medium mb-3">Occasions</h3>
                 <div className="flex flex-wrap gap-2">
                   {outfit.occasions.map((occasion) => (
                     <span
                       key={occasion.id}
-                      className="px-4 py-2 bg-background-soft rounded-full text-sm capitalize"
+                      className="px-3 py-1.5 bg-background-soft rounded-full text-sm capitalize"
                     >
                       {occasion.name}
                     </span>
@@ -348,13 +348,13 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Tags */}
             {outfit.tags && outfit.tags.length > 0 && (
-              <div className="bg-card rounded-2xl border border-border p-6">
+              <div className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
                 <h3 className="text-sm font-medium mb-3">Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   {outfit.tags.map((tag) => (
                     <span
                       key={tag.id}
-                      className="px-4 py-2 bg-background-soft rounded-full text-sm"
+                      className="px-3 py-1.5 bg-background-soft rounded-full text-sm"
                     >
                       {tag.name}
                     </span>

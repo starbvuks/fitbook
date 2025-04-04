@@ -160,10 +160,10 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-screen pt-16 bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
           <div>
-            <h1 className="text-2xl font-display font-bold mb-0.5">My Catalog</h1>
+            <h1 className="text-xl sm:text-2xl font-display font-bold mb-0.5">My Catalog</h1>
             <p className="text-sm text-muted-foreground">
               {items.length} items · Total value: {formatCurrency(
                 items.reduce((sum: number, item: ClothingItem) => sum + item.price, 0),
@@ -171,7 +171,7 @@ export default function CatalogPage() {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
               {(Object.entries(viewModeConfig) as [ViewMode, typeof viewModeConfig[ViewMode]][]).map(([mode, config]) => {
                 const Icon = config.icon
@@ -193,7 +193,7 @@ export default function CatalogPage() {
             </div>
             <Link
               href="/catalog/add"
-              className="btn btn-primary h-9 px-4"
+              className="btn btn-primary h-9 px-4 flex-1 sm:flex-initial justify-center"
             >
               <Plus className="w-4 h-4 mr-1.5" />
               Add Item
@@ -201,8 +201,8 @@ export default function CatalogPage() {
           </div>
         </div>
 
-        <div className="bg-card rounded-xl border border-border p-4 mb-4 shadow-soft">
-          <div className="space-y-4">
+        <div className="bg-card rounded-xl border border-border p-3 sm:p-4 mb-4 shadow-soft">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -216,7 +216,7 @@ export default function CatalogPage() {
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`btn h-9 px-4 ${
+                className={`btn h-9 px-4 w-full sm:w-auto ${
                   showFilters
                     ? 'btn-primary'
                     : 'btn-ghost'
@@ -228,7 +228,7 @@ export default function CatalogPage() {
             </div>
 
             {showFilters && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 pt-3 border-t border-border items-end">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-border items-end">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground">Category</label>
                   <select
@@ -303,7 +303,12 @@ export default function CatalogPage() {
             </button>
           </div>
         ) : items.length > 0 ? (
-          <div className={`grid gap-3 ${viewModeConfig[viewMode].gridCols}`}>
+          <div className={`grid gap-3 ${viewMode === 'large' 
+            ? 'grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' 
+            : viewMode === 'small'
+              ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'
+              : 'grid-cols-1'
+          }`}>
             {items.map((item) => (
               <div
                 key={item.id}
@@ -315,7 +320,7 @@ export default function CatalogPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-card rounded-xl border border-border p-8 text-center">
+          <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
             <h3 className="text-lg font-medium mb-2">No items found</h3>
             <p className="text-muted-foreground mb-6">
               {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice

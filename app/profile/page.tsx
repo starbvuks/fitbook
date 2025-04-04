@@ -186,20 +186,20 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen pt-16 bg-background">
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:p-6">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Profile Settings</h1>
           <p className="text-gray-600 dark:text-gray-400">Manage your account preferences and settings</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Left Column - Avatar and Stats */}
             <div className="space-y-6">
-              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-6">
+              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-4 sm:p-6">
                 <div className="text-center">
                   <div className="relative inline-block">
-                    <div className="relative w-32 h-32 mx-auto mb-4">
+                    <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4">
                       {profile.image ? (
                         <Image
                           src={profile.image}
@@ -208,7 +208,7 @@ export default function ProfilePage() {
                           className="object-cover rounded-full"
                         />
                       ) : (
-                        <div className="w-full h-full rounded-full bg-accent-purple flex items-center justify-center text-white text-4xl">
+                        <div className="w-full h-full rounded-full bg-accent-purple flex items-center justify-center text-white text-3xl sm:text-4xl">
                           {profile.name?.[0] || 'U'}
                         </div>
                       )}
@@ -222,14 +222,14 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <h2 className="text-xl font-medium mb-1">{profile.name || 'Unnamed User'}</h2>
-                  <p className="text-foreground-soft">{profile.email}</p>
+                  <h2 className="text-lg sm:text-xl font-medium mb-1">{profile.name || 'Unnamed User'}</h2>
+                  <p className="text-sm text-foreground-soft truncate max-w-full">{profile.email}</p>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Statistics</h3>
-                <div className="space-y-4">
+              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-gray-900 dark:text-white">Statistics</h3>
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-foreground-soft">Items</span>
                     <span className="font-medium">{profile.stats.itemCount}</span>
@@ -242,7 +242,7 @@ export default function ProfilePage() {
                     <span className="text-foreground-soft">Lookbooks</span>
                     <span className="font-medium">{profile.stats.lookbookCount}</span>
                   </div>
-                  <div className="border-t border-border pt-4">
+                  <div className="border-t border-border pt-3 sm:pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-foreground-soft">Total Spent</span>
                       <span className="font-medium">
@@ -262,26 +262,16 @@ export default function ProfilePage() {
 
             {/* Right Column - Form Fields */}
             <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-6">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Basic Information</h3>
+              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-gray-900 dark:text-white">Basic Information</h3>
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Name</label>
-                    <input
-                      type="text"
-                      value={profile.name || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, name: e.target.value } : null)}
-                      className={inputStyles}
-                    />
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium mb-2">Username</label>
                     <input
                       type="text"
-                      value={profile.username || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, username: e.target.value } : null)}
-                      className={inputStyles}
+                      value={profile.name || ''}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, name: e.target.value } : null)}
+                      className={`${inputStyles} h-10 sm:h-11`}
                     />
                   </div>
 
@@ -301,21 +291,21 @@ export default function ProfilePage() {
                       type="text"
                       value={profile.location || ''}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, location: e.target.value } : null)}
-                      className={inputStyles}
+                      className={`${inputStyles} h-10 sm:h-11`}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-6">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Preferences</h3>
+              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-gray-900 dark:text-white">Preferences</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Currency</label>
                     <select
                       value={profile.currency}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, currency: e.target.value as Currency } : null)}
-                      className={selectStyles}
+                      className={`${selectStyles} h-10 sm:h-11`}
                     >
                       {currencies.map(currency => (
                         <option key={currency} value={currency} className="dark:bg-background">
@@ -330,7 +320,7 @@ export default function ProfilePage() {
                     <select
                       value={profile.language}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, language: e.target.value } : null)}
-                      className={selectStyles}
+                      className={`${selectStyles} h-10 sm:h-11`}
                     >
                       {languages.map(lang => (
                         <option key={lang.code} value={lang.code} className="dark:bg-background">
@@ -343,74 +333,25 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-sm font-medium">Public Profile</label>
-                      <p className="text-sm text-foreground-soft">Allow others to view your profile</p>
+                      <p className="text-xs sm:text-sm text-foreground-soft">Allow others to view your profile</p>
                     </div>
                     <div className="flex items-center">
                       <input
                         type="checkbox"
                         checked={profile.publicProfile}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, publicProfile: e.target.checked } : null)}
-                        className="w-5 h-5 rounded border-border focus:ring-accent-purple text-accent-purple"
+                        className="w-5 h-5 sm:w-6 sm:h-6 rounded border-border focus:ring-accent-purple text-accent-purple"
                       />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-6">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Social Links</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Website</label>
-                    <input
-                      type="url"
-                      value={profile.website || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, website: e.target.value } : null)}
-                      placeholder="https://"
-                      className={inputStyles}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Instagram</label>
-                    <input
-                      type="text"
-                      value={profile.instagram || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, instagram: e.target.value } : null)}
-                      placeholder="@username"
-                      className={inputStyles}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Pinterest</label>
-                    <input
-                      type="text"
-                      value={profile.pinterest || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, pinterest: e.target.value } : null)}
-                      placeholder="@username"
-                      className={inputStyles}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">TikTok</label>
-                    <input
-                      type="text"
-                      value={profile.tiktok || ''}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, tiktok: e.target.value } : null)}
-                      placeholder="@username"
-                      className={inputStyles}
-                    />
-                  </div>
-                </div>
-              </div> */}
-
               <div className="flex justify-end">
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors disabled:opacity-50"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors disabled:opacity-50"
                 >
                   {saving ? (
                     <>
