@@ -33,7 +33,7 @@ export default function ColorPalette({
     <div className="space-y-4">
       {/* Color Grid */}
       <div className="grid grid-cols-6 gap-2">
-        {sortedColors.map((color) => {
+        {sortedColors.map((color: { hex: string; prevalence: number }) => {
           const isLight = isLightColor(color.hex)
           const isCopied = copiedColor === color.hex
           
@@ -72,7 +72,7 @@ export default function ColorPalette({
 
       {/* Color Info */}
       <div className="grid grid-cols-2 gap-4 text-sm">
-        {sortedColors.map((color) => (
+        {sortedColors.map((color: { hex: string; prevalence: number }) => (
           <div
             key={color.hex}
             className="flex items-center justify-between p-2 bg-background-soft rounded-lg"

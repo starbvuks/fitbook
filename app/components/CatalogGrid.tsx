@@ -30,14 +30,14 @@ const DraggableItem = ({ item, onDrag }: DraggableItemProps) => {
 
   return (
     <div
-      ref={(node) => {
+      ref={(node: HTMLDivElement) => {
         const dragTarget = dragRef as unknown as (node: HTMLDivElement | null) => void
         dragTarget(node)
       }}
-      className={cn(
-        'relative aspect-square rounded-lg border border-border bg-background p-2 transition-opacity cursor-move',
-        isDragging && 'opacity-50'
-      )}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+      className={`relative aspect-square rounded-lg border border-border bg-background p-2 transition-opacity cursor-move ${
+        isDragging ? 'border-2 border-accent-purple shadow-lg' : ''
+      }`}
     >
       <Image
         src={item.images[0]?.url || '/placeholder.png'}
@@ -56,7 +56,7 @@ const DraggableItem = ({ item, onDrag }: DraggableItemProps) => {
 export default function CatalogGrid({ items, onItemDrag }: CatalogGridProps) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {items.map((item) => (
+      {items.map((item: ClothingItem) => (
         <DraggableItem
           key={item.id}
           item={item}

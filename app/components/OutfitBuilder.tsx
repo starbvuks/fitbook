@@ -133,7 +133,7 @@ export default function OutfitBuilder({
   }
 
   const totalCost = Object.values(slots)
-    .filter(item => item !== null)
+    .filter((item): item is ClothingItem => item !== null)
     .reduce((sum: number, item: ClothingItem | null) => sum + (item?.price || 0), 0) +
     accessories.reduce((sum: number, item: ClothingItemWithPosition) => sum + item.price, 0)
 
@@ -243,7 +243,7 @@ export default function OutfitBuilder({
           <input
             type="text"
             value={outfitName}
-            onChange={(e) => setOutfitName(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOutfitName(e.target.value)}
             placeholder="Enter outfit name..."
             className="text-2xl font-display font-bold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none transition-colors w-72 placeholder:text-muted-foreground"
           />
@@ -267,7 +267,7 @@ export default function OutfitBuilder({
       <div className="flex-1 overflow-y-auto p-5">
         {/* Outfit slots */}
         <div className="space-y-4">
-          {Object.entries(SLOT_LABELS).map(([slot, label]) => (
+          {Object.entries(SLOT_LABELS).map(([slot, label]: [string, string]) => (
             <div key={slot} className="relative">
               <div className="text-sm font-medium mb-2">{label}</div>
               <div
@@ -336,7 +336,7 @@ export default function OutfitBuilder({
           <div>
             <h3 className="text-sm font-medium mb-2">Seasons</h3>
             <div className="flex flex-wrap gap-2">
-              {(['spring', 'summer', 'fall', 'winter'] as SeasonName[]).map((season) => (
+              {(['spring', 'summer', 'fall', 'winter'] as SeasonName[]).map((season: SeasonName) => (
                 <button
                   key={season}
                   onClick={() => {
@@ -362,7 +362,7 @@ export default function OutfitBuilder({
           <div>
             <h3 className="text-sm font-medium mb-2">Occasions</h3>
             <div className="flex flex-wrap gap-2">
-              {(['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding'] as OccasionName[]).map((occasion) => (
+              {(['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding'] as OccasionName[]).map((occasion: OccasionName) => (
                 <button
                   key={occasion}
                   onClick={() => {
@@ -389,7 +389,7 @@ export default function OutfitBuilder({
             <h3 className="text-sm font-medium mb-2">Tags</h3>
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
+                {tags.map((tag: string) => (
                   <div
                     key={tag}
                     className="px-3 py-1 rounded-full text-sm bg-accent-purple text-white flex items-center gap-1 group"
@@ -408,7 +408,7 @@ export default function OutfitBuilder({
                 type="text"
                 placeholder="Add tags (separate with commas)..."
                 className="w-full p-2 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                onKeyDown={(e) => {
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === ',' || e.key === 'Enter') {
                     e.preventDefault()
                     const input = e.currentTarget
@@ -419,7 +419,7 @@ export default function OutfitBuilder({
                     }
                   }
                 }}
-                onBlur={(e) => {
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                   const value = e.target.value.trim()
                   if (value && !tags.includes(value)) {
                     setTags(prev => [...prev, value])

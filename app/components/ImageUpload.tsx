@@ -159,7 +159,7 @@ export default function ImageUpload({ onUploadSuccess, onUploadError, value }: I
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
               />
               Choose File
             </label>
@@ -178,7 +178,7 @@ export default function ImageUpload({ onUploadSuccess, onUploadError, value }: I
           <input
             type="url"
             value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrlInput(e.target.value)}
             placeholder="Enter image URL"
             className="flex-1 px-4 py-2 bg-background-soft rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple"
           />

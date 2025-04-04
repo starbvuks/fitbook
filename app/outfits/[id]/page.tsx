@@ -18,9 +18,22 @@ import {
   Clock,
   Heart,
   ExternalLink,
-  Info
+  Info,
+  ImageIcon,
+  Pencil,
 } from 'lucide-react';
-import type { Outfit, Currency, User as UserType, OutfitItem } from '@/app/models/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import type { Outfit, Currency, User as UserType, OutfitItem, Season, Occasion, Tag as PrismaTag, ClothingItem, Image as PrismaImage } from '@/app/models/types';
 import { formatPrice } from '@/lib/utils';
 import LoadingSpinner from '@/app/components/LoadingSpinner';
 import OutfitThumbnail from '@/app/components/OutfitThumbnail';
@@ -31,110 +44,34 @@ interface ItemDetailsProps {
 }
 
 function ItemDetails({ item, currency }: ItemDetailsProps) {
-  const [showDetails, setShowDetails] = useState(false);
-
-  if (!item.wardrobeItem) return null;
-
-  const handleItemClick = () => {
-    if (item.wardrobeItem?.purchaseUrl) {
-      window.open(item.wardrobeItem.purchaseUrl, '_blank');
-    }
-  };
+  if (!item.wardrobeItem) {
+    return null;
+  }
 
   return (
-    <div 
-      className={`group relative aspect-square rounded-lg border border-border overflow-hidden bg-background-soft cursor-pointer ${
-        item.wardrobeItem.purchaseUrl ? 'hover:border-accent-purple' : ''
-      }`}
-      onClick={handleItemClick}
-    >
-      {item.wardrobeItem.images?.[0] ? (
-        <Image
-          src={item.wardrobeItem.images[0].url}
-          alt={item.wardrobeItem.name || 'Outfit item'}
-          fill
-          className="object-cover"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-foreground-soft">
-          No Image
-        </div>
-      )}
-      
-      {/* <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowDetails(!showDetails);
-          }}
-          className="p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
-        >
-          <Info className="w-4 h-4" />
-        </button>
-      </div> */}
-
-      {showDetails ? (
-        <div 
-          className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity p-4 text-white overflow-y-auto z-20"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h4 className="font-medium mb-2">{item.wardrobeItem.name}</h4>
-          {item.wardrobeItem.brand && (
-            <p className="text-sm text-white/80 mb-2">{item.wardrobeItem.brand}</p>
-          )}
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-white/80">Price:</span>
-              <span>{formatPrice(item.wardrobeItem.price, currency)}</span>
-            </div>
-            {item.wardrobeItem.size && (
-              <div className="flex justify-between items-center">
-                <span className="text-white/80">Size:</span>
-                <span>{item.wardrobeItem.size}</span>
-              </div>
-            )}
-            {item.wardrobeItem.material && (
-              <div className="flex justify-between items-center">
-                <span className="text-white/80">Material:</span>
-                <span>{item.wardrobeItem.material}</span>
-              </div>
-            )}
-            {item.position && (
-              <div className="flex justify-between items-center">
-                <span className="text-white/80">Position:</span>
-                <span className="capitalize">{item.position.replace('_', ' ')}</span>
-              </div>
-            )}
-            {item.wardrobeItem.purchaseUrl && (
-              <a
-                href={item.wardrobeItem.purchaseUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-accent-purple hover:text-accent-purple-light mt-3"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>Buy Now</span>
-              </a>
-            )}
+    <div className="flex items-center gap-3 bg-background-soft p-3 rounded-lg">
+      <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+        {item.wardrobeItem.images[0]?.url ? (
+          <Image
+            src={item.wardrobeItem.images[0].url}
+            alt={item.wardrobeItem.name}
+            width={64}
+            height={64}
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-background flex items-center justify-center">
+            <ImageIcon className="w-6 h-6 text-muted-foreground" />
           </div>
-        </div>
-      ) : (
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-            <div className="text-sm font-medium line-clamp-2">
-              {item.wardrobeItem.name}
-            </div>
-            <div className="text-xs mt-1 flex items-center justify-between">
-              <span>{formatPrice(item.wardrobeItem.price, currency)}</span>
-              {item.wardrobeItem.brand && (
-                <span className="text-white/80">{item.wardrobeItem.brand}</span>
-              )}
-            </div>
- 
-          </div>
-        </div>
-      )}
+        )}
+      </div>
+      <div className="flex-1">
+        <Link href={`/catalog/${item.wardrobeItem.id}`} className="font-medium hover:underline">
+          {item.wardrobeItem.name}
+        </Link>
+        <p className="text-sm text-muted-foreground">{item.wardrobeItem.brand}</p>
+        <p className="text-sm font-semibold mt-1">{formatPrice(item.wardrobeItem.price, currency)}</p>
+      </div>
     </div>
   );
 }

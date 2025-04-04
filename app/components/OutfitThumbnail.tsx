@@ -23,9 +23,9 @@ export default function OutfitThumbnail({ items, className = '' }: OutfitThumbna
   return (
     <div className={`relative aspect-square overflow-hidden rounded-lg ${className}`}>
       <div className={`grid ${gridClass} h-full gap-0.5 bg-border`}>
-        {displayItems.map((item, index) => (
+        {displayItems.map((item: ClothingItem, index: number) => (
           <div
-            key={item.id}
+            key={item.id + index}
             className={`relative ${
               displayItems.length === 3 && index === 2 ? 'col-span-2' : ''
             }`}

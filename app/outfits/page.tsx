@@ -254,11 +254,12 @@ export default function OutfitsPage() {
                   <div className="flex items-center gap-2">
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as any)}
-                      className="h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as 'recent' | 'price' | 'rating')}
+                      className="select h-9 text-sm"
                     >
                       <option value="recent">Most Recent</option>
-                      <option value="price">Price</option>
+                      <option value="rating">Highest Rating</option>
+                      <option value="price">Lowest Price</option>
                     </select>
                     <div className="flex items-center gap-1 border border-gray-300 dark:border-neutral-800 rounded-lg">
                       <button

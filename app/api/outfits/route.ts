@@ -68,19 +68,19 @@ export async function POST(request: NextRequest) {
     const data = outfitSchema.parse(body)
 
     // Create or connect tags
-    const tagConnections = data.tags?.map((name) => ({
+    const tagConnections = data.tags?.map((name: string) => ({
       where: { name },
       create: { name }
     })) || []
 
     // Create or connect seasons
-    const seasonConnections = data.seasons.map((name) => ({
+    const seasonConnections = data.seasons.map((name: string) => ({
       where: { name },
       create: { name }
     }))
 
     // Create or connect occasions
-    const occasionConnections = data.occasions.map((name) => ({
+    const occasionConnections = data.occasions.map((name: string) => ({
       where: { name },
       create: { name }
     }))

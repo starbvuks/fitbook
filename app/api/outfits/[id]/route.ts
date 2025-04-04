@@ -104,7 +104,7 @@ export async function PATCH(req: Request) {
     const wardrobeItems = await prisma.wardrobeItem.findMany({
       where: {
         id: {
-          in: items.map((item: any) => item.wardrobeItemId)
+          in: items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId)
         }
       }
     })
@@ -113,43 +113,46 @@ export async function PATCH(req: Request) {
 
     // Update outfit
     const updatedOutfit = await prisma.outfit.update({
-      where: {
-        id
-      },
+      where: { id },
       data: {
-        name,
-        description,
+        name: body.name,
+        description: body.description,
+        rating: body.rating,
         totalCost,
         seasons: {
-          connectOrCreate: seasons.map((season: any) => ({
-            where: { name: season.name },
+          connectOrCreate: seasons.map((season: { id: string; name: string }) => ({
+            where: { id: season.id },
             create: { name: season.name }
           }))
         },
         occasions: {
-          connectOrCreate: occasions.map((occasion: any) => ({
-            where: { name: occasion.name },
+          connectOrCreate: occasions.map((occasion: { id: string; name: string }) => ({
+            where: { id: occasion.id },
             create: { name: occasion.name }
           }))
         },
         tags: {
-          connectOrCreate: body.tags?.map((tag: any) => ({
+          connectOrCreate: body.tags?.map((tag: { name: string }) => ({
             where: { name: tag.name },
             create: { name: tag.name }
-          })) || []
+          }))
+        },
+        items: {
+          deleteMany: {},
+          create: items.map((item: { wardrobeItemId: string; position?: string }) => ({
+            wardrobeItem: {
+              connect: {
+                id: item.wardrobeItemId
+              }
+            },
+            position: item.position
+          }))
         }
       },
       include: {
         items: {
           include: {
-            wardrobeItem: {
-              include: {
-                images: true,
-                tags: true,
-                seasons: true,
-                occasions: true
-              }
-            }
+            wardrobeItem: true
           }
         },
         tags: true,
@@ -158,53 +161,10 @@ export async function PATCH(req: Request) {
       }
     })
 
-    // Delete existing items
-    await prisma.outfitItem.deleteMany({
-      where: {
-        outfitId: id
-      }
-    })
-
-    // Create new items
-    await prisma.outfitItem.createMany({
-      data: items.map((item: any) => ({
-        outfitId: id,
-        wardrobeItemId: item.wardrobeItemId,
-        position: item.position
-      }))
-    })
-
-    // Fetch the final outfit with all relations
-    const finalOutfit = await prisma.outfit.findUnique({
-      where: {
-        id
-      },
-      include: {
-        items: {
-          include: {
-            wardrobeItem: {
-              include: {
-                images: true,
-                tags: true,
-                seasons: true,
-                occasions: true
-              }
-            }
-          }
-        },
-        tags: true,
-        seasons: true,
-        occasions: true
-      }
-    })
-
-    return NextResponse.json(finalOutfit)
+    return NextResponse.json(updatedOutfit)
   } catch (error) {
-    console.error('Error updating outfit:', error)
-    return NextResponse.json(
-      { error: 'Failed to update outfit' },
-      { status: 500 }
-    )
+    console.error("Error updating outfit:", error)
+    return NextResponse.json({ error: "Failed to update outfit" }, { status: 500 })
   }
 }
 

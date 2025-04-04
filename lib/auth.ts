@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, Account } from "@prisma/client"
 import { AuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 
@@ -61,7 +61,7 @@ export const authOptions: AuthOptions = {
 
         // Check if this OAuth account is already linked
         const linkedAccount = existingUser.accounts.find(
-          acc => acc.provider === account?.provider && acc.providerAccountId === account?.providerAccountId
+          (acc: Account) => acc.provider === account?.provider && acc.providerAccountId === account?.providerAccountId
         )
 
         if (!linkedAccount && account) {

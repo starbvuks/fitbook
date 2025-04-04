@@ -150,7 +150,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
   const handleImageRemove = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index),
+      images: prev.images.filter((_, i: number) => i !== index),
     }))
   }
 
@@ -167,8 +167,8 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
         <div className="space-y-6">
           <FormSection title="Images">
             <ImageUpload
-              onUploadSuccess={(result) => handleImageUpload(result)}
-              onUploadError={(error) => setError(error.message)}
+              onUploadSuccess={(result: UploadResult) => handleImageUpload(result)}
+              onUploadError={(error: Error) => setError(error.message)}
             />
           </FormSection>
 
@@ -207,11 +207,12 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 </label>
                 <select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as ClothingCategory })}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, category: e.target.value as ClothingCategory })}
                   className="select h-9 text-sm w-full"
                   required
                 >
-                  {categories.map((cat) => (
+                  <option value="">Select Category</option>
+                  {categories.map((cat: ClothingCategory) => (
                     <option key={cat} value={cat} className="capitalize">
                       {cat}
                     </option>
@@ -225,8 +226,9 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 </label>
                 <input
                   type="text"
+                  id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                   className="input h-9 text-sm w-full"
                   required
                 />
@@ -236,8 +238,9 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Brand</label>
                 <input
                   type="text"
+                  id="brand"
                   value={formData.brand}
-                  onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, brand: e.target.value })}
                   className="input h-9 text-sm w-full"
                 />
               </div>
@@ -246,11 +249,11 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Price</label>
                 <input
                   type="number"
-                  min="0"
-                  step="0.01"
+                  id="price"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, price: e.target.value })}
                   className="input h-9 text-sm w-full"
+                  step="0.01"
                 />
               </div>
 
@@ -258,8 +261,9 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Purchase URL</label>
                 <input
                   type="url"
+                  id="purchaseUrl"
                   value={formData.purchaseUrl}
-                  onChange={(e) => setFormData({ ...formData, purchaseUrl: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, purchaseUrl: e.target.value })}
                   placeholder="https://"
                   className="input h-9 text-sm w-full"
                 />
@@ -276,8 +280,9 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Size</label>
                 <input
                   type="text"
+                  id="size"
                   value={formData.size}
-                  onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, size: e.target.value })}
                   className="input h-9 text-sm w-full"
                 />
               </div>
@@ -286,8 +291,9 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Material</label>
                 <input
                   type="text"
+                  id="material"
                   value={formData.material}
-                  onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, material: e.target.value })}
                   className="input h-9 text-sm w-full"
                 />
               </div>
@@ -296,11 +302,13 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">Condition</label>
               <select
+                id="condition"
                 value={formData.condition}
-                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, condition: e.target.value })}
                 className="select h-9 text-sm w-full"
               >
-                {conditions.map((condition) => (
+                <option value="">Select Condition</option>
+                {conditions.map((condition: { value: string; label: string }) => (
                   <option key={condition.value} value={condition.value}>
                     {condition.label}
                   </option>
@@ -314,7 +322,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Seasons</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {seasons.map((season) => (
+                  {seasons.map((season: Season) => (
                     <button
                       key={season.id}
                       type="button"
@@ -339,7 +347,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Occasions</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {occasions.map((occasion) => (
+                  {occasions.map((occasion: Occasion) => (
                     <button
                       key={occasion.id}
                       type="button"
@@ -368,12 +376,32 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">Tags</label>
               <input
                 type="text"
-                value={formData.tags.join(', ')}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
-                })}
-                placeholder="Enter tags separated by commas"
+                id="tags"
+                placeholder="Enter tags, separated by commas"
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === ',' || e.key === 'Enter') {
+                    e.preventDefault()
+                    const input = e.currentTarget
+                    const value = input.value.trim()
+                    if (value && !formData.tags.includes(value)) {
+                      setFormData(prev => ({
+                        ...prev,
+                        tags: [...prev.tags, value]
+                      }))
+                      input.value = ''
+                    }
+                  }
+                }}
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                  const value = e.target.value.trim()
+                  if (value && !formData.tags.includes(value)) {
+                    setFormData(prev => ({
+                      ...prev,
+                      tags: [...prev.tags, value]
+                    }))
+                    e.target.value = ''
+                  }
+                }}
                 className="input h-9 text-sm w-full"
               />
             </div>
@@ -383,8 +411,9 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">Notes</label>
               <textarea
+                id="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
                 className="input text-sm w-full min-h-[80px] resize-none"
               />

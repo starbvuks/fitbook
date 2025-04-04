@@ -16,7 +16,7 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
   const [isUpdating, setIsUpdating] = useState(false)
   const router = useRouter()
 
-  const handleToggleOwnership = async (e: React.MouseEvent) => {
+  const handleToggleOwnership = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     if (!onToggleOwnership || isUpdating) return
 
@@ -105,7 +105,7 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
         </div>
         {item.tags.length > 0 && viewMode !== 'stack' && (
           <div className="mt-2 flex flex-wrap gap-1">
-            {item.tags.slice(0, 2).map((tag) => (
+            {item.tags.slice(0, 2).map((tag: { name: string }) => (
               <span
                 key={tag.name}
                 className="px-2 py-1 text-xs bg-background-soft rounded-full text-foreground-soft"

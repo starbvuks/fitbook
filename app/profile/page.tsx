@@ -270,7 +270,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={profile.name || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, name: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, name: e.target.value } : null)}
                       className={inputStyles}
                     />
                   </div>
@@ -280,7 +280,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={profile.username || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, username: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, username: e.target.value } : null)}
                       className={inputStyles}
                     />
                   </div>
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium mb-2">Bio</label>
                     <textarea
                       value={profile.bio || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, bio: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setProfile(prev => prev ? { ...prev, bio: e.target.value } : null)}
                       rows={3}
                       className={inputStyles}
                     />
@@ -300,7 +300,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={profile.location || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, location: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, location: e.target.value } : null)}
                       className={inputStyles}
                     />
                   </div>
@@ -314,7 +314,7 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium mb-2">Currency</label>
                     <select
                       value={profile.currency}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, currency: e.target.value as Currency } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, currency: e.target.value as Currency } : null)}
                       className={selectStyles}
                     >
                       {currencies.map(currency => (
@@ -329,7 +329,7 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium mb-2">Language</label>
                     <select
                       value={profile.language}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, language: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, language: e.target.value } : null)}
                       className={selectStyles}
                     >
                       {languages.map(lang => (
@@ -349,7 +349,7 @@ export default function ProfilePage() {
                       <input
                         type="checkbox"
                         checked={profile.emailNotifications}
-                        onChange={(e) => setProfile(prev => prev ? { ...prev, emailNotifications: e.target.checked } : null)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, emailNotifications: e.target.checked } : null)}
                         className="w-5 h-5 rounded border-border focus:ring-accent-purple text-accent-purple"
                       />
                     </div>
@@ -364,7 +364,7 @@ export default function ProfilePage() {
                       <input
                         type="checkbox"
                         checked={profile.publicProfile}
-                        onChange={(e) => setProfile(prev => prev ? { ...prev, publicProfile: e.target.checked } : null)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, publicProfile: e.target.checked } : null)}
                         className="w-5 h-5 rounded border-border focus:ring-accent-purple text-accent-purple"
                       />
                     </div>
@@ -380,7 +380,7 @@ export default function ProfilePage() {
                     <input
                       type="url"
                       value={profile.website || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, website: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, website: e.target.value } : null)}
                       placeholder="https://"
                       className={inputStyles}
                     />
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={profile.instagram || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, instagram: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, instagram: e.target.value } : null)}
                       placeholder="@username"
                       className={inputStyles}
                     />
@@ -402,7 +402,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={profile.pinterest || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, pinterest: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, pinterest: e.target.value } : null)}
                       placeholder="@username"
                       className={inputStyles}
                     />
@@ -413,7 +413,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={profile.tiktok || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, tiktok: e.target.value } : null)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, tiktok: e.target.value } : null)}
                       placeholder="@username"
                       className={inputStyles}
                     />
