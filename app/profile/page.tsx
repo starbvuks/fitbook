@@ -342,21 +342,6 @@ export default function ProfilePage() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium">Email Notifications</label>
-                      <p className="text-sm text-foreground-soft">Receive updates about your wardrobe</p>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={profile.emailNotifications}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProfile(prev => prev ? { ...prev, emailNotifications: e.target.checked } : null)}
-                        className="w-5 h-5 rounded border-border focus:ring-accent-purple text-accent-purple"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
                       <label className="text-sm font-medium">Public Profile</label>
                       <p className="text-sm text-foreground-soft">Allow others to view your profile</p>
                     </div>
@@ -372,7 +357,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-6">
+              {/* <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-6">
                 <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Social Links</h3>
                 <div className="space-y-4">
                   <div>
@@ -419,7 +404,7 @@ export default function ProfilePage() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex justify-end">
                 <button

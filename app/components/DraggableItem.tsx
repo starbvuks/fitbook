@@ -37,17 +37,18 @@ export default function DraggableItem({ item, currency }: DraggableItemProps) {
         className="object-cover"
       />
       <div className="
-        absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 
+        absolute inset-0 bg-black/60
         opacity-0 group-hover:opacity-100 transition-opacity
-        flex flex-col justify-end p-3
+        flex flex-col justify-center items-center p-3
       ">
-        <h3 className="text-sm font-medium text-white line-clamp-1">{item.name}</h3>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-xs text-white/90">{formatPrice(item.price, currency)}</span>
-          {item.brand && (
-            <span className="text-xs text-white/75">{item.brand}</span>
-          )}
-        </div>
+        <h3 className="text-sm font-medium text-white text-center line-clamp-2 max-w-full">
+          {item.name}
+        </h3>
+        {item.brand && (
+          <span className="text-xs text-white/75 mt-1 text-center line-clamp-1 max-w-full">
+            {item.brand}
+          </span>
+        )}
       </div>
     </div>
   )

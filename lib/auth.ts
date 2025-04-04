@@ -70,6 +70,7 @@ export const authOptions: AuthOptions = {
               email: user.email,
               name: user.name || '',
               image: user.image,
+              currency: "INR",
               accounts: {
                 create: {
                   type: account?.type || 'oauth',

@@ -33,7 +33,6 @@ import type { Outfit, Season, Occasion, Currency, ClothingItem } from '@/app/mod
 import { formatPrice } from '@/lib/utils'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
-import PriceRangeSlider from '@/app/components/PriceRangeSlider'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 
 export default function OutfitsPage() {
@@ -47,9 +46,11 @@ export default function OutfitsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSeason, setSelectedSeason] = useState<string>('all')
   const [selectedOccasion, setSelectedOccasion] = useState<string>('all')
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number | null }>({ min: 0, max: null })
+  const [minPrice, setMinPrice] = useState<string>('')
+  const [maxPrice, setMaxPrice] = useState<string>('')
   const [sortBy, setSortBy] = useState<'recent' | 'price' | 'rating'>('recent')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [maxPriceLimit, setMaxPriceLimit] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -59,16 +60,14 @@ export default function OutfitsPage() {
           throw new Error('Failed to fetch user profile')
         }
         const data = await response.json()
-        const userCurrency = data.currency || 'USD'
+        const userCurrency = data.currency || 'INR'
         setCurrency(userCurrency)
-        const maxPrice = await getMaxPriceForCurrency(userCurrency)
-        setPriceRange(prev => ({
-          min: prev.min,
-          max: maxPrice
-        }))
+        const maxPriceValue = await getMaxPriceForCurrency(userCurrency)
+        setMaxPriceLimit(maxPriceValue * 3)
       } catch (error) {
         console.error('Error fetching user profile:', error)
-        setCurrency('USD')
+        setCurrency('INR')
+        setMaxPriceLimit(3000000) // Default maximum for outfits (3 million rupees)
       }
     }
 
@@ -89,7 +88,7 @@ export default function OutfitsPage() {
 
         if (!profileResponse.ok) throw new Error('Failed to fetch profile')
         const profileData = await profileResponse.json()
-        setCurrency(profileData.currency || 'USD')
+        setCurrency(profileData.currency || 'INR')
 
         if (!outfitsResponse.ok) throw new Error('Failed to fetch outfits')
         const outfitsData = await outfitsResponse.json()
@@ -128,8 +127,14 @@ export default function OutfitsPage() {
       outfit.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
     const matchesSeason = selectedSeason === 'all' || outfit.seasons.some(s => s.name === selectedSeason)
     const matchesOccasion = selectedOccasion === 'all' || outfit.occasions.some(o => o.name === selectedOccasion)
-    const matchesPrice = (!priceRange.min || outfit.totalCost >= priceRange.min) &&
-      (!priceRange.max || outfit.totalCost <= priceRange.max)
+    
+    const minPriceNum = parseFloat(minPrice)
+    const maxPriceNum = parseFloat(maxPrice)
+    const matchesPrice = (
+      (isNaN(minPriceNum) || outfit.totalCost >= minPriceNum) &&
+      (isNaN(maxPriceNum) || outfit.totalCost <= maxPriceNum)
+    )
+    
     return matchesSearch && matchesSeason && matchesOccasion && matchesPrice
   }).sort((a, b) => {
     switch (sortBy) {
@@ -142,6 +147,20 @@ export default function OutfitsPage() {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }
   }) : []
+
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) { 
+      setMinPrice(value);
+    }
+  };
+
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setMaxPrice(value);
+    }
+  };
 
   const handleShare = async (outfit: Outfit) => {
     try {
@@ -292,7 +311,7 @@ export default function OutfitsPage() {
                   <select
                     value={selectedSeason}
                     onChange={(e) => setSelectedSeason(e.target.value)}
-                    className="w-40 h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    className="w-40 h-10 px-3 pr-8 mt-5 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
                   >
                     <option value="all">All Seasons</option>
                     <option value="spring">Spring</option>
@@ -303,7 +322,7 @@ export default function OutfitsPage() {
                   <select
                     value={selectedOccasion}
                     onChange={(e) => setSelectedOccasion(e.target.value)}
-                    className="w-40 h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                    className="w-40 h-10 px-3 pr-8 mt-5 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
                   >
                     <option value="all">All Occasions</option>
                     <option value="casual">Casual</option>
@@ -312,19 +331,38 @@ export default function OutfitsPage() {
                     <option value="sport">Sport</option>
                     <option value="special">Special</option>
                   </select>
-                  <div className="w-64">
-                    <PriceRangeSlider
-                      minPrice={0}
-                      maxPrice={Math.max(10000, ...outfits.map(outfit => outfit.totalCost))}
-                      currency={currency}
-                      onChange={({ min, max }) => setPriceRange({ min, max })}
-                    />
+                  
+                  {/* Min/Max Price Inputs - The only change we're keeping */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-32">
+                      <label htmlFor="minOutfitPrice" className="text-xs font-medium text-muted-foreground mb-1 block">Min Price</label>
+                      <input
+                        type="text"
+                        id="minOutfitPrice"
+                        value={minPrice}
+                        onChange={handleMinPriceChange}
+                        placeholder="0"
+                        className="w-full h-10 px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                        inputMode="decimal"
+                      />
+                    </div>
+                    <div className="w-32">
+                      <label htmlFor="maxOutfitPrice" className="text-xs font-medium text-muted-foreground mb-1 block">Max Price</label>
+                      <input
+                        type="text"
+                        id="maxOutfitPrice"
+                        value={maxPrice}
+                        onChange={handleMaxPriceChange}
+                        placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency).replace(/\.\d+$/, '') : 'Max'}
+                        className="w-full h-10 px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                        inputMode="decimal"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Outfits Grid/List */}
             <div className={viewMode === 'grid' 
               ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               : "space-y-4"
@@ -332,16 +370,18 @@ export default function OutfitsPage() {
               {filteredOutfits.map(outfit => (
                 <div key={outfit.id} 
                   className={`bg-card border border-border overflow-hidden hover:border-accent-purple transition-colors ${
-                    viewMode === 'grid' ? 'rounded-xl' : 'rounded-lg'
+                    viewMode === 'grid' ? 'rounded-xl' : 'rounded-l-lg'
                   }`}
                 >
-                  <Link href={`/outfits/${outfit.id}`} className={viewMode === 'grid' ? "block" : "flex gap-4"}>
-                    <OutfitThumbnail 
-                      items={outfit.items
-                        .map(item => item.wardrobeItem)
-                        .filter((item): item is ClothingItem => item !== undefined)}
-                      className={viewMode === 'grid' ? "aspect-square w-full" : "w-48 h-48"}
-                    />
+                  <Link href={`/outfits/${outfit.id}`} className={viewMode === 'grid' ? "block" : "flex h-36 gap-4"}>
+                    <div className={viewMode === 'list' ? "w-48 h-48" : "w-full"}>
+                      <OutfitThumbnail 
+                        items={outfit.items
+                          .map(item => item.wardrobeItem)
+                          .filter((item): item is ClothingItem => item !== undefined)}
+                        className="h-full w-full aspect-square"
+                      />
+                    </div>
                     <div className={`p-4 ${viewMode === 'list' ? "flex-1" : ""}`}>
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-medium line-clamp-1">{outfit.name}</h3>
@@ -362,7 +402,7 @@ export default function OutfitsPage() {
                           <Tag className="w-3 h-3 text-foreground-soft" />
                           <div className="flex items-center gap-1">
                             {outfit.tags.slice(0, 3).map(tag => (
-                              <span key={tag.id} className="text-xs text-foreground-soft">
+                              <span key={tag.id} className="px-1.5 py-0.5 text-[10px] bg-accent-purple/20 rounded text-foreground-soft whitespace-nowrap">
                                 {tag.name}
                               </span>
                             ))}

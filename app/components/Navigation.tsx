@@ -142,7 +142,7 @@ export default function Navigation() {
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg py-1">
+                  <div className="absolute right-0 mt-4 w-48 bg-background border border-border rounded-lg shadow-lg my-1">
                     <div className="px-4 py-2 border-b border-border">
                       <p className="font-medium">{session.user?.name}</p>
                       <p className="text-sm text-foreground-soft truncate">
@@ -151,13 +151,13 @@ export default function Navigation() {
                     </div>
                     <Link
                       href="/profile"
-                      className="block px-4 py-2 text-foreground-soft hover:text-foreground hover:bg-background-soft"
+                      className="block px-4 py-2 text-foreground-soft hover:text-foreground hover:bg-accent-purple/10"
                     >
                       Profile Settings
                     </Link>
                     <button
                       onClick={() => signOut({ callbackUrl: '/' })}
-                      className="block w-full text-left px-4 py-2 text-foreground-soft hover:text-foreground hover:bg-background-soft"
+                      className="block w-full text-left px-4 py-2 text-foreground-soft hover:text-foreground hover:bg-accent-purple/10"
                     >
                       Sign Out
                     </button>

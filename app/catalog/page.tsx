@@ -7,7 +7,6 @@ import type { ClothingItem, ClothingCategory, Currency } from '@/app/models/type
 import ItemCard from '@/app/components/ItemCard'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
-import PriceRangeSlider from '@/app/components/PriceRangeSlider'
 import { useRouter } from 'next/navigation'
 
 const categories: ClothingCategory[] = [
@@ -49,12 +48,14 @@ export default function CatalogPage() {
   const [currency, setCurrency] = useState<Currency>('USD')
   const [viewMode, setViewMode] = useState<ViewMode>('large')
   const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>('all')
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number | null }>({ min: 0, max: null })
+  const [minPrice, setMinPrice] = useState<string>('')
+  const [maxPrice, setMaxPrice] = useState<string>('')
   const [showFilters, setShowFilters] = useState(false)
+  const [maxPriceLimit, setMaxPriceLimit] = useState<number | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchUserProfileAndMaxPrice = async () => {
       try {
         const response = await fetch('/api/profile')
         if (!response.ok) {
@@ -63,18 +64,16 @@ export default function CatalogPage() {
         const data = await response.json()
         const userCurrency = data.currency || 'USD'
         setCurrency(userCurrency)
-        const maxPrice = await getMaxPriceForCurrency(userCurrency)
-        setPriceRange(prev => ({
-          min: prev.min,
-          max: maxPrice
-        }))
+        const maxPriceValue = await getMaxPriceForCurrency(userCurrency)
+        setMaxPriceLimit(maxPriceValue)
       } catch (error) {
-        console.error('Error fetching user profile:', error)
+        console.error('Error fetching user profile or max price:', error)
         setCurrency('USD')
+        setMaxPriceLimit(10000)
       }
     }
 
-    fetchUserProfile()
+    fetchUserProfileAndMaxPrice()
   }, [])
 
   useEffect(() => {
@@ -92,11 +91,13 @@ export default function CatalogPage() {
         if (ownershipFilter !== 'all') {
           params.append('isOwned', (ownershipFilter === 'owned').toString())
         }
-        if (priceRange.min > 0) {
-          params.append('minPrice', priceRange.min.toString())
+        const minPriceNum = parseFloat(minPrice)
+        if (!isNaN(minPriceNum) && minPriceNum > 0) {
+          params.append('minPrice', minPriceNum.toString())
         }
-        if (priceRange.max !== null) {
-          params.append('maxPrice', priceRange.max.toString())
+        const maxPriceNum = parseFloat(maxPrice)
+        if (!isNaN(maxPriceNum) && maxPriceNum >= 0) {
+          params.append('maxPrice', maxPriceNum.toString())
         }
 
         const response = await fetch(`/api/items?${params}`)
@@ -116,7 +117,7 @@ export default function CatalogPage() {
 
     const timeoutId = setTimeout(fetchItems, 300)
     return () => clearTimeout(timeoutId)
-  }, [selectedCategory, searchQuery, ownershipFilter, priceRange])
+  }, [selectedCategory, searchQuery, ownershipFilter, minPrice, maxPrice])
 
   const handleToggleOwnership = async (itemId: string, isOwned: boolean) => {
     try {
@@ -143,20 +144,19 @@ export default function CatalogPage() {
     router.push(`/catalog/${item.id}`)
   }
 
-  const filteredItems = items.filter(item => {
-    const matchesSearch = searchQuery === '' || 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      item.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
-    const matchesOwnership = ownershipFilter === 'all' || 
-      (ownershipFilter === 'owned' ? item.isOwned : !item.isOwned)
-    const matchesPrice = (!priceRange.min || item.price >= priceRange.min) &&
-      (!priceRange.max || item.price <= priceRange.max)
-    
-    return matchesSearch && matchesCategory && matchesOwnership && matchesPrice
-  })
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setMinPrice(value);
+    }
+  };
+
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setMaxPrice(value);
+    }
+  };
 
   return (
     <div className="min-h-screen pt-16 bg-background">
@@ -228,13 +228,13 @@ export default function CatalogPage() {
             </div>
 
             {showFilters && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-border">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 pt-3 border-t border-border items-end">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground">Category</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value as ClothingCategory | 'all')}
-                    className="select h-9 text-sm"
+                    className="select h-9 text-sm w-full"
                   >
                     <option value="all">All Categories</option>
                     {categories.map((category) => (
@@ -250,24 +250,38 @@ export default function CatalogPage() {
                   <select
                     value={ownershipFilter}
                     onChange={(e) => setOwnershipFilter(e.target.value as OwnershipFilter)}
-                    className="select h-9 text-sm"
+                    className="select h-9 text-sm w-full"
                   >
                     <option value="all">All Items</option>
                     <option value="owned">Owned</option>
-                    <option value="wanted">Wanted</option>
+                    <option value="wanted">Want to Buy</option>
                   </select>
                 </div>
 
-                <div className="sm:col-span-2 space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Price Range</label>
-                  <div className="px-2">
-                    <PriceRangeSlider
-                      minPrice={0}
-                      maxPrice={Math.max(10000, ...items.map(item => item.price))}
-                      currency={currency}
-                      onChange={({ min, max }) => setPriceRange({ min, max })}
-                    />
-                  </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="minPrice" className="text-xs font-medium text-muted-foreground">Min Price</label>
+                  <input
+                    type="text"
+                    id="minPrice"
+                    value={minPrice}
+                    onChange={handleMinPriceChange}
+                    placeholder="0"
+                    className="input h-9 text-sm w-full"
+                    inputMode="decimal"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="maxPrice" className="text-xs font-medium text-muted-foreground">Max Price</label>
+                  <input
+                    type="text"
+                    id="maxPrice"
+                    value={maxPrice}
+                    onChange={handleMaxPriceChange}
+                    placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency, false).replace(/\.\d+$/, '') : 'Max'}
+                    className="input h-9 text-sm w-full"
+                    inputMode="decimal"
+                  />
                 </div>
               </div>
             )}
@@ -288,9 +302,9 @@ export default function CatalogPage() {
               Try Again
             </button>
           </div>
-        ) : filteredItems.length > 0 ? (
+        ) : items.length > 0 ? (
           <div className={`grid gap-3 ${viewModeConfig[viewMode].gridCols}`}>
-            {filteredItems.map((item) => (
+            {items.map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
@@ -304,7 +318,7 @@ export default function CatalogPage() {
           <div className="bg-card rounded-xl border border-border p-8 text-center">
             <h3 className="text-lg font-medium mb-2">No items found</h3>
             <p className="text-muted-foreground mb-6">
-              {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || priceRange.min > 0 || priceRange.max !== null
+              {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice
                 ? "Try adjusting your filters"
                 : "Start adding items to your catalog"}
             </p>

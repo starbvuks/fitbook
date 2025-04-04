@@ -48,8 +48,18 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
     return null;
   }
 
+  const handleItemClick = (e: React.MouseEvent) => {
+    if (item.wardrobeItem?.purchaseUrl) {
+      e.preventDefault(); // Prevent default navigation if purchaseUrl exists
+      window.open(item.wardrobeItem.purchaseUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <div className="bg-background-soft rounded-xl border border-border-bright overflow-hidden transition-all hover:border-accent-purple">
+    <div 
+      className="bg-background-soft rounded-xl border border-border-bright overflow-hidden transition-all hover:border-accent-purple group cursor-pointer"
+      onClick={handleItemClick} // Add onClick handler here
+    >
       <div className="flex flex-col">
         <div className="relative aspect-square overflow-hidden">
           {item.wardrobeItem.images[0]?.url ? (
@@ -58,24 +68,35 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
               alt={item.wardrobeItem.name}
               width={300}
               height={300}
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105" // Add hover effect
             />
           ) : (
             <div className="w-full h-full bg-background flex items-center justify-center">
               <ImageIcon className="w-8 h-8 text-muted-foreground" />
             </div>
           )}
+          {/* Optional: Add an overlay on hover if needed */}
+          {item.wardrobeItem.purchaseUrl && (
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <ExternalLink className="w-6 h-6 text-white" />
+            </div>
+          )}
         </div>
         <div className="p-4">
-          <Link href={`/catalog/${item.wardrobeItem.id}`} className="text-lg font-medium hover:text-accent-purple transition-colors">
+          <span // Changed Link to span as the whole card is clickable now
+            className="text-lg font-medium group-hover:text-accent-purple transition-colors line-clamp-1"
+          >
             {item.wardrobeItem.name}
-          </Link>
-          <p className="text-sm text-muted-foreground">{item.wardrobeItem.brand}</p>
+          </span>
+          <p className="text-sm text-muted-foreground line-clamp-1">{item.wardrobeItem.brand}</p>
           <div className="flex items-center justify-between mt-2">
             <p className="font-semibold">{formatPrice(item.wardrobeItem.price, currency)}</p>
+            {/* Remove the explicit View link */}
+            {/* 
             <Link href={`/catalog/${item.wardrobeItem.id}`} className="text-xs text-accent-purple flex items-center gap-1 hover:underline">
               <ExternalLink className="w-3 h-3" /> View
             </Link>
+            */}
           </div>
         </div>
       </div>
@@ -90,7 +111,7 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currency, setCurrency] = useState<Currency>('USD');
+  const [currency, setCurrency] = useState<Currency>('INR');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,7 +127,7 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
 
         if (!profileResponse.ok) throw new Error('Failed to fetch profile');
         const profileData = await profileResponse.json();
-        setCurrency(profileData.currency || 'USD');
+        setCurrency(profileData.currency || 'INR');
 
         if (!outfitResponse.ok) throw new Error('Failed to fetch outfit');
         const outfitData = await outfitResponse.json();

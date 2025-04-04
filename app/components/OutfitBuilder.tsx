@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import Image from 'next/image'
-import { X, Download, Save, ShoppingCart, BookmarkPlus } from 'lucide-react'
+import { X, Download, Save, ShoppingCart, CircleCheck } from 'lucide-react'
 import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
 
@@ -190,12 +190,12 @@ export default function OutfitBuilder({
                 <span className="text-foreground-soft">{formatPrice(item.price, currency)}</span>
                 {item.isOwned ? (
                   <div className="flex items-center gap-1 text-green-600">
-                    <ShoppingCart className="w-3 h-3" />
+                    <CircleCheck className="w-3 h-3" />
                     <span>Owned</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 text-blue-600">
-                    <BookmarkPlus className="w-3 h-3" />
+                    <ShoppingCart className="w-3 h-3" />
                     <span>Want</span>
                   </div>
                 )}

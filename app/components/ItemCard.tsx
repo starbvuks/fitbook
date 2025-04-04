@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { ExternalLink, ShoppingCart, CircleCheck, Trash2 } from 'lucide-react'
+import { ExternalLink, ShoppingCart, CircleCheck, Trash2, Loader2 } from 'lucide-react'
 import type { ClothingItem, Currency } from '@/app/models/types'
 import { formatCurrency } from '@/lib/currency'
 import { useState } from 'react'
@@ -54,6 +54,25 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
     router.push(`/catalog/${item.id}`)
   }
 
+  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch(`/api/items/${item.id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        // Ideally, update the parent component's state instead of reloading
+        router.refresh(); // Use Next.js router.refresh() for better UX
+      } else {
+        console.error('Failed to delete item:', await response.text());
+        // Optionally show an error message
+      }
+    } catch (err) {
+      console.error('Error deleting item:', err);
+      // Optionally show an error message
+    }
+  }
+
   const cardClasses = {
     large: 'aspect-square',
     small: 'aspect-[3/4]',
@@ -82,76 +101,71 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
             alt={item.name}
             fill
             className="object-cover"
+            sizes={viewMode === 'large' ? "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" : 
+                   viewMode === 'small' ? "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw" : "96px"}
           />
         ) : (
           <div className="w-full h-full bg-card flex items-center justify-center text-foreground-soft">
             No Image
           </div>
         )}
-        <div className="absolute top-2 right-2 flex gap-2">
+        <div className="absolute top-2 right-2 flex gap-2 z-10">
           {item.purchaseUrl && (
             <a
               href={item.purchaseUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="p-2 bg-background/90 rounded-full hover:bg-background transition-colors"
+              className="p-1.5 bg-background/80 rounded-full hover:bg-background transition-colors backdrop-blur-sm"
               title="Purchase Link"
             >
-              <ExternalLink className="w-4 h-4 text-foreground-soft hover:text-accent-purple" />
+              <ExternalLink className="w-3.5 h-3.5 text-foreground-soft hover:text-accent-purple" />
             </a>
           )}
           <button
             onClick={handleToggleOwnership}
             disabled={isUpdating}
-            className={`p-2 rounded-lg transition-colors border border-gray-200 ${
+            className={`p-1.5 rounded-full transition-colors border ${
+              isUpdating ? 'bg-background/80 text-muted-foreground cursor-not-allowed border-border' :
               item.isOwned
-                ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-            }`}
+                ? 'bg-green-100/80 text-green-700 hover:bg-green-200/80 border-green-200/80'
+                : 'bg-blue-100/80 text-blue-700 hover:bg-blue-200/80 border-blue-200/80'
+            } backdrop-blur-sm`}
             title={item.isOwned ? 'Owned' : 'Want to Buy'}
           >
-            {item.isOwned ? (
-              <CircleCheck className="w-4 h-4" />
+            {isUpdating ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : item.isOwned ? (
+              <CircleCheck className="w-3.5 h-3.5" />
             ) : (
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingCart className="w-3.5 h-3.5" />
             )}
           </button>
-          
+        </div>
+        
+        <div className="absolute bottom-2 right-2 z-10">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button
                 onClick={(e) => e.stopPropagation()}
-                className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors border border-gray-200"
+                className="p-1.5 bg-destructive/10 text-destructive rounded-md hover:bg-destructive/20 transition-colors opacity-0 group-hover:opacity-100"
                 title="Delete Item"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Item</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete "{item.name}"? This action cannot be undone.
+                  Are you sure you want to delete &quot;{item.name}&quot;? This action cannot be undone and will remove it from any outfits it belongs to.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Add delete functionality
-                    fetch(`/api/items/${item.id}`, {
-                      method: 'DELETE',
-                    })
-                    .then(response => {
-                      if (response.ok) {
-                        window.location.reload();
-                      }
-                    })
-                    .catch(err => console.error('Error deleting item:', err));
-                  }}
-                  className="bg-red-500 hover:bg-red-600"
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-destructive hover:bg-destructive/90"
                 >
                   Delete
                 </AlertDialogAction>
@@ -160,31 +174,42 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
           </AlertDialog>
         </div>
       </div>
-      <div className={`p-4 ${viewMode === 'stack' ? 'flex-1' : ''}`}>
-        <h3 className="font-medium mb-1 group-hover:text-accent-purple transition-colors line-clamp-1">
-          {item.name}
-        </h3>
-        <div className="flex items-center justify-between text-sm text-foreground-soft">
-          <span className="capitalize">{item.category}</span>
-          <span>{formatCurrency(item.price, currency)}</span>
+      <div className={`p-3 ${viewMode === 'stack' ? 'flex-1' : ''}`}>
+        <div className="flex items-center justify-between gap-1">
+          <h3 className="font-medium text-sm group-hover:text-accent-purple transition-colors line-clamp-1">
+            {item.name}
+          </h3>
+          
+          {viewMode !== 'stack' && tags.length > 0 && (
+            <div className="flex flex-shrink-0 gap-1 ml-1">
+              {tags.slice(0, 1).map((tag: { name: string }) => (
+                <span
+                  key={tag.name}
+                  className="px-1.5 py-0.5 text-[10px] bg-accent-purple/20 rounded text-foreground-soft whitespace-nowrap"
+                >
+                  {tag.name}
+                </span>
+              ))}
+              {tags.length > 1 && (
+                <span className="px-1.5 py-0.5 text-[10px] bg-accent-blue/10 rounded text-foreground-soft whitespace-nowrap">
+                  +{tags.length - 1}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-        {tags.length > 0 && viewMode !== 'stack' && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {tags.slice(0, 2).map((tag: { name: string }) => (
-              <span
-                key={tag.name}
-                className="px-2 py-1 text-xs bg-background-soft rounded-full text-foreground-soft"
-              >
-                {tag.name}
-              </span>
-            ))}
-            {tags.length > 2 && (
-              <span className="px-2 py-1 text-xs bg-background-soft rounded-full text-foreground-soft">
-                +{tags.length - 2}
-              </span>
-            )}
-          </div>
-        )}
+        
+        <div className="flex items-center text-xs mb-1 mt-0.5">
+          <span className="capitalize text-muted-foreground/80">{item.category}</span>
+          <span className="px-1">•</span>
+          {item.brand && (
+            <span className="text-foreground-soft">{item.brand}</span>
+          )}
+        </div>
+      </div>
+      
+      <div className="flex items-center p-3 pt-0">
+         <span className="text-sm font-semibold">{formatCurrency(item.price, currency)}</span>
       </div>
     </div>
   )
