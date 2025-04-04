@@ -1,9 +1,36 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { PrismaClient, Account } from "@prisma/client"
+import { PrismaClient } from "@prisma/client"
 import { AuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 
+// Define Account type locally instead of importing it
+type Account = {
+  provider: string;
+  providerAccountId: string;
+  type: string;
+}
+
 const prisma = new PrismaClient()
+
+// Helper function to get the cookie domain
+function getCookieDomain() {
+  // In development, use undefined to keep cookies on localhost
+  if (process.env.NODE_ENV !== 'production') return undefined;
+  
+  // In production, get domain from NEXTAUTH_URL or fallback
+  const url = process.env.NEXTAUTH_URL;
+  if (!url) return undefined;
+  
+  try {
+    const domain = new URL(url).hostname;
+    // If it's a custom domain, just use the domain itself
+    // If it's a vercel deployment or similar, consider if you need a broader domain
+    return domain.includes('localhost') ? undefined : domain;
+  } catch (error) {
+    console.error('Error parsing NEXTAUTH_URL:', error);
+    return undefined;
+  }
+}
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -167,6 +194,37 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: getCookieDomain(),
+      },
+    },
+    callbackUrl: {
+      name: process.env.NODE_ENV === 'production' ? `__Secure-next-auth.callback-url` : `next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: getCookieDomain(),
+      },
+    },
+    csrfToken: {
+      name: process.env.NODE_ENV === 'production' ? `__Host-next-auth.csrf-token` : `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',

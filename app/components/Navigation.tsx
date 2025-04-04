@@ -10,13 +10,62 @@ export default function Navigation() {
   const { data: session, status } = useSession()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [sessionChecked, setSessionChecked] = useState(false)
 
+  // Handle session initialization
   useEffect(() => {
     setMounted(true)
-  }, [])
+    if (status !== 'loading') {
+      setSessionChecked(true)
+      
+      // Log session state for debugging
+      console.log('Session state:', {
+        status,
+        sessionExists: !!session,
+        userEmail: session?.user?.email || 'none'
+      })
+    }
+  }, [session, status])
 
-  // Don't show anything until the session is checked
+  // Force re-check session when route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (status === 'unauthenticated' && document.cookie.includes('next-auth.session-token')) {
+        // Cookie exists but session not recognized - could be a sync issue
+        window.location.reload()
+      }
+    }
+
+    // Add event listeners
+    window.addEventListener('popstate', handleRouteChange)
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange)
+    }
+  }, [status])
+
+  // Don't show anything until mounted
   if (!mounted) return null
+
+  // Show loading state
+  if (status === 'loading') {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+        <div className="px-container">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center space-x-8">
+              <Link 
+                href="/" 
+                className="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
+              >
+                Fitbook
+              </Link>
+            </div>
+            <div className="h-10 w-24 animate-pulse rounded-lg bg-background-soft" />
+          </div>
+        </div>
+      </nav>
+    )
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
@@ -40,9 +89,7 @@ export default function Navigation() {
             )}
           </div>
 
-          {status === "loading" ? (
-            <div className="h-10 w-24 animate-pulse rounded-lg bg-background-soft" />
-          ) : session ? (
+          {session ? (
             <div className="flex items-center space-x-4">
               <Link
                 href="/catalog/add"
