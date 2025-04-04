@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npx prisma generate && echo '--- Checking Prisma Types ---' && cat ./node_modules/.prisma/client/index.d.ts | grep 'export type Account' && echo '--- End Check ---' && next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
