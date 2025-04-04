@@ -86,7 +86,11 @@ export async function PATCH(req: Request) {
     const id = getIdFromUrl(req.url)
 
     const body = await req.json()
-    const { name, description, items, seasons, occasions } = body
+    if (!body) {
+      return NextResponse.json({ error: 'Request body is empty' }, { status: 400 })
+    }
+
+    const { name, description, items, seasons, occasions, tags } = body
 
     // Verify outfit exists and belongs to user
     const existingOutfit = await prisma.outfit.findUnique({
@@ -111,6 +115,46 @@ export async function PATCH(req: Request) {
 
     const totalCost = wardrobeItems.reduce((sum: number, item: { price: number }) => sum + item.price, 0)
 
+    // Prepare seasons data
+    const seasonsData = seasons && seasons.length > 0 ? {
+      set: [], // Clear existing seasons
+      connectOrCreate: Array.isArray(seasons)
+        ? seasons.map((season: string | { id?: string; name: string }) => {
+            const seasonName = typeof season === 'string' ? season : season.name
+            return {
+              where: { name: seasonName },
+              create: { name: seasonName }
+            }
+          })
+        : []
+    } : undefined
+
+    // Prepare occasions data
+    const occasionsData = occasions && occasions.length > 0 ? {
+      set: [], // Clear existing occasions
+      connectOrCreate: Array.isArray(occasions)
+        ? occasions.map((occasion: string | { id?: string; name: string }) => {
+            const occasionName = typeof occasion === 'string' ? occasion : occasion.name
+            return {
+              where: { name: occasionName },
+              create: { name: occasionName }
+            }
+          })
+        : []
+    } : undefined
+
+    // Prepare tags data
+    const tagsData = tags && tags.length > 0 ? {
+      set: [], // Clear existing tags
+      connectOrCreate: tags.map((tag: string | { name: string }) => {
+        const tagName = typeof tag === 'string' ? tag : tag.name
+        return {
+          where: { name: tagName },
+          create: { name: tagName }
+        }
+      })
+    } : undefined
+
     // Update outfit
     const updatedOutfit = await prisma.outfit.update({
       where: { id },
@@ -119,24 +163,9 @@ export async function PATCH(req: Request) {
         description: body.description,
         rating: body.rating,
         totalCost,
-        seasons: {
-          connectOrCreate: seasons.map((season: { id: string; name: string }) => ({
-            where: { id: season.id },
-            create: { name: season.name }
-          }))
-        },
-        occasions: {
-          connectOrCreate: occasions.map((occasion: { id: string; name: string }) => ({
-            where: { id: occasion.id },
-            create: { name: occasion.name }
-          }))
-        },
-        tags: {
-          connectOrCreate: body.tags?.map((tag: { name: string }) => ({
-            where: { name: tag.name },
-            create: { name: tag.name }
-          }))
-        },
+        seasons: seasonsData,
+        occasions: occasionsData,
+        tags: tagsData,
         items: {
           deleteMany: {},
           create: items.map((item: { wardrobeItemId: string; position?: string }) => ({

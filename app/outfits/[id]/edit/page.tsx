@@ -127,13 +127,16 @@ export default function EditOutfitPage({ params }: { params: Promise<{ id: strin
           name,
           description,
           items,
-          seasons: selectedSeasons.map(season => ({ name: season.name })),
-          occasions: selectedOccasions.map(occasion => ({ name: occasion.name })),
-          tags: selectedTags.map(tag => ({ name: tag }))
+          seasons: selectedSeasons.map(season => season.name),
+          occasions: selectedOccasions.map(occasion => occasion.name),
+          tags: selectedTags.length > 0 ? selectedTags.map(tag => ({ name: tag })) : undefined
         })
       })
 
-      if (!response.ok) throw new Error('Failed to update outfit')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update outfit')
+      }
       router.push(`/outfits/${outfit.id}`)
     } catch (error) {
       console.error('Error updating outfit:', error)

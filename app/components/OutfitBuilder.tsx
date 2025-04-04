@@ -145,7 +145,7 @@ export default function OutfitBuilder({
     <div className="relative h-full group">
       <div className={`flex h-full ${isAccessory ? 'w-full' : ''}`}>
         {/* Image container */}
-        <div className={`relative ${isAccessory ? 'w-full h-full' : 'w-[100px] h-[100px] flex-shrink-0'}`}>
+        <div className={`relative ${isAccessory ? 'w-full h-full' : 'w-[100px] h-[96px] flex-shrink-0'}`}>
           <Image
             src={item.images[0].url}
             alt={item.name}

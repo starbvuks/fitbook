@@ -7,18 +7,29 @@ import AddItemForm from '@/app/components/AddItemForm'
 export default function AddItemPage() {
   const router = useRouter()
 
-  const handleSubmit = async (item: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
+  const handleSubmit = async (formData: any) => {
     try {
+      // Format the data to match what the API expects
+      const requestData = {
+        ...formData,
+        // These fields need to be strings, not objects with IDs
+        tags: formData.tags || [],
+        seasons: formData.seasons || [],
+        occasions: formData.occasions || []
+      }
+
       const response = await fetch('/api/items', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(item),
+        body: JSON.stringify(requestData),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create item')
+        const errorData = await response.json();
+        console.error("API error:", errorData);
+        throw new Error('Failed to create item: ' + (errorData.details || errorData.error || ''));
       }
 
       router.push('/catalog')

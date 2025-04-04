@@ -9,7 +9,7 @@ import Image from 'next/image'
 import { X, ShoppingCart, BookmarkPlus } from 'lucide-react'
 
 interface AddItemFormProps {
-  onSubmit: (item: Omit<ClothingItem, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => void
+  onSubmit: (formData: any) => void
   onCancel: () => void
   category: ClothingCategory
 }
@@ -101,6 +101,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
   })
 
   const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,33 +112,36 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
       return
     }
 
-    const item = {
-      name: formData.name,
-      category: formData.category,
-      brand: formData.brand || undefined,
-      price: formData.price ? parseFloat(formData.price) : 0,
-      purchaseUrl: formData.purchaseUrl || undefined,
-      size: formData.size || undefined,
-      material: formData.material || undefined,
-      condition: formData.condition,
-      isOwned: formData.isOwned,
-      seasons: formData.seasons,
-      occasions: formData.occasions,
-      tags: formData.tags.map(tag => ({
-        id: crypto.randomUUID(),
-        name: tag
-      })),
-      notes: formData.notes || undefined,
-      images: formData.images.map(image => ({
-        id: crypto.randomUUID(),
-        url: image.url,
-        publicId: image.publicId,
-        colors: image.colors || [],
-        isPrimary: image === formData.images[0]
-      }))
-    }
+    setIsSubmitting(true)
 
-    onSubmit(item)
+    try {
+      const item = {
+        name: formData.name,
+        category: formData.category,
+        brand: formData.brand || undefined,
+        price: formData.price ? parseFloat(formData.price) : 0,
+        purchaseUrl: formData.purchaseUrl || undefined,
+        size: formData.size || undefined,
+        material: formData.material || undefined,
+        condition: formData.condition,
+        isOwned: formData.isOwned,
+        seasons: formData.seasons.map(season => season.name),
+        occasions: formData.occasions.map(occasion => occasion.name),
+        tags: formData.tags,
+        notes: formData.notes || undefined,
+        images: formData.images.map(image => ({
+          url: image.url,
+          publicId: image.publicId,
+          colors: image.colors || [],
+          isPrimary: image === formData.images[0]
+        }))
+      }
+
+      onSubmit(item)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An error occurred')
+      setIsSubmitting(false)
+    }
   }
 
   const handleImageUpload = (result: UploadResult) => {
@@ -374,6 +378,31 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
           <FormSection title="Tags">
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">Tags</label>
+              
+              {/* Display existing tags */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {formData.tags.map((tag, index) => (
+                  <div
+                    key={index}
+                    className="px-3 py-1 rounded-full text-sm bg-accent-purple text-white flex items-center gap-1 group"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          tags: prev.tags.filter((_, i) => i !== index)
+                        }))
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              
               <input
                 type="text"
                 id="tags"
@@ -433,8 +462,9 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
         <button
           type="submit"
           className="px-8 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
+          disabled={isSubmitting}
         >
-          Add Item
+          {isSubmitting ? 'Adding...' : 'Add Item'}
         </button>
       </div>
     </form>
