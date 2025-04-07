@@ -1,0 +1,3171 @@
+{
+  "api::course.course": {
+    "1": {
+      "id": 1,
+      "courseName": "Visual Storytelling",
+      "courseCode": "Bxx20xx",
+      "courseDetails": "Welcome to the exciting world of Visual Storytelling! In this course, students in the 3rd semester of the Bachelor of Design program will dive into the fundamentals and intricacies of sketching for design, bridging the gap between imagination and reality. Through hands-on exercises, creative projects, and expert guidance, you will develop essential sketching techniques and gain the ability to convey your design ideas visually with confidence and precision.",
+      "keywords": "Futuristic, AI, Skills based",
+      "createdAt": "2024-03-11T04:16:44.724Z",
+      "updatedAt": "2024-07-29T12:09:47.738Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "3": {
+      "id": 3,
+      "courseName": "Form Study 2",
+      "courseCode": "22BIN0401",
+      "courseDetails": "Form Transition",
+      "keywords": "Mood Board",
+      "createdAt": "2024-03-14T06:00:37.610Z",
+      "updatedAt": "2024-04-16T08:31:21.625Z",
+      "publishedAt": "2024-03-15T06:11:33.016Z",
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "5": {
+      "id": 5,
+      "courseName": "Professional Practice in Design",
+      "courseCode": "BJ00563KL",
+      "courseDetails": "Learn about ethics, professionalism",
+      "keywords": "mock interviews",
+      "createdAt": "2024-03-15T06:20:51.692Z",
+      "updatedAt": "2024-03-15T06:25:48.974Z",
+      "publishedAt": "2024-03-15T06:21:16.218Z",
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "6": {
+      "id": 6,
+      "courseName": "Human Centered Design",
+      "courseCode": "BPD0403J",
+      "courseDetails": "This course is about ",
+      "keywords": "high quality, premium, cork material, lifestyle products,",
+      "createdAt": "2024-03-15T06:36:55.856Z",
+      "updatedAt": "2024-07-22T13:09:45.938Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "7": {
+      "id": 7,
+      "courseName": "Technical Drawing for Fashion (Flats and specs)",
+      "courseCode": "BFD601P",
+      "courseDetails": "This course talks about the importance of understanding and creating flat sketches for apparel production units. Flat sketches play a vital role in understanding the garment construction.",
+      "keywords": "Technical Drawings, Flat Drawings, Spec Sheet, 2D Drawing, Garment Construction",
+      "createdAt": "2024-03-15T06:44:43.093Z",
+      "updatedAt": "2024-04-16T08:36:37.815Z",
+      "publishedAt": "2024-03-26T07:11:25.173Z",
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "8": {
+      "id": 8,
+      "courseName": "Computer Application II",
+      "courseCode": "BID603P",
+      "courseDetails": "3D Visualization of Spaces & Introduction to Virtual Reality",
+      "keywords": "3DS Max, Unreal Engine",
+      "createdAt": "2024-03-15T07:07:26.698Z",
+      "updatedAt": "2024-03-15T07:07:39.442Z",
+      "publishedAt": "2024-03-15T07:07:39.438Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "10": {
+      "id": 10,
+      "courseName": "Product Sketching",
+      "courseCode": "22BIN0302",
+      "courseDetails": "It teaches fundamental sketching techniques to effectively communicate design ideas through  drawings. Participants learn line work, shading, perspective, and composition, enabling them to  bring their concepts to life. This course emphasizes sketching as a tool for ideation, iteration, and  collaboration in product development. By enhancing their visual communication abilities,  participants can create compelling designs and effectively convey their vision to stakeholders.",
+      "keywords": "sketching, Product sketching, rendering, marker rendering",
+      "createdAt": "2024-03-15T09:38:41.925Z",
+      "updatedAt": "2024-10-29T08:02:07.145Z",
+      "publishedAt": "2024-03-15T09:43:58.508Z",
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4,
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "12": {
+      "id": 12,
+      "courseName": "Ergonomics and Anthropometry",
+      "courseCode": "22BIN0304",
+      "courseDetails": "Human factors (Ergonomics) are the study of human abilities and characteristics which affect the  design of equipment, systems, and jobs. Its study and appropriate applications aim at improving  the working conditions, work methods, efficiency, performance, occupational safety, health, and  productivity of the system.",
+      "keywords": "Ergonomics, anthropometry, human factors, measurements, ergonomic study, ergonomic feasibility",
+      "createdAt": "2024-03-15T09:41:39.976Z",
+      "updatedAt": "2024-07-22T05:37:26.700Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "13": {
+      "id": 13,
+      "courseName": "Design Research (IID)",
+      "courseCode": "22BIN0305",
+      "courseDetails": "The objectives of this course are to provide students with a comprehensive understanding of  fundamental research principles, including the classification and structure of Design research. It aims  to cultivate students' reading and analytical skills in research, while also focusing on the  development and formulation of effective writing skills.",
+      "keywords": "research, design, ethnography, interviews, user research",
+      "createdAt": "2024-03-15T09:42:45.749Z",
+      "updatedAt": "2024-11-13T11:17:26.006Z",
+      "publishedAt": "2024-03-15T09:43:28.715Z",
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4,
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "14": {
+      "id": 14,
+      "courseName": "Elective I - Graphic Design and Layout",
+      "courseCode": "22BIN0311",
+      "courseDetails": "This course provides an introduction to the fundamental principles of graphic design and explores its  application in the context of product design. Students will develop a comprehensive understanding  of the key elements of graphic design, including color theory, typography, composition, and visual  hierarchy. They will learn how to effectively apply these principles to create visually appealing and  impactful designs for products. The course also focuses on the principles of layouting, teaching  students how to arrange visual elements in a harmonious and aesthetically pleasing manner.  Through hands-on projects and practical exercises, students will gain valuable skills in creating  compelling graphic designs that enhance the overall user experience and communicate effectively in  the field of product design.",
+      "keywords": "Graphic design, layout, illustration, digital sketch, rendering",
+      "createdAt": "2024-03-15T09:46:02.473Z",
+      "updatedAt": "2024-07-29T11:54:04.587Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "15": {
+      "id": 15,
+      "courseName": "Elective I - Visual Identity",
+      "courseCode": "22BIN0312",
+      "courseDetails": "This course provides a comprehensive introduction to the fundamental principles of graphic design  and its versatile applications. Students will explore key elements such as typography, color theory,  composition, and imagery, developing a solid understanding of how these components contribute to  effective visual communication. Emphasis is placed on visual identity building, where students learn  to strategically utilize design elements to establish cohesive and recognizable brand identities.  Through practical exercises and real-world case studies, students gain hands-on experience in  creating visual identity systems, including logo design, typography selection, color palette creation,  and brand guidelines. By the end of the course, students will have a strong foundation in graphic  design principles and the ability to apply their knowledge to develop visually compelling designs and  establish impactful visual identities. This course equips students with essential skills for success in  the dynamic field of graphic design and visual identity building.",
+      "keywords": "Visual identity, storyboarding, branding, brand identity",
+      "createdAt": "2024-03-15T09:47:21.924Z",
+      "updatedAt": "2025-01-29T06:32:10.788Z",
+      "publishedAt": "2024-03-15T09:47:24.218Z",
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4,
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "19": {
+      "id": 19,
+      "courseName": "Design Software II",
+      "courseCode": "BPD502J",
+      "courseDetails": "Three-dimensional visual representation is becoming the standard norm in the  industry and this course introduces the students to Fusion 360 as a tool for 3D  modelling. Modelling styles like sculpting as well as solid modelling makeup the major  part of the modelling forefront which gives the students various directions to tackle a  modelling task. Through this course the students will learn to take their two\u0002dimensional sketches and ideas to 3D easily. A brief introduction into creating models  for 3D printing will also be included.",
+      "keywords": "operating Fusion 360, creating 3D models and  basic 3D visualization.",
+      "createdAt": "2024-03-18T04:56:43.074Z",
+      "updatedAt": "2024-04-16T09:13:05.539Z",
+      "publishedAt": "2024-03-18T04:56:45.457Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "20": {
+      "id": 20,
+      "courseName": "Manufacturing Technology",
+      "courseCode": "BPD501W",
+      "courseDetails": "The course was primarily aims to introduce various manufacturing processes used in automotive industries and landscape of  micro mobility to third year design student. The outcome of this course will connect with the broader creative learning goal like  elements of manufacturing techniques used in automotive industries, Automotive design, the principle of shared mobility  design, and understanding the relevance of booming scenario of micro mobility. The students will present their concepts in  renders and as a 3D Models keeping micro mobility as the center theme.",
+      "keywords": " automotive industries and landscape of  micro mobility",
+      "createdAt": "2024-03-18T05:10:27.134Z",
+      "updatedAt": "2024-04-16T09:15:12.254Z",
+      "publishedAt": "2024-03-18T05:10:29.153Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "21": {
+      "id": 21,
+      "courseName": "User Experience Design",
+      "courseCode": "BPD503J",
+      "courseDetails": "This course introduce students to the needs, perceptions and expectations of ‘the user’ of  products, services and interfaces. It will develop an introductory awareness of user  behaviour, ethnographic studies, usability testing and the evaluation of user requirements. Through group discussions and exercises, students will gain an understanding into how user  centered design process will help build comfort, convenience and ease of use without  compromising the performance of designed products.",
+      "keywords": "products, services and interfaces.",
+      "createdAt": "2024-03-18T05:22:43.577Z",
+      "updatedAt": "2024-10-29T07:48:11.535Z",
+      "publishedAt": "2024-03-18T05:22:45.328Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3,
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "22": {
+      "id": 22,
+      "courseName": "Elective-I(Graphic Design)",
+      "courseCode": "BPD506J",
+      "courseDetails": "This course provides an introduction to the fundamental principles of graphic design and explores its  application in the context of product design. Students will develop a comprehensive understanding  of the key elements of graphic design, including color theory, typography, composition, and visual  hierarchy.",
+      "keywords": "fundamental principles of graphic design and explores its  application in the context of product design.",
+      "createdAt": "2024-03-18T05:24:25.356Z",
+      "updatedAt": "2024-04-16T09:14:04.113Z",
+      "publishedAt": "2024-03-18T05:24:27.274Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "23": {
+      "id": 23,
+      "courseName": "Elective-I(illustration)",
+      "courseCode": "BPD506J",
+      "courseDetails": "Digital Illustration for Product Design is a comprehensive course designed to equip students with the  necessary skills and techniques to create visually compelling and impactful illustrations using digital  tools",
+      "keywords": "illustration and digital illustration",
+      "createdAt": "2024-03-18T05:25:46.028Z",
+      "updatedAt": "2024-04-16T09:14:12.197Z",
+      "publishedAt": "2024-03-18T05:25:47.812Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "24": {
+      "id": 24,
+      "courseName": "Material Studies – Technology",
+      "courseCode": "BPD504J",
+      "courseDetails": "The course on Extended Realities(XR) aims to teach product design students the fundamentals of Augmented  Reality (AR), Virtual Reality(VR) and the Metaverse, and how to build an AR experience using Meta's Spark AR & a  basic understanding of creating VR experience.",
+      "keywords": "Conceptualization, brainstorming and articulation Shaping thoughts into concepts, and presentation.",
+      "createdAt": "2024-03-18T05:26:35.678Z",
+      "updatedAt": "2024-04-16T09:15:19.412Z",
+      "publishedAt": "2024-03-18T05:26:37.548Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "25": {
+      "id": 25,
+      "courseName": "Human-centered Design",
+      "courseCode": "BPD505J",
+      "courseDetails": "The course focuses on developing a deep understanding of human needs, empathy, and collaboration while utilizing design thinking principles to address real-world problems. Through this  course, students will gain practical experience in engaging with communities and delivering  impactful design interventions to enhance the lives of these communities.",
+      "keywords": "Theoretical lectures, practical exercises, collaborative projects, fieldwork, and  design critiques.",
+      "createdAt": "2024-03-18T05:28:18.220Z",
+      "updatedAt": "2024-04-16T09:14:48.245Z",
+      "publishedAt": "2024-03-18T05:28:20.518Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "26": {
+      "id": 26,
+      "courseName": "Open Elective – I",
+      "courseCode": "BPD507J",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-18T05:29:02.953Z",
+      "updatedAt": "2024-05-23T09:17:27.105Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "27": {
+      "id": 27,
+      "courseName": "Digital Fashion Illustration",
+      "courseCode": "BFD501P",
+      "courseDetails": "This course exposes the students to the digital tools for fashion illustration. The student will learn to implement tools and techniques of digital media to create enhanced renders / graphics and fashion illustrations.",
+      "keywords": "Digital drawing and rendering.",
+      "createdAt": "2024-03-18T05:32:23.882Z",
+      "updatedAt": "2024-04-01T10:23:51.172Z",
+      "publishedAt": "2024-03-18T05:32:26.159Z",
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "28": {
+      "id": 28,
+      "courseName": "Garment Manufacturing Techniques",
+      "courseCode": "BFD502W",
+      "courseDetails": "The course is designed to have the theoretical study of apparel manufacturing technology, which is the base of the apparel industry business. Students are introduced to the apparel industry’s overview and basic organizational structure and process. The course emphasizes product development, pre-production activities, lay, and marker planning. And explains the concepts of production planning & control of the cutting, sewing, and packing department. It has also included the manufacturing systems, operation breakdown and development of production flow chart.",
+      "keywords": "production technology and product development",
+      "createdAt": "2024-03-18T05:36:41.851Z",
+      "updatedAt": "2024-04-16T09:14:18.903Z",
+      "publishedAt": "2024-03-18T05:36:46.892Z",
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "29": {
+      "id": 29,
+      "courseName": "Elective-I",
+      "courseCode": "BFD507S",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-18T05:42:00.506Z",
+      "updatedAt": "2024-04-16T09:13:54.552Z",
+      "publishedAt": "2024-03-18T05:42:08.271Z",
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "30": {
+      "id": 30,
+      "courseName": "Draping -II",
+      "courseCode": "BFD505P",
+      "courseDetails": "Draping is the art of using fabric to create designs directly on a human body form. Draping is considered the more creative method of pattern making and it is an essential skill for fashion designers. Draping helps to develop skills from the most basic to more advanced techniques of garment making. Draping allows the designer to get feel of the fabric as the fabric is draped on the body form. Draping enables the designer to make intelligent choices when considering the suitability of a particular fabric to its design and silhouette.",
+      "keywords": "measurements, shape, and form of the dress form of different standard sizes.",
+      "createdAt": "2024-03-18T05:43:50.210Z",
+      "updatedAt": "2024-04-16T09:13:23.663Z",
+      "publishedAt": "2024-03-18T05:43:52.733Z",
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "31": {
+      "id": 31,
+      "courseName": "Pattern Making and Garment Construction",
+      "courseCode": "BFD504P",
+      "courseDetails": "The course is designed to inculcate the skills of making patterns and stitching with custom made clothing techniques for Womenswear and Menswear. Pattern Making introduces to a student all the drafting rules to create a stylised sewing pattern. Understanding to make different slopers and how they are used and essential pattern making. It exposes students to the different tools needed for pattern making and what they are and how they are used.",
+      "keywords": "tailoring techniques and develop patterns",
+      "createdAt": "2024-03-18T05:45:00.572Z",
+      "updatedAt": "2024-04-16T09:16:48.015Z",
+      "publishedAt": "2024-03-18T05:45:03.263Z",
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "32": {
+      "id": 32,
+      "courseName": "Traditional Textiles of India",
+      "courseCode": "BFD503W",
+      "courseDetails": "This introductory course on textiles specifically deals with space design. Textiles being an integral part of various elements in space design, this course will enable students to identify and utilize appropriate textiles according to the context.",
+      "keywords": "Recognize the various traditional textiles of India.",
+      "createdAt": "2024-03-18T05:46:13.233Z",
+      "updatedAt": "2024-04-16T09:17:02.703Z",
+      "publishedAt": "2024-03-18T05:46:16.465Z",
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "33": {
+      "id": 33,
+      "courseName": "Design Project -III",
+      "courseCode": "BFD506J",
+      "courseDetails": "Develop concept and design collection based on client brief.  Understanding of the Design Process as applicable to Fashion Industry – HAUTE COUTURE AND THE WORKING STYPE OF COUTURIERS, FUNCTIONING OF BOUTIQUES",
+      "keywords": "HAUTE COUTURE AND THE WORKING STYPE OF COUTURIERS",
+      "createdAt": "2024-03-18T05:47:22.629Z",
+      "updatedAt": "2024-04-16T09:12:53.723Z",
+      "publishedAt": "2024-03-18T05:47:25.196Z",
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "34": {
+      "id": 34,
+      "courseName": "Open Elective – I",
+      "courseCode": "BFD508S",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-18T05:57:53.904Z",
+      "updatedAt": "2024-05-23T09:17:32.789Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "35": {
+      "id": 35,
+      "courseName": "Computer Applications II",
+      "courseCode": "BID502P",
+      "courseDetails": "Orient the student to create the three‐dimensional objects in space with special emphasis on presentation and visualization of interiors using rendering technique using 3D‐Max",
+      "keywords": "3D‐SketchUP, Advanced tools for drawing on 3D geometry",
+      "createdAt": "2024-03-18T06:00:58.848Z",
+      "updatedAt": "2024-04-16T09:12:41.160Z",
+      "publishedAt": "2024-03-18T06:01:00.655Z",
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "36": {
+      "id": 36,
+      "courseName": "ID Materials & Application - II",
+      "courseCode": "BID505W",
+      "courseDetails": "knowledge on the various materials while highlighting the current trends and innovations in the usage of interior design materials.",
+      "keywords": "Design Knowledge, Design Research",
+      "createdAt": "2024-03-18T06:02:38.100Z",
+      "updatedAt": "2024-04-16T09:14:55.613Z",
+      "publishedAt": "2024-03-18T06:02:40.829Z",
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "37": {
+      "id": 37,
+      "courseName": "Interior Accessory & Lighting Design",
+      "courseCode": "BID504J",
+      "courseDetails": "Understanding the socio‐cultural and historical aspects that influence the design of accessories and products based on their lifestyle.",
+      "keywords": "design of accessories and products based on their lifestyle",
+      "createdAt": "2024-03-18T06:04:18.504Z",
+      "updatedAt": "2024-04-16T09:15:03.162Z",
+      "publishedAt": "2024-03-18T06:04:20.641Z",
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "38": {
+      "id": 38,
+      "courseName": "Design studio -III",
+      "courseCode": "BID501J",
+      "courseDetails": "To develop creative conceptual visualization, hand skill building, and the process of design. The emphasis shallbe on Concepts, layouts, elevations and sections as a design process.",
+      "keywords": "Introduction to building codes, Way finding, Signage and graphics",
+      "createdAt": "2024-03-18T10:34:54.597Z",
+      "updatedAt": "2024-04-16T09:13:12.976Z",
+      "publishedAt": "2024-03-18T10:35:00.427Z",
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "39": {
+      "id": 39,
+      "courseName": "Elective I (Model Making)",
+      "courseCode": null,
+      "courseDetails": "Foundation and capability to represent the concepts three dimensionally.",
+      "keywords": "model making , interior models.",
+      "createdAt": "2024-03-18T10:39:03.908Z",
+      "updatedAt": "2024-04-16T09:13:37.372Z",
+      "publishedAt": "2024-03-18T10:39:05.960Z",
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "40": {
+      "id": 40,
+      "courseName": "Elective I (Textile for Interior Design)",
+      "courseCode": "BID607S",
+      "courseDetails": "Introduction to textiles; History of textiles in context to use in Interior spaces; Importance & role  of textiles inspace design.",
+      "keywords": "Woven fabrics: Types of weaves, study of weaves.",
+      "createdAt": "2024-03-18T10:54:24.540Z",
+      "updatedAt": "2024-04-16T09:13:45.209Z",
+      "publishedAt": "2024-03-18T10:54:27.559Z",
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "41": {
+      "id": 41,
+      "courseName": "OPEN ELECTIVE‐I (YOGA)",
+      "courseCode": "BID507S",
+      "courseDetails": "To achieve overall health of body and mind and to overcome stress",
+      "keywords": "pranayama , yoga",
+      "createdAt": "2024-03-18T10:55:41.643Z",
+      "updatedAt": "2024-05-10T09:02:33.016Z",
+      "publishedAt": null,
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "42": {
+      "id": 42,
+      "courseName": "Revitalization Arts and Crafts",
+      "courseCode": "BID503J",
+      "courseDetails": "Understanding of Art/craft forms as design elements and its relevant application in the modern society. Modernization of old craft technology for better forms for interior use.",
+      "keywords": "revitalization of Art/craft form in interior spaces.",
+      "createdAt": "2024-03-18T10:56:31.665Z",
+      "updatedAt": "2024-04-16T09:16:55.443Z",
+      "publishedAt": "2024-03-18T10:56:33.480Z",
+      "specialization": 4,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "43": {
+      "id": 43,
+      "courseName": "Design Research – User Experience",
+      "courseCode": "BCD502J\t",
+      "courseDetails": "This course introduces students to the needs, perceptions, and expectations of ‘the user’ of products, services and interfaces. It will develop an introductory awareness of user behaviour, ethnographic studies, usability testing and the evaluation of user requirements. Through group discussions and exercises, students will gain an understanding into how user centered design process will help build comfort, convenience, and ease of use without compromising the performance of designed products.",
+      "keywords": "UX design, Graphics Design",
+      "createdAt": "2024-03-18T11:01:36.122Z",
+      "updatedAt": "2024-04-01T10:22:41.205Z",
+      "publishedAt": "2024-03-18T11:01:38.109Z",
+      "specialization": 1,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "44": {
+      "id": 44,
+      "courseName": "UI-Design",
+      "courseCode": "BCD503P\t",
+      "courseDetails": "This course will help students to gain research and application knowledge to design a User Interface and User Experience based graphical design to compete in the Digital age.",
+      "keywords": "Graphics Design,",
+      "createdAt": "2024-03-18T11:02:44.400Z",
+      "updatedAt": "2024-04-16T09:17:10.417Z",
+      "publishedAt": "2024-03-18T11:02:46.200Z",
+      "specialization": 1,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "45": {
+      "id": 45,
+      "courseName": "Motion Graphics Design",
+      "courseCode": "BCD504P\t",
+      "courseDetails": "The course is an introduction to motion graphics, covering the fundamentals of animation, design, and typography. Students will learn how to create and animate text, shapes, and images, and how to use these elements to create dynamic and engaging motion graphics.",
+      "keywords": "Understanding the principles of animation, Designing effective typography",
+      "createdAt": "2024-03-18T11:03:30.806Z",
+      "updatedAt": "2024-04-16T09:15:28.567Z",
+      "publishedAt": "2024-03-18T11:03:32.146Z",
+      "specialization": 1,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "46": {
+      "id": 46,
+      "courseName": "Design Project - I (VC)",
+      "courseCode": "BCD505J\t",
+      "courseDetails": "In modern times, the role of design in society and environment has become crucial towards complex wicked problems. The problem space covers a large area from social issues and human rights to environmental causes, conservation and preservation.",
+      "keywords": "Adobe Photoshop  · Adobe Illustrator  · Adobe Premiere",
+      "createdAt": "2024-03-18T11:04:24.736Z",
+      "updatedAt": "2024-04-23T12:47:32.356Z",
+      "publishedAt": "2024-03-18T11:04:26.065Z",
+      "specialization": 1,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "47": {
+      "id": 47,
+      "courseName": "Elective - ( Short Film Making)",
+      "courseCode": "BCD506S\t",
+      "courseDetails": "Short Film Making",
+      "keywords": "Film making, video editing",
+      "createdAt": "2024-03-18T11:05:35.182Z",
+      "updatedAt": "2024-04-16T09:13:30.464Z",
+      "publishedAt": "2024-03-18T11:05:37.502Z",
+      "specialization": 1,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "48": {
+      "id": 48,
+      "courseName": "Open Elective (Yoga)",
+      "courseCode": "BCD507S\t",
+      "courseDetails": "The aim of this course is to improve physical wellness through asana and pranayama practice. One Also gets a perspective of the classical form of yoga using meditation and other tools in yoga. Yoga Sutras which was originally presented by Maharishi Patanjali for a self-discovery process prepares us for facing the challenges of life and to experience bliss and peace of mind.",
+      "keywords": "yoga, meditation",
+      "createdAt": "2024-03-18T11:26:14.619Z",
+      "updatedAt": "2024-05-10T09:02:37.959Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 5,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "49": {
+      "id": 49,
+      "courseName": "Design Research (FD)",
+      "courseCode": "22BFD0304",
+      "courseDetails": "Design Research is essential to fashion design. This course will an introduction to Design research in context with Fashion design.",
+      "keywords": "Innovative Design, Design process",
+      "createdAt": "2024-03-19T05:14:22.073Z",
+      "updatedAt": "2024-04-19T04:55:58.235Z",
+      "publishedAt": "2024-03-19T05:14:24.141Z",
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "50": {
+      "id": 50,
+      "courseName": "Elective -2 (Digital Design)",
+      "courseCode": "22BFD0321",
+      "courseDetails": "To understand multiple software mediums for transferring students’ concepts to tangible outcomes.",
+      "keywords": "designing a graphic for print, electronic and new media.",
+      "createdAt": "2024-03-19T05:15:51.195Z",
+      "updatedAt": "2024-04-16T09:02:53.770Z",
+      "publishedAt": "2024-03-19T05:15:53.115Z",
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "51": {
+      "id": 51,
+      "courseName": "Elective -1 (Draping I) ",
+      "courseCode": "22BFD0311",
+      "courseDetails": "Draping is the art of using fabric to create designs directly on a human body form. Draping is considered the more creative method of pattern making and it is an essential skill for fashion designers. Draping helps to develop skills from the most basic to more advanced techniques of garment making. Draping allows the designer to get feel of the fabric as the fabric is draped on the body form. Draping enables the designer to make intelligent choices when considering the suitability of a particular fabric to its design and silhouette.",
+      "keywords": "Human body form, fabric and design",
+      "createdAt": "2024-03-19T05:20:13.670Z",
+      "updatedAt": "2024-04-16T09:01:41.373Z",
+      "publishedAt": "2024-03-19T05:20:15.429Z",
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "52": {
+      "id": 52,
+      "courseName": "Fashion Illustration I",
+      "courseCode": "22BFD0302",
+      "courseDetails": "Fashion Illustration I introduces the students to the basic croquis, for female / male and kids, to help them develop an understanding of basic proportions of the body, in various actions and stills. The student will be able to understand the use of lines and curves to depicts various expressions of body and to depict the fabric in fashion illustrations.",
+      "keywords": "visual presentation , models",
+      "createdAt": "2024-03-19T05:22:14.057Z",
+      "updatedAt": "2024-05-20T06:21:52.704Z",
+      "publishedAt": "2024-03-19T05:22:15.885Z",
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "53": {
+      "id": 53,
+      "courseName": "Elective -2 (Fashion Styling and Photography)",
+      "courseCode": "22BFD0320",
+      "courseDetails": "Fashion Styling and Photography is a subject that will allow the students to understand how clothing can be presented in advertising, through campaigns, catalogues, and fashion magazines. Working closely with designs and designers and fashion houses to ensure the portrayal of the desired look and concept. Develop an understanding of lighting, props and location for any photoshoot.",
+      "keywords": "Design / Presentation, photography",
+      "createdAt": "2024-03-19T05:23:41.202Z",
+      "updatedAt": "2024-07-29T12:12:33.370Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "54": {
+      "id": 54,
+      "courseName": "History of Fashion Global",
+      "courseCode": "22BFD0305",
+      "courseDetails": "This course talks about a historic narrative of the concepts of fashion starting from the 16th century Europe, gradually progressing towards the emergence of Haute Couture and the Couturiers, Industrialization and the emergent R-T-W industry. To make students understand the historic context of fashion and the developments in the various periods in history. ▪ To appreciate the landmarks in Fashion History and the contribution of various iconic designers.",
+      "keywords": "Fashion History, Costumes, Menswear, Womens wear, Clothing",
+      "createdAt": "2024-03-19T05:24:33.857Z",
+      "updatedAt": "2024-04-01T10:45:14.086Z",
+      "publishedAt": "2024-03-19T05:24:35.776Z",
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "55": {
+      "id": 55,
+      "courseName": "Introduction to Textiles I",
+      "courseCode": "22BFD0303",
+      "courseDetails": "Develop an understanding of various processes involved in the conversion of fiber to fabric. Contextualize the performance characteristics of different fibers and fabrics for suitable end use.",
+      "keywords": "textile products , fabrics",
+      "createdAt": "2024-03-19T05:25:47.812Z",
+      "updatedAt": "2024-04-16T09:09:02.301Z",
+      "publishedAt": "2024-03-19T05:25:49.710Z",
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "56": {
+      "id": 56,
+      "courseName": "Pattern Making and Garment Construction I",
+      "courseCode": "22BFD0301",
+      "courseDetails": "The course is designed to inculcate the skills of making patterns and stitching with custom made clothing techniques for Womenswear and Menswear. Pattern Making introduces to a student all the drafting rules to create a stylised sewing pattern. Understanding to make different slopers and how they are used and essential pattern making.",
+      "keywords": "Outline costume’s auxiliaries, Demonstrate sewing machine applications.",
+      "createdAt": "2024-03-19T05:26:48.445Z",
+      "updatedAt": "2024-04-16T09:09:43.489Z",
+      "publishedAt": "2024-03-19T05:26:50.015Z",
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "57": {
+      "id": 57,
+      "courseName": "Elective -1 (Pret Design)",
+      "courseCode": "22BFD0330",
+      "courseDetails": "This course will be an introduction to Pret design which is known as READY-TO-WEAR design. Initiate the students to what is pret-a-porter. Understand customer identification & research. Ready-to-wear brand study – market study. Explore ideas in design, develop sense in skill and technique. Understand the suitability, trends, market demand in production of a fashion range/product. Understanding of the Design Process as applicable in Ready to Wear clothing line.",
+      "keywords": "Clothing, Design",
+      "createdAt": "2024-03-19T05:28:23.409Z",
+      "updatedAt": "2024-07-18T04:29:09.206Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "58": {
+      "id": 58,
+      "courseName": "Social Internship",
+      "courseCode": "22BIT0300",
+      "courseDetails": "The Social Internship course aims to provide first-year design school students with an opportunity to apply their skills and knowledge in a real-world social context. This course combines practical experience with critical reflection to help students understand the role of design in understanding and addressing social issues and creating positive change. Students will engage in an internship placement with a social organization, where they will work on social projects that have a direct impact on communities and individuals.",
+      "keywords": "design principles, technique",
+      "createdAt": "2024-03-19T05:35:01.647Z",
+      "updatedAt": "2024-07-29T12:10:03.232Z",
+      "publishedAt": null,
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "59": {
+      "id": 59,
+      "courseName": "Design Measured Drawings and Graphics",
+      "courseCode": "22BIT0301",
+      "courseDetails": "Introduction to Architecture and Interior Design",
+      "keywords": "Evolution of Interior desig",
+      "createdAt": "2024-03-19T05:36:10.448Z",
+      "updatedAt": "2024-04-16T09:00:17.034Z",
+      "publishedAt": "2024-03-19T05:36:12.448Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "60": {
+      "id": 60,
+      "courseName": "Introduction to Ergonomics and Furniture Design",
+      "courseCode": "22BIT0302",
+      "courseDetails": "To create exposure to Human Measurements for students.",
+      "keywords": "Materials, various tools, techniques",
+      "createdAt": "2024-03-19T05:37:20.245Z",
+      "updatedAt": "2024-04-01T07:18:12.755Z",
+      "publishedAt": "2024-03-19T05:37:22.605Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "61": {
+      "id": 61,
+      "courseName": "Elective-1 (Construction and Design)",
+      "courseCode": "22BIT0311",
+      "courseDetails": "To impart training in the preparation of construction details of different types of wood work , Masonry , RCC and other materials with specific requirements.",
+      "keywords": "Architecture and structure",
+      "createdAt": "2024-03-19T05:39:37.932Z",
+      "updatedAt": "2024-04-01T07:22:32.102Z",
+      "publishedAt": "2024-03-19T05:39:40.384Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "62": {
+      "id": 62,
+      "courseName": "Elective-1 (Environmental Design)",
+      "courseCode": "22BIT0312",
+      "courseDetails": "Sensitizing students regarding sustainable environment.",
+      "keywords": "Architecture, Interiors and Urban Environments.",
+      "createdAt": "2024-03-19T05:40:34.957Z",
+      "updatedAt": "2024-04-16T09:05:29.295Z",
+      "publishedAt": "2024-03-19T05:40:37.007Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "63": {
+      "id": 63,
+      "courseName": "Elective-2 (Model making (metal, cardboard, 3d printing)",
+      "courseCode": "22BIT0321",
+      "courseDetails": "To introduce various fabrication skills and techniques necessary to produce scale models and to encourage preparation of models as an essential phase in design development and evaluation.",
+      "keywords": "CLO2. Explore various materials required for model making.",
+      "createdAt": "2024-03-19T05:41:38.582Z",
+      "updatedAt": "2024-04-16T09:07:19.819Z",
+      "publishedAt": "2024-03-19T05:41:40.749Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "64": {
+      "id": 64,
+      "courseName": "Elective-2 (Creativity & Problem Solving)",
+      "courseCode": "22BIT0322",
+      "courseDetails": "To introduce lateral thinking and facilitate innovative design solutions.",
+      "keywords": "o problem solving in design.",
+      "createdAt": "2024-03-19T05:42:32.671Z",
+      "updatedAt": "2024-04-16T09:06:58.416Z",
+      "publishedAt": "2024-03-19T05:42:34.404Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "65": {
+      "id": 65,
+      "courseName": "Design Research",
+      "courseCode": "22BIT0303",
+      "courseDetails": "To impart knowledge on basic aspects of research.",
+      "keywords": "structure of Design research.",
+      "createdAt": "2024-03-19T05:43:23.070Z",
+      "updatedAt": "2024-04-16T09:00:38.774Z",
+      "publishedAt": "2024-03-19T05:43:24.611Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "66": {
+      "id": 66,
+      "courseName": "Design Studio - I",
+      "courseCode": "22BIT0304",
+      "courseDetails": "Acquire skills for designing single use interior spaces or products etc",
+      "keywords": "Anthropometry and Ergonomics Study",
+      "createdAt": "2024-03-19T05:44:09.952Z",
+      "updatedAt": "2024-04-16T09:01:01.566Z",
+      "publishedAt": "2024-03-19T05:44:11.990Z",
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "67": {
+      "id": 67,
+      "courseName": "Open elective 3",
+      "courseCode": "22BIT0330",
+      "courseDetails": "MOOC Course",
+      "keywords": null,
+      "createdAt": "2024-03-19T05:45:05.253Z",
+      "updatedAt": "2024-05-23T09:18:05.752Z",
+      "publishedAt": null,
+      "specialization": 4,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "68": {
+      "id": 68,
+      "courseName": "Design Research",
+      "courseCode": "22BIN0305",
+      "courseDetails": "The objectives of this course are to provide students with a comprehensive understanding of  fundamental research principles, including the classification and structure of Design research. It aims  to cultivate students' reading and analytical skills in research, while also focusing on the  development and formulation of effective writing skills",
+      "keywords": " components of research. research articles",
+      "createdAt": "2024-03-19T05:47:06.177Z",
+      "updatedAt": "2024-07-22T05:35:49.900Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "69": {
+      "id": 69,
+      "courseName": "Elective-1: Graphic Design and Layouting",
+      "courseCode": "22BIN0311",
+      "courseDetails": "This course provides an introduction to the fundamental principles of graphic design and explores its  application in the context of product design. Students will develop a comprehensive understanding  of the key elements of graphic design, including color theory, typography, composition, and visual  hierarchy.",
+      "keywords": "fundamentals of graphic design.",
+      "createdAt": "2024-03-19T05:47:59.463Z",
+      "updatedAt": "2024-07-30T06:32:01.487Z",
+      "publishedAt": "2024-07-30T06:32:01.478Z",
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "71": {
+      "id": 71,
+      "courseName": "Elective II – Digital Illustration",
+      "courseCode": "22BIN0321",
+      "courseDetails": "Digital Illustration for Product Design is a comprehensive course designed to equip students with the  necessary skills and techniques to create visually compelling and impactful illustrations using digital  tools. ",
+      "keywords": "illustration and digital illustration.",
+      "createdAt": "2024-03-19T05:49:27.054Z",
+      "updatedAt": "2024-09-16T06:49:44.215Z",
+      "publishedAt": "2024-03-19T05:49:29.378Z",
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4,
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "72": {
+      "id": 72,
+      "courseName": "Elective II – Indigenous Art, Design & Culture",
+      "courseCode": "22BIN0322",
+      "courseDetails": "This course provides an in-depth exploration of Indigenous art, design, and culture within the Indian  context. Students will examine the rich cultural heritage of Indigenous communities and learn about  their artistic traditions, design principles, and cultural significance. Through a combination of  theoretical study, case studies, and practical assignments, students will develop a deeper  understanding of Indigenous art and design practices, fostering cultural sensitivity and appreciation.",
+      "keywords": "indigenous art, design and culture of India.",
+      "createdAt": "2024-03-19T05:50:22.812Z",
+      "updatedAt": "2024-04-16T09:04:31.261Z",
+      "publishedAt": "2024-03-19T05:50:24.379Z",
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "74": {
+      "id": 74,
+      "courseName": "Form Studies - I",
+      "courseCode": "22BIN0303",
+      "courseDetails": "The Basics of Form Study course aims to provide students with a strong foundation in understanding  and analyzing the forms and shapes of various design objects. Through a combination of theory,  practical exercises, and projects, students will develop essential skills in form analysis,  interpretation, and ideation. They will learn to appreciate the relationship between form and  function and gain a deeper understanding of how to create visually appealing and functional designs.",
+      "keywords": "Understand form intersections in 2D and 3D",
+      "createdAt": "2024-03-19T05:51:49.156Z",
+      "updatedAt": "2024-11-28T09:46:14.884Z",
+      "publishedAt": "2024-03-19T05:51:50.670Z",
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4,
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "75": {
+      "id": 75,
+      "courseName": "History of Industrial Design",
+      "courseCode": "22BIN0301",
+      "courseDetails": "This course offers an in-depth exploration of the history of industrial design, focusing on both global  and Indian contexts. It aims to provide students with a comprehensive understanding of the  evolution of industrial design and its impact on society, culture, and technology. Through the study  of key historical periods, influential designers, significant movements, and groundbreaking  innovations, students will gain insights into the development and transformation of industrial design  practices.",
+      "keywords": "Industrial design movements.",
+      "createdAt": "2024-03-19T05:53:56.781Z",
+      "updatedAt": "2024-07-22T05:36:22.604Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "77": {
+      "id": 77,
+      "courseName": "Introduction to Visual Communication",
+      "courseCode": "BCD301W",
+      "courseDetails": "This course makes students to understand what communication is, its functions, and the structure of communication.",
+      "keywords": "Visual Art and culture.",
+      "createdAt": "2024-03-19T05:59:44.567Z",
+      "updatedAt": "2024-04-05T05:01:53.128Z",
+      "publishedAt": "2024-03-19T05:59:46.722Z",
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "78": {
+      "id": 78,
+      "courseName": "Social Internship",
+      "courseCode": "22BFD0300",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-19T06:02:21.620Z",
+      "updatedAt": "2024-07-30T06:02:29.723Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "79": {
+      "id": 79,
+      "courseName": "Advanced Typography",
+      "courseCode": "22BVC0302",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-19T06:02:36.677Z",
+      "updatedAt": "2024-04-16T09:00:08.769Z",
+      "publishedAt": "2024-03-19T06:02:38.213Z",
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "80": {
+      "id": 80,
+      "courseName": "Layout Design",
+      "courseCode": "22BVC0303",
+      "courseDetails": "This course intends to introduce the intensive knowledge of technical and aesthetical aspects of Layout Design. Professional capacity-building is a major focus area of this course; Students will learn the advance skill for developing the effective visual communication design.",
+      "keywords": null,
+      "createdAt": "2024-03-19T06:03:13.220Z",
+      "updatedAt": "2025-01-21T09:12:33.363Z",
+      "publishedAt": "2024-09-17T18:12:21.028Z",
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4,
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "81": {
+      "id": 81,
+      "courseName": "Elective-1 (Illustration)",
+      "courseCode": "22BVC0310",
+      "courseDetails": "This course intends to introduce the intensive knowledge of technical and aesthetical aspects of Ilustration. Professional capacity-building is a major focus area of this course; Students will learn the advance skill for developing the effective illustrations.",
+      "keywords": null,
+      "createdAt": "2024-03-19T06:03:59.884Z",
+      "updatedAt": "2024-07-29T12:11:24.134Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "82": {
+      "id": 82,
+      "courseName": "Elective-1 (Visual Storytelling)",
+      "courseCode": "22BVC0310",
+      "courseDetails": "–Students will gain an introduction to visual storytelling techniques, acquiring the skills to effectively communicate narratives and convey messages through compelling visual compositions.",
+      "keywords": null,
+      "createdAt": "2024-03-19T06:04:46.156Z",
+      "updatedAt": "2024-07-29T12:11:38.903Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "83": {
+      "id": 83,
+      "courseName": "Design Research",
+      "courseCode": "22BVC0303",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-19T06:05:30.038Z",
+      "updatedAt": "2024-07-29T12:13:19.065Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "84": {
+      "id": 84,
+      "courseName": "Elective-2 (Media, Culture and Society)",
+      "courseCode": "22BVC0320",
+      "courseDetails": "This course examines the mass media as complex social institutions that exercise multiple roles in society—none more crucial than the circulation and validation of social discourses. Introducing students to a variety of theoretical approaches, the course focuses on media operations and textual analysis. Sensitizing towards issues of media and ethnicity",
+      "keywords": null,
+      "createdAt": "2024-03-19T06:07:36.129Z",
+      "updatedAt": "2024-07-29T12:12:06.798Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "85": {
+      "id": 85,
+      "courseName": "Elective-2 (Advanced Photography)",
+      "courseCode": "22BVC0320",
+      "courseDetails": "This course intends to introduce the intensive knowledge of technical, conceptual and aesthetical aspects of Photography. Professional capacity-building is a major focus area of this course; Students will learn the basic skills including camera, lighting, basic presentation techniques, photo series, and editing the images during the course.",
+      "keywords": "digital photography.",
+      "createdAt": "2024-03-19T06:08:22.581Z",
+      "updatedAt": "2024-04-16T09:06:48.995Z",
+      "publishedAt": "2024-03-19T06:08:24.542Z",
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "86": {
+      "id": 86,
+      "courseName": "Open Elective 3",
+      "courseCode": "22BVC0330",
+      "courseDetails": "MOOC (evaluation by Faculty mentor)",
+      "keywords": null,
+      "createdAt": "2024-03-19T06:08:50.092Z",
+      "updatedAt": "2024-05-10T09:02:55.569Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 3,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "87": {
+      "id": 87,
+      "courseName": "ID Materials and finishes",
+      "courseCode": "22BIT0401",
+      "courseDetails": "To learn the properties, management, specifications, use, application, and costs of the  various materials used in the interiors. ",
+      "keywords": "Construction and Design",
+      "createdAt": "2024-03-20T04:35:03.138Z",
+      "updatedAt": "2024-04-01T07:19:44.756Z",
+      "publishedAt": "2024-03-20T04:35:06.258Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "88": {
+      "id": 88,
+      "courseName": "Computer Applications lab",
+      "courseCode": "22BIT0402",
+      "courseDetails": "Introduction to Digital representation techniques and Software",
+      "keywords": "modeling, scripting (rendering) in CAD",
+      "createdAt": "2024-03-20T04:36:43.553Z",
+      "updatedAt": "2024-04-16T08:29:00.567Z",
+      "publishedAt": "2024-03-20T04:36:45.316Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "89": {
+      "id": 89,
+      "courseName": "Furniture Design - I",
+      "courseCode": "22BIT0403",
+      "courseDetails": "To impart the knowledge and perception of furniture as a single form and as a system in each  interior space.",
+      "keywords": "Ergonomics and Furniture Design",
+      "createdAt": "2024-03-20T04:37:47.640Z",
+      "updatedAt": "2024-05-21T06:48:25.914Z",
+      "publishedAt": "2024-03-20T04:37:49.683Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "91": {
+      "id": 91,
+      "courseName": "Design Studio II",
+      "courseCode": "22BIT0404",
+      "courseDetails": "To discuss in detail various concepts like space planning, anthropometry and ergonomics,  design problem solving using a Hypothetical Project (Hospital /Institution / commercial)  Development of Design Process and Understanding Human Comfort.",
+      "keywords": "design and the basic steps in design process",
+      "createdAt": "2024-03-20T04:39:45.054Z",
+      "updatedAt": "2024-04-16T08:29:37.624Z",
+      "publishedAt": "2024-03-20T04:39:46.447Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "92": {
+      "id": 92,
+      "courseName": "Elective- 4 Construction Lab",
+      "courseCode": "22BIT0440",
+      "courseDetails": "To introduce the manufacturing process of Interior Materials",
+      "keywords": null,
+      "createdAt": "2024-03-20T04:40:19.932Z",
+      "updatedAt": "2024-04-16T08:29:51.142Z",
+      "publishedAt": "2024-03-20T04:40:21.823Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "93": {
+      "id": 93,
+      "courseName": "Elective- 4 Presentation Graphics and Typography",
+      "courseCode": "22BIT0440",
+      "courseDetails": "To develop student’s ability to analyze design application of the fundamental elements of art.",
+      "keywords": null,
+      "createdAt": "2024-03-20T04:40:55.353Z",
+      "updatedAt": "2024-04-16T08:30:02.110Z",
+      "publishedAt": "2024-03-20T04:40:57.190Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "94": {
+      "id": 94,
+      "courseName": "Elective- 5 Interior Accessory Design",
+      "courseCode": "22BIT0450",
+      "courseDetails": "Design a signature collection. Creation & presentation of the home accessory dream  collection.",
+      "keywords": null,
+      "createdAt": "2024-03-20T04:41:27.239Z",
+      "updatedAt": "2024-04-16T08:30:13.603Z",
+      "publishedAt": "2024-03-20T04:41:29.697Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "95": {
+      "id": 95,
+      "courseName": "Elective- 5 Interior Photography",
+      "courseCode": "22BIT0450",
+      "courseDetails": "To impart comprehensive knowledge and understanding of light, exposure and color , and  their application in architectural lighting.",
+      "keywords": null,
+      "createdAt": "2024-03-20T04:42:02.913Z",
+      "updatedAt": "2024-04-16T08:30:25.661Z",
+      "publishedAt": "2024-03-20T04:42:04.893Z",
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "96": {
+      "id": 96,
+      "courseName": "Open Elective-6 (MOOC Course)",
+      "courseCode": "22BIT0460",
+      "courseDetails": "MOOC Course Online",
+      "keywords": null,
+      "createdAt": "2024-03-20T04:42:42.015Z",
+      "updatedAt": "2024-05-23T09:17:54.936Z",
+      "publishedAt": null,
+      "specialization": 4,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "97": {
+      "id": 97,
+      "courseName": "Luxury Fashion Accessories",
+      "courseCode": "BFD604J\t",
+      "courseDetails": "To develop concepts of product lines for Fashion Accessories using the mentioned materials. Develop skill sets to handle the mentioned materials for making Fashion Accessories.",
+      "keywords": "Luxury, Lifestyle Goods, Design Development, Prototype, Leather, Accessories",
+      "createdAt": "2024-03-20T04:47:03.620Z",
+      "updatedAt": "2024-04-16T08:37:31.779Z",
+      "publishedAt": "2024-03-26T06:51:51.133Z",
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "98": {
+      "id": 98,
+      "courseName": "Open Elective – III Folk Art",
+      "courseCode": "BFD708S\t",
+      "courseDetails": "On completion of this course, the students will be able to express students' understanding of Folk Art. To learn the coordination of group work. To develop empathy and better understanding towards Folk Art.",
+      "keywords": "Folk Art, History, Art, Craft, Traditions",
+      "createdAt": "2024-03-20T05:06:06.912Z",
+      "updatedAt": "2024-05-23T09:17:49.776Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        2
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "99": {
+      "id": 99,
+      "courseName": "Elective - 5 Fashion Merchandising",
+      "courseCode": "22BFD0440",
+      "courseDetails": null,
+      "keywords": "Fashion",
+      "createdAt": "2024-03-20T05:08:51.512Z",
+      "updatedAt": "2024-08-30T07:30:15.713Z",
+      "publishedAt": "2024-08-30T07:30:15.706Z",
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "100": {
+      "id": 100,
+      "courseName": "Pattern Making and Garment Construction II (Knitwear)",
+      "courseCode": "22BFD0401",
+      "courseDetails": "To be able to develop a pattern for Sweatshirt, Sweatpants, Leggings, Jump suit, Swimsuit, Dress",
+      "keywords": "To be able to create patterns for original design variations of different type of sportswear",
+      "createdAt": "2024-03-20T05:32:27.963Z",
+      "updatedAt": "2024-07-29T12:19:24.429Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "101": {
+      "id": 101,
+      "courseName": "Introduction To Textiles II",
+      "courseCode": "22BFD0403",
+      "courseDetails": "Develop an understanding of various process involved in conversion of fiber to fabric",
+      "keywords": null,
+      "createdAt": "2024-03-20T05:35:47.213Z",
+      "updatedAt": "2024-08-06T06:53:16.733Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "102": {
+      "id": 102,
+      "courseName": "Fashion Illustration II",
+      "courseCode": "22BFD0402",
+      "courseDetails": "This course intends to teach students the understanding of color and various color media to create fashion  illustrations / render the complete look.",
+      "keywords": null,
+      "createdAt": "2024-03-20T05:37:13.988Z",
+      "updatedAt": "2024-04-16T08:27:41.164Z",
+      "publishedAt": "2024-03-20T05:37:16.220Z",
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "103": {
+      "id": 103,
+      "courseName": "Design Project I",
+      "courseCode": "22BFD0404",
+      "courseDetails": "A design project begins with an idea or vision, both of which are viable options. The steps required  to make it a reality, on the other hand, are quite difficult.",
+      "keywords": "display creativity and originality.",
+      "createdAt": "2024-03-20T05:38:18.334Z",
+      "updatedAt": "2024-05-21T10:31:59.568Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "104": {
+      "id": 104,
+      "courseName": "Open Elective - 6 (MOOC)",
+      "courseCode": "22BFD0460",
+      "courseDetails": "MOOC Course Online",
+      "keywords": null,
+      "createdAt": "2024-03-20T05:39:12.534Z",
+      "updatedAt": "2024-05-10T09:02:43.662Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "106": {
+      "id": 106,
+      "courseName": "Elective - 5 Design Research Methodology",
+      "courseCode": "22BFD0440",
+      "courseDetails": "To enable undergraduate researchers, understand the meaning and types of research associated with design.",
+      "keywords": null,
+      "createdAt": "2024-03-20T05:40:45.765Z",
+      "updatedAt": "2024-03-20T05:44:07.094Z",
+      "publishedAt": "2024-03-20T05:40:47.828Z",
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "107": {
+      "id": 107,
+      "courseName": "Elective - 5 Fashion Merchandising",
+      "courseCode": "22BFD0440",
+      "courseDetails": "To familiarize the students with the role of merchandising activities in the apparel value chain.",
+      "keywords": null,
+      "createdAt": "2024-03-20T05:41:18.173Z",
+      "updatedAt": "2024-07-29T12:20:51.929Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "108": {
+      "id": 108,
+      "courseName": "Elective - 4 Advance Draping",
+      "courseCode": "22BFD0450",
+      "courseDetails": "Draping is an important part of the garment-making process. It is critical for a designer to grasp the interaction  between the fabric and the volume formed when manipulated on a dress form in today's fast-fashion and  computer-generated production environment. ",
+      "keywords": null,
+      "createdAt": "2024-03-20T05:41:54.666Z",
+      "updatedAt": "2024-07-29T12:17:35.029Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "109": {
+      "id": 109,
+      "courseName": "Elective - 4 Uniform Design",
+      "courseCode": "22BFD0450",
+      "courseDetails": "This course will be an introduction to Uniform design as work wear. Understanding the theory and exploration of  body-garment relationship with knowledge of dynamic anthropometric and ergonomic design study. ",
+      "keywords": null,
+      "createdAt": "2024-03-20T05:42:26.012Z",
+      "updatedAt": "2024-04-16T08:26:39.625Z",
+      "publishedAt": "2024-03-20T05:42:27.415Z",
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "110": {
+      "id": 110,
+      "courseName": "CAID- Computer Aided Industrial Design",
+      "courseCode": "22BIN0402",
+      "courseDetails": "To expose studentsto practice-based learning of parametric software.",
+      "keywords": "f representing 3D objectsin orthographic and isometric views and vice-versa.",
+      "createdAt": "2024-03-20T08:52:36.875Z",
+      "updatedAt": "2024-04-16T08:31:34.249Z",
+      "publishedAt": "2024-03-20T08:52:38.582Z",
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "111": {
+      "id": 111,
+      "courseName": "\"Introduction to the  World of Prototype\"",
+      "courseCode": "22BIN0403",
+      "courseDetails": "To explore various prototyping techniques, materials and tools.",
+      "keywords": null,
+      "createdAt": "2024-03-20T08:53:19.211Z",
+      "updatedAt": "2024-04-16T08:31:46.016Z",
+      "publishedAt": "2024-03-20T08:53:21.108Z",
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "112": {
+      "id": 112,
+      "courseName": "Design Project I: Grassroot Innovation",
+      "courseCode": "22BIN0404",
+      "courseDetails": "Introduction to the area of need-based design.",
+      "keywords": null,
+      "createdAt": "2024-03-20T08:53:51.672Z",
+      "updatedAt": "2024-04-16T08:31:59.888Z",
+      "publishedAt": "2024-03-20T08:53:53.495Z",
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "113": {
+      "id": 113,
+      "courseName": "Elective- 4. Trend Analysis",
+      "courseCode": "22BIN0440",
+      "courseDetails": "Develop the ability to understand trend analysis methods, tools and thought processes.",
+      "keywords": null,
+      "createdAt": "2024-03-20T08:54:30.080Z",
+      "updatedAt": "2024-07-29T11:56:42.334Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "114": {
+      "id": 114,
+      "courseName": "Elective- 4. Parametric Modeling",
+      "courseCode": "22BIN0440",
+      "courseDetails": "Analysis, evaluation and create models from 2D images/sketches.",
+      "keywords": "Productsketching, CAID",
+      "createdAt": "2024-03-20T08:55:59.742Z",
+      "updatedAt": "2024-07-22T05:38:53.906Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "115": {
+      "id": 115,
+      "courseName": "Elective- 5 Industrial Clay",
+      "courseCode": "22BIN0450",
+      "courseDetails": "Exposure to the indigenous art, design and culture of India. 4. Develop sensitivity towards age-old craftsmanship, knowledge",
+      "keywords": null,
+      "createdAt": "2024-03-20T08:56:40.318Z",
+      "updatedAt": "2024-04-16T08:32:40.611Z",
+      "publishedAt": "2024-03-20T08:56:42.189Z",
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "116": {
+      "id": 116,
+      "courseName": "Elective- 5 Basics of Interface and Interaction",
+      "courseCode": "22BIN0450",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-20T08:58:12.987Z",
+      "updatedAt": "2024-04-16T08:32:51.795Z",
+      "publishedAt": "2024-03-20T08:58:14.674Z",
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "117": {
+      "id": 117,
+      "courseName": "Open Elective 6",
+      "courseCode": "22BIN0460",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-20T08:58:34.954Z",
+      "updatedAt": "2024-05-10T09:03:00.590Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "119": {
+      "id": 119,
+      "courseName": "Semantics & Semiotics",
+      "courseCode": "22BVC0401",
+      "courseDetails": "To make Students understand Semantics in visual communication domain and how to communicate  with various mediums of communication (decoding messages with verbal and nonverbal medium).",
+      "keywords": null,
+      "createdAt": "2024-03-20T09:00:19.933Z",
+      "updatedAt": "2024-04-16T08:33:39.792Z",
+      "publishedAt": "2024-03-20T09:00:22.423Z",
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "120": {
+      "id": 120,
+      "courseName": "Graphic Design & Copywriting",
+      "courseCode": "22BVC0402",
+      "courseDetails": "From postage stamps to giant billboards, graphic design permeates our environment. Understanding  how to apply basic design concepts to informative or persuasive material is crucial to communicating  with an audience.",
+      "keywords": null,
+      "createdAt": "2024-03-20T09:00:55.611Z",
+      "updatedAt": "2024-09-18T09:51:07.894Z",
+      "publishedAt": "2024-09-18T09:51:07.885Z",
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "121": {
+      "id": 121,
+      "courseName": "Introduction to Interaction Design",
+      "courseCode": "22BVC0403",
+      "courseDetails": "The course is largely research-driven and explores various theoretical areas such as  sensorial, perceptual-cognitive-behavioural and socio-cultural, with a focus on aesthetics. ",
+      "keywords": null,
+      "createdAt": "2024-03-20T09:10:13.050Z",
+      "updatedAt": "2024-04-16T08:34:11.441Z",
+      "publishedAt": "2024-03-20T09:10:14.983Z",
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "122": {
+      "id": 122,
+      "courseName": "Printing & Publication",
+      "courseCode": "22BVC0404",
+      "courseDetails": "This course introduces the fundamental technology, theory, history,  techniques, and traditional and contemporary printing applications. The  objective of the course is to develop a firm ground in printmaking, the social  reflection of mass production, and sensitizing the students towards the various  applications of these printing techniques in their other practices.",
+      "keywords": null,
+      "createdAt": "2024-03-20T09:10:43.712Z",
+      "updatedAt": "2024-04-16T08:34:25.894Z",
+      "publishedAt": "2024-03-20T09:10:45.987Z",
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "123": {
+      "id": 123,
+      "courseName": "Elective- 4  Social Media Design",
+      "courseCode": "22BVC0440",
+      "courseDetails": "The course explains complex concepts with the help of illustrations and visual cues to enhance  better understanding of social media content information. different types of Infographics, visual  methods, and tools required to create social media and content.",
+      "keywords": null,
+      "createdAt": "2024-03-20T09:11:19.769Z",
+      "updatedAt": "2024-04-16T08:34:38.272Z",
+      "publishedAt": "2024-03-20T09:11:23.080Z",
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "124": {
+      "id": 124,
+      "courseName": "Elective- 4  Social Graphic Design",
+      "courseCode": "22BVC0440",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-20T09:12:00.970Z",
+      "updatedAt": "2024-07-29T12:09:18.548Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "125": {
+      "id": 125,
+      "courseName": "Elective- 5 New Media Design",
+      "courseCode": "22BVC0450",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-20T09:12:40.875Z",
+      "updatedAt": "2024-07-29T12:08:02.900Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "126": {
+      "id": 126,
+      "courseName": "Elective- 5 Speculative Design",
+      "courseCode": "22BVC0450",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-20T09:12:59.572Z",
+      "updatedAt": "2024-07-30T06:03:23.055Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "127": {
+      "id": 127,
+      "courseName": "Open Elective6",
+      "courseCode": "22BVC0460",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-20T09:13:15.112Z",
+      "updatedAt": "2024-05-23T09:18:00.113Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "129": {
+      "id": 129,
+      "courseName": " Final Collection Project",
+      "courseCode": "BFD 704J ",
+      "courseDetails": "This course will provide with opportunities to develop a design collection by following the complete design process. Student will design, create, develop, and prepare professionally executed garments for their final collection display/ Fashion show. ",
+      "keywords": "Fashion Project, Final Project, Collection",
+      "createdAt": "2024-03-20T10:45:56.289Z",
+      "updatedAt": "2024-04-01T11:21:07.358Z",
+      "publishedAt": "2024-03-20T10:45:58.288Z",
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        2
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "130": {
+      "id": 130,
+      "courseName": "Fashion Entrepreneurship ",
+      "courseCode": "BFD702W",
+      "courseDetails": "Develop an understanding of entrepreneurship and business start-up. The student will be able to interpret key skills required to start their own business in fashion. Analyze Intellectual Property Rights of a creator to protect the Company assets.",
+      "keywords": "Fashion, Entrepreneurship, Start-up, Business, Clothing Industry",
+      "createdAt": "2024-03-20T11:19:44.704Z",
+      "updatedAt": "2024-04-01T10:39:16.235Z",
+      "publishedAt": "2024-03-26T06:51:34.075Z",
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        2
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "131": {
+      "id": 131,
+      "courseName": "Technical Drawing for Fashion (Flats and specs)",
+      "courseCode": "BFD601P\t",
+      "courseDetails": "Identify the need and use of flat sketches in construction and production unit ",
+      "keywords": " technical flat sketches, 3D garment",
+      "createdAt": "2024-03-21T04:03:34.571Z",
+      "updatedAt": "2024-04-16T08:36:48.883Z",
+      "publishedAt": "2024-03-21T04:03:36.441Z",
+      "specialization": null,
+      "semester": null,
+      "academic_years": [],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "132": {
+      "id": 132,
+      "courseName": "Luxury Fashion Accessories",
+      "courseCode": "BFD604J\t",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-21T04:04:31.944Z",
+      "updatedAt": "2024-04-16T08:37:46.172Z",
+      "publishedAt": "2024-03-21T04:04:33.861Z",
+      "specialization": null,
+      "semester": null,
+      "academic_years": [],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "134": {
+      "id": 134,
+      "courseName": "Fashion Merchandising",
+      "courseCode": "BFD606W\t",
+      "courseDetails": "To familiarize the students with the role of merchandising activities in the apparel value chain.",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:06:13.602Z",
+      "updatedAt": "2024-04-16T08:38:15.314Z",
+      "publishedAt": "2024-03-21T04:06:15.526Z",
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "135": {
+      "id": 135,
+      "courseName": "Advanced Pattern Making and Garment Construction",
+      "courseCode": "BFD602J\t",
+      "courseDetails": "To learn methods of production sequence for children’s, women’s and men’s wear ",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:07:14.142Z",
+      "updatedAt": "2024-04-16T08:38:47.248Z",
+      "publishedAt": "2024-03-21T04:07:16.246Z",
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "136": {
+      "id": 136,
+      "courseName": "Design Project - IV",
+      "courseCode": "BFD605J\t",
+      "courseDetails": "Explore the ideations, materials, techniques, and product ",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:08:22.126Z",
+      "updatedAt": "2024-04-16T08:38:58.549Z",
+      "publishedAt": "2024-03-21T04:08:24.136Z",
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "137": {
+      "id": 137,
+      "courseName": "Open Elective – II (MOOC)",
+      "courseCode": "BFD608S\t",
+      "courseDetails": "MOOC Course Online",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:08:59.333Z",
+      "updatedAt": "2024-05-23T09:17:45.289Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "138": {
+      "id": 138,
+      "courseName": "Responsible Leadership",
+      "courseCode": "BDEV103\t",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-21T04:09:24.972Z",
+      "updatedAt": "2024-07-22T13:10:29.025Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "139": {
+      "id": 139,
+      "courseName": "Elective - II (Crafts Of India)",
+      "courseCode": "BFD607S\t",
+      "courseDetails": "To experience the richness and heritage of Indian crafts and to integrate with design. ",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:10:15.478Z",
+      "updatedAt": "2024-04-16T08:36:11.129Z",
+      "publishedAt": "2024-03-21T04:10:17.904Z",
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "140": {
+      "id": 140,
+      "courseName": "Textile Surface Design and Finishes",
+      "courseCode": "BFD603J\t",
+      "courseDetails": "To introduce the students to the basics of dyeing and printing and provide comprehensive knowledge about the concepts of dyeing and printing of textiles. To acquaint the students with the tools and equipment used for dyeing and printing. ",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:11:59.372Z",
+      "updatedAt": "2024-04-16T08:37:59.393Z",
+      "publishedAt": "2024-03-21T04:12:01.394Z",
+      "specialization": 2,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "141": {
+      "id": 141,
+      "courseName": "Entrepreneurship  and Trade Tower",
+      "courseCode": "BID604W",
+      "courseDetails": "To identify entrepreneurship opportunities and acquire entrepreneurial values and attitudes. To use the information to prepare a project report for a business venture. To develop awareness about enterprise management. To empower students to employ and explore design management from the perspective of design of business. ",
+      "keywords": "Entrepreneurship, Creativity & Opportunities",
+      "createdAt": "2024-03-21T04:21:25.634Z",
+      "updatedAt": "2024-07-29T09:20:04.055Z",
+      "publishedAt": null,
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "142": {
+      "id": 142,
+      "courseName": "Intellectual  Property Rights",
+      "courseCode": "BID606W",
+      "courseDetails": "Understand the meaning of Intellectual Property and to study the various categories of Intellectual Property. ",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:22:35.112Z",
+      "updatedAt": "2024-04-16T08:42:13.989Z",
+      "publishedAt": "2024-03-21T04:22:37.004Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "143": {
+      "id": 143,
+      "courseName": "Design Studio IV- Barrier Free  Environment",
+      "courseCode": "BID601J",
+      "courseDetails": "Develop the skill of design vocabulary, enhancement, and sensitization of students in design preparation and its relation to tradition, culture, behavior patterns, use of space etc. ",
+      "keywords": "Interior Construction Detailing ",
+      "createdAt": "2024-03-21T04:23:38.440Z",
+      "updatedAt": "2024-04-16T08:42:47.918Z",
+      "publishedAt": "2024-03-21T04:23:40.463Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "144": {
+      "id": 144,
+      "courseName": "Research  Methods",
+      "courseCode": "BID605J",
+      "courseDetails": "To impart knowledge on various aspects of research in Interior Design. ",
+      "keywords": "characteristics",
+      "createdAt": "2024-03-21T04:24:45.429Z",
+      "updatedAt": "2024-04-16T08:43:05.127Z",
+      "publishedAt": "2024-03-21T04:24:47.121Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "145": {
+      "id": 145,
+      "courseName": "Estimation, Professional Practice and Project  Management",
+      "courseCode": "BID602W",
+      "courseDetails": "To equip the students with the basic understanding of specifications of materials, quantities of different materials and the costs that help prepare the estimate of the project before execution. It also deals with preparing the schedule of charts for time and budget, to have control over the project. ",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:25:29.271Z",
+      "updatedAt": "2024-04-16T08:43:34.480Z",
+      "publishedAt": "2024-03-21T04:25:30.795Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "146": {
+      "id": 146,
+      "courseName": "Computer Applications III",
+      "courseCode": "BID603P",
+      "courseDetails": "To learn basic skills of modelling, scripting (rendering) and to exercise methods of visual interface of algorithms for geometry and create complex forms through repetitions of simple geometry.    ",
+      "keywords": " Rendering and presentation",
+      "createdAt": "2024-03-21T04:27:00.138Z",
+      "updatedAt": "2024-04-16T08:43:48.630Z",
+      "publishedAt": "2024-03-21T04:27:02.215Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "147": {
+      "id": 147,
+      "courseName": "Elective II- Biomimicry",
+      "courseCode": "BID607S",
+      "courseDetails": "Taking nature as a model to imitate or take inspiration from natural design and processes and applying it to the man‐ made. Trying to use ecological standards to judge the efficiency of human innovations and does not try to exploit nature by extracting material goods from it, but values nature as something humans can learn from. ",
+      "keywords": null,
+      "createdAt": "2024-03-21T04:27:42.374Z",
+      "updatedAt": "2024-04-16T08:44:02.935Z",
+      "publishedAt": "2024-03-21T04:27:44.461Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "148": {
+      "id": 148,
+      "courseName": "Elective II- Environmental Control",
+      "courseCode": "BID607S",
+      "courseDetails": "To equip the students with the basic understanding of climatic types in India and the impact on requirements of Interior design. ",
+      "keywords": "environment",
+      "createdAt": "2024-03-21T04:28:42.337Z",
+      "updatedAt": "2024-04-16T08:44:15.567Z",
+      "publishedAt": "2024-03-21T04:28:44.399Z",
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "149": {
+      "id": 149,
+      "courseName": "Open Elective II",
+      "courseCode": "BID608S",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-21T04:29:09.418Z",
+      "updatedAt": "2024-05-23T09:17:19.387Z",
+      "publishedAt": null,
+      "specialization": 4,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "150": {
+      "id": 150,
+      "courseName": "Studies in form III",
+      "courseCode": "BPD601J\t",
+      "courseDetails": "To develop practice-based learning through drawing, model making and prototyping. ",
+      "keywords": "product design",
+      "createdAt": "2024-03-21T09:03:20.360Z",
+      "updatedAt": "2024-04-16T08:44:47.557Z",
+      "publishedAt": "2024-03-21T09:03:23.075Z",
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "151": {
+      "id": 151,
+      "courseName": "Copyright And Intellectual Property Rights",
+      "courseCode": "BPD602W\t",
+      "courseDetails": "Demonstrate different aspects of IP Rights, such as patents, designs, trade, and copyright. process of patenting and development.  ",
+      "keywords": "Patents, Designs, Trade and Copyright.",
+      "createdAt": "2024-03-21T09:04:16.228Z",
+      "updatedAt": "2024-09-02T06:49:14.369Z",
+      "publishedAt": "2024-09-02T06:49:14.364Z",
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "152": {
+      "id": 152,
+      "courseName": "Biomimicry",
+      "courseCode": "BPD604J\t",
+      "courseDetails": "Taking nature as a model to imitate or take inspiration from natural design and processes and applying it to the man-made. Trying to use ecological standards to understand the efficiency of human innovations and does not try to exploit nature by extracting material goods from it, but values nature as something humans can learn from. ",
+      "keywords": "biology on design",
+      "createdAt": "2024-03-21T09:05:03.459Z",
+      "updatedAt": "2024-04-16T08:46:47.040Z",
+      "publishedAt": "2024-03-21T09:05:05.159Z",
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "153": {
+      "id": 153,
+      "courseName": "System Design",
+      "courseCode": "BPD605J\t",
+      "courseDetails": "Introduction to the area of systems thinking in the context of product design opportunities.  ",
+      "keywords": " building model, defining system",
+      "createdAt": "2024-03-21T09:06:05.217Z",
+      "updatedAt": "2024-04-16T08:47:00.269Z",
+      "publishedAt": "2024-03-21T09:06:07.034Z",
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "154": {
+      "id": 154,
+      "courseName": "Character Design (Elective)",
+      "courseCode": "BPD606J\t",
+      "courseDetails": " Character design involves developing the appearance and features of characters in animation.  ",
+      "keywords": null,
+      "createdAt": "2024-03-21T09:06:44.863Z",
+      "updatedAt": "2024-04-16T08:47:12.214Z",
+      "publishedAt": "2024-03-21T09:06:46.742Z",
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "155": {
+      "id": 155,
+      "courseName": "Responsible Leadership",
+      "courseCode": "DEV003\t",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-21T09:07:12.773Z",
+      "updatedAt": "2024-07-22T13:10:32.687Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "156": {
+      "id": 156,
+      "courseName": "Open Elective – II",
+      "courseCode": "BPD607J\t",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-21T09:07:39.673Z",
+      "updatedAt": "2024-05-23T09:17:38.001Z",
+      "publishedAt": null,
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "157": {
+      "id": 157,
+      "courseName": "Intellectual Properties Rights in Communication Design",
+      "courseCode": "BCD601W\t",
+      "courseDetails": "To have a theoretical knowledge of the process of getting copyrights and intellectual",
+      "keywords": "Interpret the Design copyright management. ",
+      "createdAt": "2024-03-21T09:10:25.292Z",
+      "updatedAt": "2024-07-29T09:20:40.042Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "158": {
+      "id": 158,
+      "courseName": "Design Research –  Branding and Identity",
+      "courseCode": "BCD602J\t",
+      "courseDetails": "This research focuses mainly on design research about the customer's emotional response to the brand and their gut feeling. Research what are the tangible and intangible identity of the company. ",
+      "keywords": null,
+      "createdAt": "2024-03-21T09:11:13.860Z",
+      "updatedAt": "2024-04-16T08:48:31.653Z",
+      "publishedAt": "2024-03-21T09:11:16.100Z",
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "159": {
+      "id": 159,
+      "courseName": "Advertisement and  Campaign Planning",
+      "courseCode": "BCD603J\t",
+      "courseDetails": "To understand the effective campaign design strategies, create a series of branded media with a unified look and feel across assets, identity and analyse target audience then define campaign objectives and problem areas finally create an advertising campaign message and develop visual assets across various platforms. ",
+      "keywords": null,
+      "createdAt": "2024-03-21T09:11:56.875Z",
+      "updatedAt": "2024-04-16T08:48:48.705Z",
+      "publishedAt": "2024-03-21T09:11:58.701Z",
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "160": {
+      "id": 160,
+      "courseName": "Animation Principles",
+      "courseCode": "BCD604P\t",
+      "courseDetails": "This course goes into detail on seven key animation principles that inform interface   design",
+      "keywords": "ANIMATION ",
+      "createdAt": "2024-03-21T09:12:52.052Z",
+      "updatedAt": "2024-04-16T08:49:03.192Z",
+      "publishedAt": "2024-03-21T09:12:53.586Z",
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "161": {
+      "id": 161,
+      "courseName": "Character Design - I",
+      "courseCode": "BCD605P\t",
+      "courseDetails": "The course focuses mainly on the character’s personality to develop a visual idea of the character’s physical features. Learn to create model sheets and expression sheets that will help students be consistent with the appearance of the characters.  ",
+      "keywords": "Designing characters",
+      "createdAt": "2024-03-21T09:13:26.404Z",
+      "updatedAt": "2024-04-16T08:49:17.160Z",
+      "publishedAt": "2024-03-21T09:13:28.474Z",
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "162": {
+      "id": 162,
+      "courseName": "Design Project 2: Universal Design",
+      "courseCode": "22BIN0504 ",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-21T09:14:09.081Z",
+      "updatedAt": "2024-11-29T09:12:51.297Z",
+      "publishedAt": "2024-03-21T09:14:12.347Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "163": {
+      "id": 163,
+      "courseName": "Elective - II (Video Editing)",
+      "courseCode": "BCD607S\t",
+      "courseDetails": "This course focuses on starting a project with the proper settings for any video from any camera. Edit videos and make them more dynamic with cutaway footage and photos. Add motion to titles, photos, and videos... making them more visually attractive. Add a feeling to the video with color grading. Apply visual effects such as stabilizing shaky video, removing grain, and making video more cinematic with overlays. Edit green screen footage and add backgrounds that look good.  ",
+      "keywords": "Starting a project, editing videos, and Adding video and audio transitions.  ",
+      "createdAt": "2024-03-21T09:15:01.650Z",
+      "updatedAt": "2024-04-16T08:49:42.883Z",
+      "publishedAt": "2024-03-21T09:15:04.574Z",
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "164": {
+      "id": 164,
+      "courseName": "Open Elective - II",
+      "courseCode": "BCD608S\t",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-03-21T09:15:32.416Z",
+      "updatedAt": "2024-05-10T09:02:49.665Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "165": {
+      "id": 165,
+      "courseName": "Design Drawing - II",
+      "courseCode": "22BDF0201",
+      "courseDetails": "To equip students with a fundamental understanding of drawing, and its functional use in Design. To develop technical drawing aspects and their applications in various design disciplines. To develop analytical representational skills, and to enhance the student’s ability to visualize and ideate. ",
+      "keywords": null,
+      "createdAt": "2024-04-01T05:00:03.834Z",
+      "updatedAt": "2024-07-18T08:43:30.537Z",
+      "publishedAt": "2024-07-16T07:16:25.949Z",
+      "specialization": 5,
+      "semester": 2,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "168": {
+      "id": 168,
+      "courseName": "Fundamentals of Design– II",
+      "courseCode": "22BDF0202",
+      "courseDetails": null,
+      "keywords": "Design",
+      "createdAt": "2024-04-16T08:12:40.209Z",
+      "updatedAt": "2024-04-16T08:12:42.083Z",
+      "publishedAt": "2024-04-16T08:12:42.075Z",
+      "specialization": 5,
+      "semester": 2,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "169": {
+      "id": 169,
+      "courseName": "Film & Media Appreciation",
+      "courseCode": "22BDF0203",
+      "courseDetails": null,
+      "keywords": "Film and Media",
+      "createdAt": "2024-04-16T08:18:21.359Z",
+      "updatedAt": "2024-07-30T05:53:59.449Z",
+      "publishedAt": null,
+      "specialization": 5,
+      "semester": 2,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "170": {
+      "id": 170,
+      "courseName": "Environmental Studies",
+      "courseCode": "22BDF0206",
+      "courseDetails": null,
+      "keywords": "Environment",
+      "createdAt": "2024-04-16T08:18:58.174Z",
+      "updatedAt": "2024-04-16T08:19:00.161Z",
+      "publishedAt": "2024-04-16T08:19:00.157Z",
+      "specialization": 5,
+      "semester": 2,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "171": {
+      "id": 171,
+      "courseName": "Material Exploration- II",
+      "courseCode": "22BDF0204",
+      "courseDetails": null,
+      "keywords": "Hard Material, Thermocol, Metal, Wood, Shaping",
+      "createdAt": "2024-04-16T08:19:27.377Z",
+      "updatedAt": "2024-05-16T07:16:04.027Z",
+      "publishedAt": "2024-04-16T08:19:29.030Z",
+      "specialization": 5,
+      "semester": 2,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "172": {
+      "id": 172,
+      "courseName": "Material Culture & Cognition",
+      "courseCode": "22BDF0205",
+      "courseDetails": null,
+      "keywords": "Cognition",
+      "createdAt": "2024-04-16T08:20:10.307Z",
+      "updatedAt": "2024-04-16T08:20:12.194Z",
+      "publishedAt": "2024-04-16T08:20:12.192Z",
+      "specialization": 5,
+      "semester": 2,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "173": {
+      "id": 173,
+      "courseName": "Design Process",
+      "courseCode": "22BDF0207",
+      "courseDetails": null,
+      "keywords": "Design",
+      "createdAt": "2024-04-16T08:20:40.056Z",
+      "updatedAt": "2024-04-16T08:20:42.058Z",
+      "publishedAt": "2024-04-16T08:20:42.053Z",
+      "specialization": 5,
+      "semester": 2,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "174": {
+      "id": 174,
+      "courseName": "Professional Practices in Design",
+      "courseCode": "BPD603W\t",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-16T08:46:30.754Z",
+      "updatedAt": "2024-04-16T08:46:33.077Z",
+      "publishedAt": "2024-04-16T08:46:33.074Z",
+      "specialization": 3,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "175": {
+      "id": 175,
+      "courseName": "Technical and Smart Textiles ",
+      "courseCode": "BFD707S",
+      "courseDetails": "This course intends to expose the students to the various R&D happening in the Textile Industry and their application in present-day society",
+      "keywords": null,
+      "createdAt": "2024-04-19T05:18:22.271Z",
+      "updatedAt": "2024-04-20T04:23:58.747Z",
+      "publishedAt": "2024-04-20T04:23:58.739Z",
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        2
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "176": {
+      "id": 176,
+      "courseName": "DESIGN DRAWING - I",
+      "courseCode": "22BDF0101",
+      "courseDetails": null,
+      "keywords": "Design and Drawing",
+      "createdAt": "2024-04-22T04:39:47.752Z",
+      "updatedAt": "2024-09-12T12:34:18.966Z",
+      "publishedAt": "2024-09-12T12:34:10.475Z",
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5,
+        8
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "177": {
+      "id": 177,
+      "courseName": "HISTORY OF DESIGN",
+      "courseCode": "22BDF0102",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:40:19.724Z",
+      "updatedAt": "2024-10-23T16:39:42.673Z",
+      "publishedAt": "2024-04-22T04:40:25.702Z",
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5,
+        8
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "178": {
+      "id": 178,
+      "courseName": "FUNDAMENTALS OF DESIGN - I",
+      "courseCode": "22BDF0103",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:40:44.731Z",
+      "updatedAt": "2024-10-23T11:04:39.005Z",
+      "publishedAt": "2024-09-12T12:35:57.909Z",
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5,
+        2,
+        8
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "179": {
+      "id": 179,
+      "courseName": "INTRODUCTION TO DESIGN SOFTWARE",
+      "courseCode": "22BDF0104",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:41:05.482Z",
+      "updatedAt": "2024-04-22T04:41:07.224Z",
+      "publishedAt": "2024-04-22T04:41:07.221Z",
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "180": {
+      "id": 180,
+      "courseName": "INTRODUCTION TO PHOTOGRAPHY",
+      "courseCode": "22BDF0105",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:41:25.595Z",
+      "updatedAt": "2025-01-16T05:43:09.854Z",
+      "publishedAt": "2025-01-16T05:43:09.851Z",
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5,
+        8
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "181": {
+      "id": 181,
+      "courseName": "MATERIAL EXPLORATION - I",
+      "courseCode": "22BDF0106",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:41:45.546Z",
+      "updatedAt": "2024-11-27T08:40:56.351Z",
+      "publishedAt": "2024-11-27T08:40:51.837Z",
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5,
+        8
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "182": {
+      "id": 182,
+      "courseName": "DESIGN PROJECT",
+      "courseCode": "22BDF0107",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:42:13.557Z",
+      "updatedAt": "2024-07-30T05:59:17.283Z",
+      "publishedAt": null,
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "183": {
+      "id": 183,
+      "courseName": "COMMUNICATION SKILLS",
+      "courseCode": "22BDF0108",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:42:43.976Z",
+      "updatedAt": "2024-07-30T06:01:32.963Z",
+      "publishedAt": null,
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "184": {
+      "id": 184,
+      "courseName": "REFLECTING SELF",
+      "courseCode": "DEV101",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:43:15.352Z",
+      "updatedAt": "2024-07-30T05:59:47.854Z",
+      "publishedAt": null,
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "185": {
+      "id": 185,
+      "courseName": "TYPE & TYPOGRAPHY",
+      "courseCode": "22BFD0109",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:44:28.051Z",
+      "updatedAt": "2024-07-30T06:00:58.931Z",
+      "publishedAt": null,
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "186": {
+      "id": 186,
+      "courseName": "COLOUR & FORM",
+      "courseCode": "22BFD0110",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-04-22T04:46:17.686Z",
+      "updatedAt": "2024-07-30T06:01:12.723Z",
+      "publishedAt": null,
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "187": {
+      "id": 187,
+      "courseName": "Design Start-up",
+      "courseCode": "BCD704W",
+      "courseDetails": "Design a marketing and business plan for your start-up.",
+      "keywords": "entrepreneurship, business, user experience",
+      "createdAt": "2024-05-09T09:56:42.216Z",
+      "updatedAt": "2024-05-09T09:56:44.270Z",
+      "publishedAt": "2024-05-09T09:56:44.267Z",
+      "specialization": 1,
+      "semester": 7,
+      "academic_years": [
+        2
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "188": {
+      "id": 188,
+      "courseName": "Design Thesis (ID)",
+      "courseCode": "DID702J",
+      "courseDetails": "This course is aiming to develop assimilation, synthesis and application of research in interior design.",
+      "keywords": "Systhesis, assimilation, space, thesis",
+      "createdAt": "2024-05-17T06:05:29.839Z",
+      "updatedAt": "2024-05-17T06:05:32.105Z",
+      "publishedAt": "2024-05-17T06:05:32.102Z",
+      "specialization": 4,
+      "semester": 7,
+      "academic_years": [
+        2
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "189": {
+      "id": 189,
+      "courseName": "Design Project I (FD)",
+      "courseCode": "22BFD0404",
+      "courseDetails": "Ability to work with color schemes and palettes used in RTW fashion segment. Understanding of silhouette design, pattern making related to RTW garment categories. Ability to create a fully sewed, constructed, and finished garment as per the industry standards. Establish a work frame of research, research analysis, Design process, design derivation and execution of design as per fashion industry design process, development, consumer & market, price point and design aesthetics. ",
+      "keywords": "Design Project, Design Process, Ready to Wear, Fashion Trend",
+      "createdAt": "2024-05-21T06:08:44.413Z",
+      "updatedAt": "2024-05-21T06:14:59.233Z",
+      "publishedAt": "2024-05-21T06:14:51.151Z",
+      "specialization": 2,
+      "semester": 4,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "190": {
+      "id": 190,
+      "courseName": "Character Design - I",
+      "courseCode": "BCD605P",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-06-13T06:45:33.079Z",
+      "updatedAt": "2024-09-02T06:46:30.462Z",
+      "publishedAt": "2024-09-02T06:46:30.458Z",
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "191": {
+      "id": 191,
+      "courseName": "AI powered  Product Design ",
+      "courseCode": "22BIN0502",
+      "courseDetails": "Gain a solid understanding of AI's basics and historical evolution in industrial design. Experience hands-on use of AI tools for research, ideation, documentation, and processing. Utilize AI technologies for enhanced user research, employing natural language processing and sentiment analysis to inform design decisions. Implement generative design principles to empower creativity with AI-driven techniques for innovative and optimized concepts.",
+      "keywords": "AI in design, Vizcom, Rendering, Artificial Intelligent ",
+      "createdAt": "2024-07-29T06:03:41.688Z",
+      "updatedAt": "2024-07-29T06:35:50.151Z",
+      "publishedAt": "2024-07-29T06:03:45.324Z",
+      "specialization": 3,
+      "semester": 5,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "192": {
+      "id": 192,
+      "courseName": "PROFESSIONAL PORTFOLIO",
+      "courseCode": "21BFD706J ",
+      "courseDetails": null,
+      "keywords": "portfolio, industry, internship",
+      "createdAt": "2024-09-02T06:57:44.163Z",
+      "updatedAt": "2025-03-12T06:50:43.645Z",
+      "publishedAt": "2024-09-02T06:57:45.998Z",
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        2,
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "193": {
+      "id": 193,
+      "courseName": "Design Management (CD)",
+      "courseCode": null,
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-09-18T10:10:46.611Z",
+      "updatedAt": "2024-09-18T10:10:46.611Z",
+      "publishedAt": null,
+      "specialization": 1,
+      "semester": 5,
+      "academic_years": [
+        3,
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "194": {
+      "id": 194,
+      "courseName": "Design Entrepreneurship ",
+      "courseCode": "BPD702J ",
+      "courseDetails": null,
+      "keywords": null,
+      "createdAt": "2024-11-28T05:32:29.787Z",
+      "updatedAt": "2024-11-28T05:33:11.608Z",
+      "publishedAt": "2024-11-28T05:33:11.606Z",
+      "specialization": 3,
+      "semester": 7,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "195": {
+      "id": 195,
+      "courseName": "Design Project III: Open brief ",
+      "courseCode": "BPD703J ",
+      "courseDetails": "Students will come up with a problem statement, brief area from their own interest, skills, experience. ",
+      "keywords": "open brief, self exploration, dp3, project, ",
+      "createdAt": "2024-11-28T06:11:46.233Z",
+      "updatedAt": "2024-11-28T06:12:41.830Z",
+      "publishedAt": "2024-11-28T06:12:41.827Z",
+      "specialization": 3,
+      "semester": 7,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "196": {
+      "id": 196,
+      "courseName": "COLOUR  FUNDAMENTALS",
+      "courseCode": "24DU01MJB1",
+      "courseDetails": "This course introduces the fundamentals of color psychology, exploring principles of color perception, cultural influences, and historical perspectives. It delves into the psychological effects of colors, examining their impact on emotions, behaviors, and cognition, as well as associations that evoke specific moods. Students learn to apply color theory in fields like marketing, design, art therapy, interior design, and branding, focusing on combinations, contrasts, and harmonies to achieve objectives. Cultural and contextual considerations are addressed through case studies, analyzing how societal norms and individual differences shape color perception and interpretation across diverse contexts.",
+      "keywords": "Color Psychology, Color Perception, Psychological Effects of Color, Color Symbolism Color Theory Color and Emotions Cultural Influences on Color Color Combinations and Harmony",
+      "createdAt": "2025-01-16T05:58:59.884Z",
+      "updatedAt": "2025-01-16T06:01:16.773Z",
+      "publishedAt": "2025-01-16T05:59:02.998Z",
+      "specialization": 5,
+      "semester": 1,
+      "academic_years": [
+        8
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "197": {
+      "id": 197,
+      "courseName": "FINAL COLLECTION PROJECT",
+      "courseCode": "21BFD704J ",
+      "courseDetails": "To experience and learn the degree of efforts and stages concerned with the development of the entire collection of garments. To apply the workflow involved in the design process starting from conceptualization to execution of garments.    ",
+      "keywords": "Research & Analysis Brand Conceptualization Design Development Material & Technical Aspects Marketing & Finalization",
+      "createdAt": "2025-03-11T08:24:30.270Z",
+      "updatedAt": "2025-03-11T08:24:30.270Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "200": {
+      "id": 200,
+      "courseName": "ELECTIVE 6 - ADVANCED DRAPING",
+      "courseCode": "22BFD0572",
+      "courseDetails": "To enable the student to feel and sculpt the fabric into a 3-dimensional form. To inculcate the sense of proportion and placement of style lines and obtain harmony and balance between the fabric and design.   ",
+      "keywords": "Fabric Manipulation 3D Form Sculpting Proportion & Balance Style Line Placement Design Harmony",
+      "createdAt": "2025-03-11T08:32:11.862Z",
+      "updatedAt": "2025-03-11T08:32:11.862Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "201": {
+      "id": 201,
+      "courseName": "ELECTIVE 1 DRAPING I ",
+      "courseCode": "BPRD32308 ",
+      "courseDetails": "Draping introduces the fundamental principles and techniques of fabric draping as a means of creatively interpreting and developing contemporary designs. The emphasis on proportion, balance, and shape as they relate to design aesthetics broadens students' understanding for actualizing and realizing three-dimensional design prototypes using muslin and soft fabrications. Basic patterning, collars, bodice, and skirt variations are all covered. Style variations broaden students' creative, critical thinking, and technical abilities",
+      "keywords": "Fabric Manipulation 3D Form Sculpting Proportion & Balance Style Line Placement Design Harmony",
+      "createdAt": "2025-03-11T08:33:01.094Z",
+      "updatedAt": "2025-03-11T08:33:01.094Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 3,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "202": {
+      "id": 202,
+      "courseName": "Game Design ",
+      "courseCode": "22BVC0580",
+      "courseDetails": "This course provides students with a foundational understanding of Game Design principles and techniques, utilizing industry-standard software such as Blender. Through hands-on exercises and projects, students will gain proficiency in creating three-dimensional models, characters, and assets tailored for diverse applications including animation, gaming, and visual effects.",
+      "keywords": "Game Design, Digital Game, Game Experience",
+      "createdAt": "2025-03-11T14:47:43.337Z",
+      "updatedAt": "2025-03-11T14:47:45.233Z",
+      "publishedAt": "2025-03-11T14:47:45.225Z",
+      "specialization": 1,
+      "semester": 6,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "203": {
+      "id": 203,
+      "courseName": "DIGITAL PATTERN MAKING and GRADING",
+      "courseCode": "21BFD703J ",
+      "courseDetails": "The Apparel Grading module focuses on teaching students the principles and techniques of grading patterns to create multiple sizes of a garment. Students will learn about the importance of grading for achieving consistent fit across different body sizes and how to apply grading rules to increase or decrease the dimensions of a pattern. By the end of the module, students will have developed a comprehensive understanding of apparel grading and will be able to apply their knowledge to create graded patterns for a range of garment sizes. They will also gain valuable skills that are essential for a career in fashion design and production.",
+      "keywords": "Apparel Grading Pattern Grading Size Variation Grading Rules Fashion Production",
+      "createdAt": "2025-03-12T06:39:18.293Z",
+      "updatedAt": "2025-03-12T09:31:55.586Z",
+      "publishedAt": "2025-03-12T09:31:55.583Z",
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        3
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "204": {
+      "id": 204,
+      "courseName": "DRAPING I",
+      "courseCode": "BPRD32308 ",
+      "courseDetails": "Draping introduces the fundamental principles and techniques of fabric draping as a means of creatively interpreting and developing contemporary designs. The emphasis on proportion, balance, and shape as they relate to design aesthetics broadens students' understanding for actualizing and realizing three-dimensional design prototypes using muslin and soft fabrications. Basic patterning, collars, bodice, and skirt variations are all covered. Style variations broaden students' creative, critical thinking, and technical abilities.",
+      "keywords": "Draping Proportion Three-Dimensional Design Patterning Creative Interpretation",
+      "createdAt": "2025-03-13T08:59:35.927Z",
+      "updatedAt": "2025-03-13T08:59:35.927Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 7,
+      "academic_years": [
+        5
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    },
+    "205": {
+      "id": 205,
+      "courseName": "Advanced Draping",
+      "courseCode": "22BFD0572",
+      "courseDetails": "To enable the student to feel and sculpt the fabric into a 3-dimensional form. To inculcate the sense of proportion and placement of style lines and obtain harmony and balance between the fabric and design.   ",
+      "keywords": "Draping Proportion Three-Dimensional Design Patterning Creative Interpretation",
+      "createdAt": "2025-03-13T09:07:48.115Z",
+      "updatedAt": "2025-03-13T09:07:48.115Z",
+      "publishedAt": null,
+      "specialization": 2,
+      "semester": 5,
+      "academic_years": [
+        4
+      ],
+      "createdBy": null,
+      "updatedBy": null
+    }
+  }
+}
