@@ -19,27 +19,27 @@ export default async function Home() {
         {/* Content */}
         <div className="relative px-container">
           <div className="max-w-6xl mx-auto text-center">
-            <h1 className="font-display text-6xl md:text-8xl font-bold tracking-tight mb-8 animate-fade-in">
-              Your Wardrobe,{' '}
+            <h1 className="font-display text-6xl md:text-7xl font-bold tracking-tight mb-16 animate-fade-in">
+              manage your fits<br/>
               <span className="text-accent-purple-light">
-                Reimagined
+                build a digital wardrobe
               </span>
             </h1>
-            <p className="font-sans text-xl md:text-2xl text-foreground-soft max-w-2xl mx-auto mb-12 animate-fade-in">
+            {/* <p className="font-sans text-xl text-foreground-soft max-w-2xl mx-auto mb-12 animate-fade-in">
               Create stunning outfits, build your digital wardrobe, and share your style with the world.
-            </p>
+            </p> */}
             <div className="flex flex-wrap justify-center gap-4 animate-fade-in">
               {session ? (
                 <>
                   <Link
                     href="/catalog"
-                    className="px-8 py-4 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
+                    className="px-6 py-3 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
                   >
                     My Catalog
                   </Link>
                   <Link
                     href="/outfits/create"
-                    className="px-8 py-4 bg-background-soft border border-border-bright rounded-xl font-medium hover:bg-background-softer transition-colors"
+                    className="px-6 py-3 bg-background-soft border-2 border-border-bright rounded-xl font-medium hover:bg-accent-purple/20 transition-colors"
                   >
                     Create Outfit
                   </Link>
@@ -66,7 +66,7 @@ export default async function Home() {
       </section>
 
       {/* Features Grid */}
-      <section className="px-container py-32 bg-background-soft">
+      {/* <section className="px-container py-32 bg-background-soft">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-16 text-center">
             Everything you need to{' '}
@@ -111,10 +111,10 @@ export default async function Home() {
             />
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
-      <section className="relative px-container py-32 overflow-hidden">
+      {/* <section className="relative px-container py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-accent-purple/5 to-accent-blue/5" />
         <div className="relative max-w-4xl mx-auto text-center">
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-8">
@@ -139,7 +139,7 @@ export default async function Home() {
             </Link>
           )}
         </div>
-      </section>
+      </section> */}
     </>
   );
 }

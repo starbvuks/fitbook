@@ -94,8 +94,9 @@ export default function Navigation() {
             <div className="flex items-center space-x-8">
               <Link 
                 href="/" 
-                className="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
+                className="text-xl flex items-center gap-1 font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
               >
+                <Image src="/logo.png" alt="Fitbook Logo" width={32} height={32} />
                 Fitbook
               </Link>
             </div>
@@ -113,9 +114,10 @@ export default function Navigation() {
           <div className="flex items-center space-x-4 sm:space-x-8">
             <Link 
               href="/" 
-              className="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
+              className="text-xl flex items-center gap-1 font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
             >
-              Fitbook
+                <Image src="/logo.png" alt="Fitbook Logo" width={32} height={32} />
+                Fitbook
             </Link>
 
             {session && (
