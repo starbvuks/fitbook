@@ -260,7 +260,7 @@ export default function Navigation() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col h-full pt-16 ">
-              <div className="space-y-1 px-3 bg-zinc-900 py-3 rounded-t-xl">
+              <div className="space-y-1 px-3 bg-zinc-900 py-3 rounded-xl">
                 <Link 
                   href="/catalog" 
                   className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"

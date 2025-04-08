@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import Image from 'next/image'
-import { X, Download, Save, ShoppingCart, CircleCheck, Plus } from 'lucide-react'
+import { X, Download, Save, ShoppingCart, CircleCheck, Plus, List, Grid } from 'lucide-react'
 import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
+import { cn } from '@/lib/utils'
 
 type ClothingItemWithPosition = ClothingItem & { position?: string }
 
@@ -74,6 +75,7 @@ export default function OutfitBuilder({
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
   const [isItemPickerOpen, setIsItemPickerOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   useEffect(() => {
     const checkMobile = () => {
@@ -158,8 +160,12 @@ export default function OutfitBuilder({
 
   const handleItemSelect = (item: ClothingItem) => {
     if (!selectedSlot) return
-    if (selectedSlot.includes('accessory')) {
-      onAddAccessory({ ...item, position: selectedSlot.replace('_accessory', '') })
+    if (selectedSlot === 'headwear' && item.category === 'accessories') {
+      setError('Accessories cannot be added as headwear')
+      return
+    }
+    if (selectedSlot === 'accessory') {
+      onAddAccessory({ ...item, position: 'accessory' })
     } else {
       onAddItem(item, selectedSlot)
     }
@@ -267,6 +273,16 @@ export default function OutfitBuilder({
     }
   }
 
+  const filterItemsBySlot = (item: ClothingItem) => {
+    if (selectedSlot === 'top') return item.category === 'tops'
+    if (selectedSlot === 'bottom') return item.category === 'bottoms'
+    if (selectedSlot === 'headwear') return item.category === 'accessories'
+    if (selectedSlot === 'outerwear') return item.category === 'outerwear'
+    if (selectedSlot === 'shoes') return item.category === 'shoes'
+    if (selectedSlot === 'accessory') return item.category === 'accessories'
+    return false
+  }
+
   return (
     <div 
       ref={dropRef as any}
@@ -314,102 +330,129 @@ export default function OutfitBuilder({
         {/* Outfit Builder Main Content */}
         <div className="p-3 space-y-4">
           {/* Main Items */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Main Items</h3>
-            <div className="grid grid-cols-1 gap-2">
-              {Object.entries(SLOT_LABELS).map(([slot, label]: [string, string]) => (
-                <div key={slot} className="relative">
-                  <button
-                    onClick={() => handleSlotClick(slot)}
-                    className={`w-full flex items-center gap-3 p-2 rounded-lg border-2 transition-colors ${
-                      hoveredSlot === slot
-                        ? 'border-accent-purple bg-accent-purple/10'
-                        : slots[slot]
-                        ? 'border-border bg-background'
-                        : 'border-dashed border-border bg-background-soft'
-                    }`}
-                  >
-                    <div className="w-16 h-16 relative flex-shrink-0 rounded-md overflow-hidden bg-background-soft">
-                      {slots[slot] ? (
+          <div className="flex flex-col gap-4 md:gap-6">
+            {Object.entries(slots).map(([slot, item]) => (
+              <div key={slot} className="relative">
+                <div
+                  className={cn(
+                    "relative flex items-center gap-4 rounded-lg border p-4 transition-colors",
+                    "hover:bg-muted/80",
+                    item ? "bg-card" : "bg-muted/50",
+                    hoveredSlot === slot && "ring-2 ring-primary"
+                  )}
+                  onClick={() => handleSlotClick(slot)}
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setHoveredSlot(slot)
+                  }}
+                  onDragLeave={() => setHoveredSlot(null)}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    setHoveredSlot(null)
+                    const item = JSON.parse(e.dataTransfer.getData('item'))
+                    handleItemSelect(item)
+                  }}
+                >
+                  {item ? (
+                    <>
+                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
                         <Image
-                          src={slots[slot]!.images[0].url}
-                          alt={slots[slot]!.name}
+                          src={item.images[0].url}
+                          alt={item.name}
                           fill
                           className="object-cover"
                         />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <Plus className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 text-left">
-                      <div className="text-sm font-medium">{label}</div>
-                      {slots[slot] ? (
-                        <>
-                          <div className="text-sm truncate">{slots[slot]!.name}</div>
-                          <div className="text-xs text-muted-foreground mt-0.5">
-                            {formatPrice(slots[slot]!.price, currency)}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          Tap to add {label.toLowerCase()}
-                        </div>
-                      )}
-                    </div>
-                    {slots[slot] && (
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <p className="font-medium">{item.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatPrice(item.price, currency)}
+                        </p>
+                      </div>
                       <button
                         onClick={(e) => {
-                          e.stopPropagation();
-                          onRemoveItem(slot);
+                          e.stopPropagation()
+                          onRemoveItem(slot)
                         }}
-                        className="p-1.5 rounded-md hover:bg-background-soft"
+                        className="absolute right-2 top-2 rounded-full p-1 hover:bg-accent"
                       >
-                        <X className="w-4 h-4 text-muted-foreground" />
+                        <X className="h-4 w-4" />
                       </button>
-                    )}
-                  </button>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2 w-full">
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-muted">
+                        <Plus className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {SLOT_LABELS[slot as keyof typeof SLOT_LABELS]}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
           {/* Accessories */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Accessories</h3>
-              <button
-                onClick={() => handleSlotClick('accessory')}
-                className="text-sm text-accent-purple hover:text-accent-purple-dark transition-colors"
-              >
-                + Add Accessory
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
+          <div className="mt-6">
+            <h3 className="mb-4 text-lg font-medium">Accessories</h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               {accessories.map((item, index) => (
                 <div key={index} className="relative">
-                  <div className="aspect-square relative rounded-lg overflow-hidden border border-border group">
-                    <Image
-                      src={item.images[0].url}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity p-2">
-                      <div className="h-full flex flex-col">
-                        <div className="flex-1">
-                          <div className="text-white text-sm font-medium line-clamp-2">{item.name}</div>
-                          <div className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</div>
-                        </div>
-                        <button
-                          onClick={() => onRemoveAccessory(index)}
-                          className="self-end p-1.5 rounded-md bg-black/40 hover:bg-black/60 transition-colors"
-                        >
-                          <X className="w-3 h-3 text-white" />
-                        </button>
-                      </div>
+                  <div className="relative flex items-center gap-4 rounded-lg border bg-card p-4">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
+                      <Image
+                        src={item.images[0].url}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatPrice(item.price, currency)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onRemoveAccessory(index)}
+                      className="absolute right-2 top-2 rounded-full p-1 hover:bg-accent"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {/* Empty accessory slots */}
+              {[...Array(Math.max(1, 3 - accessories.length))].map((_, index) => (
+                <div
+                  key={`empty-${index}`}
+                  className={cn(
+                    "relative flex items-center gap-4 rounded-lg border p-4 transition-colors",
+                    "hover:bg-muted/80 bg-muted/50",
+                    hoveredSlot === 'accessory' && "ring-2 ring-primary"
+                  )}
+                  onClick={() => handleSlotClick('accessory')}
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setHoveredSlot('accessory')
+                  }}
+                  onDragLeave={() => setHoveredSlot(null)}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    setHoveredSlot(null)
+                    const item = JSON.parse(e.dataTransfer.getData('item'))
+                    handleItemSelect(item)
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-muted">
+                      <Plus className="h-6 w-6 text-muted-foreground md:hidden" />
+                    </div>
+                    <p className="text-sm text-muted-foreground md:hidden">
+                      Tap to add accessory
+                    </p>
                   </div>
                 </div>
               ))}
@@ -538,45 +581,76 @@ export default function OutfitBuilder({
           </div>
           <div className="flex-1 overflow-y-auto mt-4">
             <div className="px-4 grid grid-cols-2 sm:grid-cols-3 gap-3 pb-safe">
-              {availableItems
-                .filter(item => {
-                  if (selectedSlot === 'accessory') return item.category === 'accessories'
-                  if (selectedSlot === 'top') return item.category === 'tops'
-                  if (selectedSlot === 'bottom') return item.category === 'bottoms'
-                  if (selectedSlot === 'headwear') return item.category === 'accessories'
-                  if (selectedSlot === 'outerwear') return item.category === 'outerwear'
-                  if (selectedSlot === 'shoes') return item.category === 'shoes'
-                  return false
-                })
-                .map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleItemSelect(item)}
-                    className="relative aspect-square rounded-lg border border-border overflow-hidden hover:border-accent-purple transition-colors"
-                  >
-                    <Image
-                      src={item.images[0].url}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity p-2">
-                      <div className="h-full flex flex-col">
-                        <div className="flex-1">
-                          <div className="text-white text-sm font-medium line-clamp-2">{item.name}</div>
-                          <div className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</div>
-                        </div>
+              <div className="col-span-full flex justify-end mb-2">
+                <button
+                  onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                >
+                  {viewMode === 'grid' ? (
+                    <>
+                      <List className="w-4 h-4" />
+                      <span>List view</span>
+                    </>
+                  ) : (
+                    <>
+                      <Grid className="w-4 h-4" />
+                      <span>Grid view</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className={cn(
+                viewMode === 'list' ? 'col-span-full space-y-2' : 'grid grid-cols-2 sm:grid-cols-3 gap-3'
+              )}>
+                {availableItems
+                  .filter(filterItemsBySlot)
+                  .map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleItemSelect(item)}
+                      className={cn(
+                        "relative border border-border overflow-hidden hover:border-accent-purple transition-colors",
+                        viewMode === 'list' 
+                          ? 'flex items-center gap-3 p-2 rounded-lg' 
+                          : 'aspect-square rounded-lg'
+                      )}
+                    >
+                      <div className={cn(
+                        "relative",
+                        viewMode === 'list' ? 'w-16 h-16' : 'w-full h-full'
+                      )}>
+                        <Image
+                          src={item.images[0].url}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                    </div>
-                  </button>
-                ))}
+                      {viewMode === 'list' ? (
+                        <div className="flex-1">
+                          <div className="text-sm font-medium line-clamp-1">{item.name}</div>
+                          <div className="text-sm text-muted-foreground mt-0.5">{formatPrice(item.price, currency)}</div>
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity p-2">
+                          <div className="h-full flex flex-col">
+                            <div className="flex-1">
+                              <div className="text-white text-sm font-medium line-clamp-2">{item.name}</div>
+                              <div className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+              </div>
             </div>
           </div>
         </SheetContent>
       </Sheet>
 
       {error && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center z-50">
           {error}
         </div>
       )}

@@ -31,13 +31,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import type { Outfit, Season, Occasion, Currency, ClothingItem } from '@/app/models/types'
+import type { Outfit, Season, Occasion, Currency, ClothingItem, SeasonName, OccasionName } from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import OutfitCard from '@/app/components/OutfitCard'
+import { cn } from '@/lib/utils'
 
+const SEASONS: SeasonName[] = ['spring', 'summer', 'fall', 'winter']
+const OCCASIONS: OccasionName[] = ['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding']
 
 export default function OutfitsPage() {
   const { toast } = useToast()
@@ -48,8 +51,8 @@ export default function OutfitsPage() {
   const [error, setError] = useState<string | null>(null)
   const [currency, setCurrency] = useState<Currency>('USD')
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedSeason, setSelectedSeason] = useState<string>('all')
-  const [selectedOccasion, setSelectedOccasion] = useState<string>('all')
+  const [selectedSeasons, setSelectedSeasons] = useState<SeasonName[]>([])
+  const [selectedOccasions, setSelectedOccasions] = useState<OccasionName[]>([])
   const [minPrice, setMinPrice] = useState<string>('')
   const [maxPrice, setMaxPrice] = useState<string>('')
   const [sortBy, setSortBy] = useState<'recent' | 'price' | 'rating'>('recent')
@@ -129,20 +132,14 @@ export default function OutfitsPage() {
     fetchData()
   }, [])
 
-  const filteredOutfits = Array.isArray(outfits) ? outfits.filter(outfit => {
-    const matchesSearch = outfit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      outfit.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    const matchesSeason = selectedSeason === 'all' || outfit.seasons.some(s => s.name === selectedSeason)
-    const matchesOccasion = selectedOccasion === 'all' || outfit.occasions.some(o => o.name === selectedOccasion)
-    
-    const minPriceNum = parseFloat(minPrice)
-    const maxPriceNum = parseFloat(maxPrice)
-    const matchesPrice = (
-      (isNaN(minPriceNum) || outfit.totalCost >= minPriceNum) &&
-      (isNaN(maxPriceNum) || outfit.totalCost <= maxPriceNum)
-    )
-    
-    return matchesSearch && matchesSeason && matchesOccasion && matchesPrice
+  const filteredOutfits = outfits.filter(outfit => {
+    if (selectedSeasons.length > 0 && !outfit.seasons.some(season => selectedSeasons.includes(season.name))) {
+      return false
+    }
+    if (selectedOccasions.length > 0 && !outfit.occasions.some(occasion => selectedOccasions.includes(occasion.name))) {
+      return false
+    }
+    return true
   }).sort((a, b) => {
     switch (sortBy) {
       case 'price':
@@ -153,7 +150,7 @@ export default function OutfitsPage() {
       default:
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }
-  }) : []
+  })
 
   const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -312,56 +309,69 @@ export default function OutfitsPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setSelectedSeason('all')}
+                onClick={() => setSelectedSeasons([])}
                 className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                  selectedSeason === 'all'
+                  selectedSeasons.length === 0
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-card hover:bg-accent border border-border'
                 }`}
               >
                 All Seasons
               </button>
-              {seasons.map((season) => (
+              {SEASONS.map((season) => (
                 <button
-                  key={season.name}
-                  onClick={() => setSelectedSeason(season.name)}
+                  key={season}
+                  onClick={() => {
+                    setSelectedSeasons(prev =>
+                      prev.includes(season)
+                        ? prev.filter(s => s !== season)
+                        : [...prev, season]
+                    )
+                  }}
                   className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
-                    selectedSeason === season.name
+                    selectedSeasons.includes(season)
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-card hover:bg-accent border border-border'
                   }`}
                 >
-                  {season.name}
+                  {season}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Occasions Filter */}
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setSelectedOccasion('all')}
-              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                selectedOccasion === 'all'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card hover:bg-accent border border-border'
-              }`}
-            >
-              All Occasions
-            </button>
-            {occasions.map((occasion) => (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-wrap gap-2">
               <button
-                key={occasion.name}
-                onClick={() => setSelectedOccasion(occasion.name)}
-                className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
-                  selectedOccasion === occasion.name
+                onClick={() => setSelectedOccasions([])}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                  selectedOccasions.length === 0
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-card hover:bg-accent border border-border'
                 }`}
               >
-                {occasion.name}
+                All Occasions
               </button>
-            ))}
+              {OCCASIONS.map((occasion) => (
+                <button
+                  key={occasion}
+                  onClick={() => {
+                    setSelectedOccasions(prev =>
+                      prev.includes(occasion)
+                        ? prev.filter(o => o !== occasion)
+                        : [...prev, occasion]
+                    )
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
+                    selectedOccasions.includes(occasion)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card hover:bg-accent border border-border'
+                  }`}
+                >
+                  {occasion}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Sort Options */}
@@ -416,7 +426,7 @@ export default function OutfitsPage() {
             <p className="text-foreground-soft mb-4">No outfits found</p>
             <Link
               href="/outfits/create"
-              className="btn btn-primary"
+              className="btn btn-primary py-2 px-4 rounded-full"
             >
               Create Your First Outfit
             </Link>
@@ -428,18 +438,49 @@ export default function OutfitsPage() {
               : 'grid-cols-1'
           }`}>
             {filteredOutfits.map((outfit) => (
-              <Link
-                key={outfit.id}
-                href={`/outfits/${outfit.id}`}
-                className="block group"
-              >
-                <OutfitCard
-                  outfit={outfit}
-                  currency={currency}
-                  viewMode={viewMode}
-                  onDelete={handleDeleteOutfit}
-                />
-              </Link>
+              <div key={outfit.id} className="group relative">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      className="absolute top-2 right-2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Outfit</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this outfit? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDeleteOutfit(outfit.id);
+                        }}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                
+                <Link href={`/outfits/${outfit.id}`} className="block">
+                  <OutfitCard
+                    outfit={outfit}
+                    currency={currency}
+                    viewMode={viewMode}
+                  />
+                </Link>
+              </div>
             ))}
           </div>
         )}

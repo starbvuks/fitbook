@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Filter, Search, LayoutGrid, LayoutList, Grid3X3 } from 'lucide-react'
-import type { ClothingItem, ClothingCategory, Currency } from '@/app/models/types'
+import type { ClothingItem, ClothingCategory, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import ItemCard from '@/app/components/ItemCard'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 const categories: ClothingCategory[] = [
   'tops',
@@ -39,6 +40,9 @@ const viewModeConfig = {
   },
 } as const
 
+const SEASONS: SeasonName[] = ['spring', 'summer', 'fall', 'winter']
+const OCCASIONS: OccasionName[] = ['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding']
+
 export default function CatalogPage() {
   const [items, setItems] = useState<ClothingItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,6 +56,8 @@ export default function CatalogPage() {
   const [maxPrice, setMaxPrice] = useState<string>('')
   const [showFilters, setShowFilters] = useState(false)
   const [maxPriceLimit, setMaxPriceLimit] = useState<number | null>(null)
+  const [selectedSeasons, setSelectedSeasons] = useState<SeasonName[]>([])
+  const [selectedOccasions, setSelectedOccasions] = useState<OccasionName[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -157,6 +163,16 @@ export default function CatalogPage() {
       setMaxPrice(value);
     }
   };
+
+  const filteredItems = items.filter(item => {
+    if (selectedSeasons.length > 0 && !item.seasons.some(season => selectedSeasons.includes(season.name))) {
+      return false
+    }
+    if (selectedOccasions.length > 0 && !item.occasions.some(occasion => selectedOccasions.includes(occasion.name))) {
+      return false
+    }
+    return true
+  })
 
   return (
     <div className="min-h-screen pt-16 bg-background">
@@ -301,7 +317,7 @@ export default function CatalogPage() {
           </div>
         ) : (
           <div className={`grid gap-4 ${viewModeConfig[viewMode].gridCols}`}>
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
