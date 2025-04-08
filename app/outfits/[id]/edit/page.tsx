@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -17,12 +17,13 @@ const DndProvider = dynamic(
 )
 
 interface EditOutfitPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditOutfitPage({ params }: EditOutfitPageProps) {
+  const resolvedParams = use(params)
   const router = useRouter()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -53,7 +54,7 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
         const [profileResponse, itemsResponse, outfitResponse] = await Promise.all([
           fetch('/api/profile'),
           fetch('/api/items'),
-          fetch(`/api/outfits/${params.id}`)
+          fetch(`/api/outfits/${resolvedParams.id}`)
         ])
 
         if (!profileResponse.ok) throw new Error('Failed to fetch profile')
@@ -104,7 +105,7 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
     }
 
     fetchData()
-  }, [params.id])
+  }, [resolvedParams.id])
 
   const handleSave = async (outfitName: string) => {
     if (!outfitName.trim()) {
@@ -134,7 +135,7 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
     setError(null)
 
     try {
-      const response = await fetch(`/api/outfits/${params.id}`, {
+      const response = await fetch(`/api/outfits/${resolvedParams.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
