@@ -86,10 +86,12 @@ export default function OutfitsPage() {
         setLoading(true)
         setError(null)
 
-        // First fetch profile and outfits
-        const [profileResponse, outfitsResponse] = await Promise.all([
+        // Fetch all data in parallel
+        const [profileResponse, outfitsResponse, seasonsResponse, occasionsResponse] = await Promise.all([
           fetch('/api/profile'),
-          fetch('/api/outfits')
+          fetch('/api/outfits'),
+          fetch('/api/seasons'),
+          fetch('/api/occasions')
         ])
 
         if (!profileResponse.ok) throw new Error('Failed to fetch profile')
@@ -100,30 +102,20 @@ export default function OutfitsPage() {
         const outfitsData = await outfitsResponse.json()
         setOutfits(outfitsData.outfits || [])
 
-        // Only fetch seasons and occasions if we have outfits
-        if (outfitsData.outfits?.length > 0) {
-          const [seasonsResponse, occasionsResponse] = await Promise.all([
-            fetch('/api/seasons'),
-            fetch('/api/occasions')
-          ])
-
-          if (seasonsResponse.ok) {
-            const seasonsData = await seasonsResponse.json()
-            setSeasons(seasonsData)
-          } else {
-            console.warn('Failed to fetch seasons')
-            setSeasons([]) // Ensure seasons is an array even if fetch fails
-          }
-
-          if (occasionsResponse.ok) {
-            const occasionsData = await occasionsResponse.json()
-            setOccasions(occasionsData)
-          } else {
-             console.warn('Failed to fetch occasions')
-             setOccasions([]) // Ensure occasions is an array even if fetch fails
-          }
+        // Always fetch and set seasons and occasions regardless of outfits
+        if (seasonsResponse.ok) {
+          const seasonsData = await seasonsResponse.json()
+          setSeasons(seasonsData)
         } else {
+          console.warn('Failed to fetch seasons')
           setSeasons([])
+        }
+
+        if (occasionsResponse.ok) {
+          const occasionsData = await occasionsResponse.json()
+          setOccasions(occasionsData)
+        } else {
+          console.warn('Failed to fetch occasions')
           setOccasions([])
         }
       } catch (error) {

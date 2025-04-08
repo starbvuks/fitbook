@@ -178,11 +178,11 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
 
           <FormSection title="Basic Information">
             <div className="space-y-4">
-              <div className="flex items-center justify-center gap-4 p-4 bg-background-soft rounded-lg">
+              <div className="flex items-center justify-center gap-4 py-4 bg-background-soft rounded-lg">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, isOwned: true })}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  className={`flex items-center gap-2 md:px-4 md:py-2 px-2 py-1.5 rounded-lg transition-colors ${
                     formData.isOwned
                       ? 'bg-green-100 text-green-600'
                       : 'bg-background text-foreground-soft'
@@ -194,7 +194,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, isOwned: false })}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  className={`flex items-center gap-2 md:px-4 md:py-2 px-2 py-1.5 rounded-lg transition-colors ${
                     !formData.isOwned
                       ? 'bg-blue-100 text-blue-600'
                       : 'bg-background text-foreground-soft'
