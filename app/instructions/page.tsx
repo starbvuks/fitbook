@@ -6,7 +6,7 @@ export default function InstructionsPage() {
   return (
     <div className="min-h-screen pt-16 bg-background-soft">
       <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <h1 className="text-3xl text-accent-purple sm:text-4xl font-display font-bold mb-10">How to Use Fitbook</h1>
+        <h1 className="text-3xl sm:text-4xl font-display font-bold text-center mb-10">How to Use FitBook</h1>
 
         <div className="space-y-12">
           {/* Step 1: Adding Items */}
@@ -20,14 +20,14 @@ export default function InstructionsPage() {
                 Start by populating your digital wardrobe. Navigate to the <Link href="/catalog" className="link">My Catalog</Link> page.
               </p>
               <ol className="list-decimal list-inside space-y-3 pl-2 text-muted-foreground">
-                <li>Click the "Add Item" button.</li>
+                <li>Click the &quot;Add Item&quot; button.</li>
                 <li>Fill in the item details: Name, Category, Brand, Color, Material, Purchase Date, and Price.</li>
                 <li>
                   <strong>Adding Images:</strong> You can either upload images directly from your device or paste image URLs.
                   Multiple images are supported! The first image will be used as the primary thumbnail.
                 </li>
                 <li><strong>Purchase URL:</strong> Add a link to where you bought the item (optional).</li>
-                <li><strong>Tags:</strong> Add relevant tags (e.g., "summer", "formal", "cotton") to help with filtering later.</li>
+                <li><strong>Tags:</strong> Add relevant tags (e.g., &quot;summer&quot;, &quot;formal&quot;, &quot;cotton&quot;) to help with filtering later.</li>
                 <li><strong>Is Owned?:</strong> Check this box if you currently own the item. Uncheck it for items on your wishlist.</li>
               </ol>
               <div className="bg-card rounded-xl border border-border p-4 shadow-soft overflow-hidden">
@@ -67,7 +67,7 @@ export default function InstructionsPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                  <span>Quickly toggle the "Owned" status directly from the item card using the shopping cart icon.</span>
+                  <span>Quickly toggle the &quot;Owned&quot; status directly from the item card using the shopping cart icon.</span>
                 </li>
               </ul>
               <div className="bg-card rounded-xl border border-border p-4 shadow-soft overflow-hidden">
@@ -90,11 +90,11 @@ export default function InstructionsPage() {
             </h2>
              <div className="space-y-6">
               <p className="text-muted-foreground">
-                Navigate to the <Link href="/outfits" className="link">My Outfits</Link> page and click "Create Outfit".
+                Navigate to the <Link href="/outfits" className="link">My Outfits</Link> page and click &quot;Create Outfit&quot;.
               </p>
                <ol className="list-decimal list-inside space-y-3 pl-2 text-muted-foreground">
                 <li>Give your outfit a name at the top.</li>
-                <li>On the left, you'll see your catalog items. Use search and category filters to find items quickly.</li>
+                <li>On the left, you&apos;ll see your catalog items. Use search and category filters to find items quickly.</li>
                 <li>
                   <strong>Drag and Drop:</strong> Simply drag items from the catalog (left) and drop them into the corresponding slots (Headwear, Top, Bottom, etc.) on the right.
                   Drop accessories into the dedicated accessories area.
@@ -102,7 +102,7 @@ export default function InstructionsPage() {
                 <li>The total cost of the outfit updates automatically in the top right of the builder.</li>
                 <li>Click the <span className="inline-flex items-center justify-center bg-card border border-border rounded px-1 py-0.5 mx-0.5"><Download className="w-3 h-3"/></span> icon to download an image of your composed outfit (coming soon!).</li>
                 <li>Add optional details like Seasons and Occasions using the selectors.</li>
-                <li>Click "Save Outfit" when you're done.</li>
+                <li>Click &quot;Save Outfit&quot; when you&apos;re done.</li>
               </ol>
               <div className="bg-card rounded-xl border border-border p-4 shadow-soft overflow-hidden">
                  <Image
@@ -178,7 +178,7 @@ export default function InstructionsPage() {
 
           <div className="text-center pt-8 border-t border-border">
             <p className="text-muted-foreground mb-4">Ready to get started?</p>
-            <Link href="/catalog" className="btn btn-lg btn-primary px-4 py-2">
+            <Link href="/catalog" className="btn btn-lg btn-primary">
               Go to My Catalog
             </Link>
           </div>
