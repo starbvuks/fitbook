@@ -25,7 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'Fitbook - Your Digital Wardrobe',
-  description: 'Create, organize, and share your outfits with style',
+  description: 'Create, organize, and finance your drip',
 }
 
 export default function RootLayout({
