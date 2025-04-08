@@ -14,7 +14,7 @@ import type {
   Color
 } from '@/app/models/types';
 
-export interface PageProps {
+type PageProps = {
   params: { id: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }
@@ -52,9 +52,8 @@ function transformColor(color: { name: string | null; id: string; hex: string; p
 }
 
 export default async function OutfitDetailPage({ params }: PageProps) {
-  const resolvedParams = await params;
   const outfit = await prisma.outfit.findUnique({
-    where: { id: resolvedParams.id },
+    where: { id: params.id },
     include: {
       user: {
         select: {
