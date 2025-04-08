@@ -21,8 +21,9 @@ export default async function Home() {
         <div className="relative px-container">
           <div className="max-w-6xl mx-auto text-center">
             <h1 className="font-display text-6xl md:text-7xl font-bold tracking-tight mb-16 animate-fade-in">
-              manage your fits<br/>
-              <span className="text-accent-purple-light">
+              <span>Manage your fits</span>
+              <br />
+              <span className="pt-3 text-accent-purple-light font-medium">
                 build a digital wardrobe
               </span>
             </h1>
