@@ -178,7 +178,7 @@ export default function InstructionsPage() {
 
           <div className="text-center pt-8 border-t border-border">
             <p className="text-muted-foreground mb-4">Ready to get started?</p>
-            <Link href="/catalog" className="btn btn-lg btn-primary">
+            <Link href="/catalog" className="btn btn-primary py-2 px-4 rounded-full">
               Go to My Catalog
             </Link>
           </div>

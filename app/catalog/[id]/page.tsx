@@ -9,7 +9,7 @@ import {
   Trash2, 
   ExternalLink, 
   ShoppingCart, 
-  BookmarkPlus,
+  CircleCheck,
   X,
   Plus,
   Save
@@ -150,10 +150,16 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
     setIsUpdating(true)
 
     try {
+      // Ensure images have colors array
+      const images = (editedItem.images || item.images).map(image => ({
+        ...image,
+        colors: image.colors || []
+      }))
+
       const updatedItem = {
         ...item,
         ...editedItem,
-        images: editedItem.images || item.images
+        images
       }
 
       const response = await fetch(`/api/items/${id}`, {
@@ -162,7 +168,10 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
         body: JSON.stringify(updatedItem),
       })
 
-      if (!response.ok) throw new Error('Failed to update item')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to update item')
+      }
       const savedItem = await response.json()
       setItem(savedItem)
       setEditedItem({})
@@ -407,7 +416,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                         : 'btn-ghost p-3'
                     }`}
                   >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    <CircleCheck className="w-5 h-5 mr-2" />
                     <span>I Own This</span>
                   </button>
                   <button
@@ -418,7 +427,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                         : 'btn-ghost p-3'
                     }`}
                   >
-                    <BookmarkPlus className="w-5 h-5 mr-2" />
+                    <ShoppingCart className="w-5 h-5 mr-2" />
                     <span>I Want This</span>
                   </button>
                 </div>

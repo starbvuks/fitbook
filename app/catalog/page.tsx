@@ -311,7 +311,7 @@ export default function CatalogPage() {
             <p className="text-foreground-soft mb-4">No items found</p>
             <Link
               href="/catalog/add"
-              className="btn btn-primary"
+              className="btn btn-primary py-2 px-4 rounded-full"
             >
               Add Your First Item
             </Link>

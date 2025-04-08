@@ -81,6 +81,11 @@ export default function OutfitBuilder({
   const [isMobile, setIsMobile] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
+  // Update local name when initialName changes
+  useEffect(() => {
+    setOutfitName(initialName)
+  }, [initialName])
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640)

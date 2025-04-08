@@ -69,10 +69,10 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
         const outfitData: Outfit = await outfitResponse.json()
         
         // Set outfit data
-        setName(outfitData.name)
+        setName(outfitData.name || '')
         setDescription(outfitData.description || '')
-        setSelectedSeasons(outfitData.seasons)
-        setSelectedOccasions(outfitData.occasions)
+        setSelectedSeasons(outfitData.seasons || [])
+        setSelectedOccasions(outfitData.occasions || [])
 
         // Organize items into slots and accessories
         const slots: Record<string, ClothingItem | null> = {
@@ -84,15 +84,17 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
         }
         const outfitAccessories: ClothingItem[] = []
 
-        outfitData.items.forEach(item => {
-          if (!item.wardrobeItem) return
+        if (outfitData.items && Array.isArray(outfitData.items)) {
+          outfitData.items.forEach(item => {
+            if (!item.wardrobeItem) return
 
-          if (item.position.startsWith('accessory_')) {
-            outfitAccessories.push(item.wardrobeItem)
-          } else {
-            slots[item.position] = item.wardrobeItem
-          }
-        })
+            if (item.position.startsWith('accessory_')) {
+              outfitAccessories.push(item.wardrobeItem)
+            } else {
+              slots[item.position] = item.wardrobeItem
+            }
+          })
+        }
 
         setOutfitSlots(slots)
         setAccessories(outfitAccessories)
@@ -106,6 +108,21 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
 
     fetchData()
   }, [resolvedParams.id])
+
+  // Auto-dismiss error after 5 seconds or when user starts typing
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
+
+  // Clear error when user starts typing name
+  useEffect(() => {
+    setError(null)
+  }, [name])
 
   const handleSave = async (outfitName: string) => {
     if (!outfitName.trim()) {
@@ -136,7 +153,7 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
 
     try {
       const response = await fetch(`/api/outfits/${resolvedParams.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: outfitName.trim(),
@@ -147,13 +164,15 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
         })
       })
 
-      if (!response.ok) throw new Error('Failed to update outfit')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to update outfit')
+      }
       
       router.push('/outfits')
     } catch (error) {
       console.error('Error updating outfit:', error)
       setError(error instanceof Error ? error.message : 'Failed to update outfit')
-      throw error
     } finally {
       setSaving(false)
     }
