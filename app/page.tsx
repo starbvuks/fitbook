@@ -34,13 +34,13 @@ export default async function Home() {
                 <>
                   <Link
                     href="/catalog"
-                    className="group text-sm px-6 py-3 font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white hover:bg-accent-purple/20 transition-colors flex items-center gap-x-1"
+                    className="px-6 py-3 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
                   >
                     My Catalog
                   </Link>
                   <Link
                     href="/instructions"
-                    className="group text-sm font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white transition-colors flex items-center gap-x-1"
+                    className="group text-sm px-6 py-3 font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white hover:bg-accent-purple/20 transition-colors flex items-center gap-x-1"
                   >
                     How to Use
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />

@@ -125,14 +125,19 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
           if (outfitResponse.status === 404) {
              throw new Error('Outfit not found');
           } else {
-            throw new Error('Failed to fetch outfit data');
+            // Attempt to get error message from API if possible
+            let errorMsg = 'Failed to fetch outfit data';
+            try {
+                const errorBody = await outfitResponse.json();
+                errorMsg = errorBody.error || errorMsg;
+            } catch (e) { /* Ignore if response is not JSON */ }
+            throw new Error(errorMsg);
           }
         }
         const outfitData = await outfitResponse.json();
         setOutfit(outfitData);
 
         // 2. Attempt to fetch authenticated data (profile for currency, user for edit checks)
-        // Use Promise.allSettled to let them fail gracefully
         const [profileResult, userResult] = await Promise.allSettled([
           fetch('/api/profile'),
           fetch('/api/user/me')
@@ -140,21 +145,45 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
 
         // Handle profile result (for currency)
         if (profileResult.status === 'fulfilled' && profileResult.value.ok) {
-          const profileData = await profileResult.value.json();
-          setCurrency(profileData.currency || 'INR'); // Use fetched or default
+          const response = profileResult.value;
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              const profileData = await response.json();
+              setCurrency(profileData.currency || 'INR');
+            } catch (e) {
+              console.warn('Failed to parse profile JSON, using default currency.');
+              setCurrency('INR');
+            }
+          } else {
+            // Received non-JSON response (likely HTML redirect)
+            console.warn('Received non-JSON response for profile, using default currency.');
+            setCurrency('INR');
+          }
         } else {
           console.warn('Failed to fetch profile for currency, using default.');
-          setCurrency('INR'); // Use default if fetch fails
-          // Do not set main page error here
+          setCurrency('INR');
         }
 
         // Handle user result (for edit/delete buttons)
         if (userResult.status === 'fulfilled' && userResult.value.ok) {
-          const userData = await userResult.value.json();
-          setCurrentUser(userData);
+          const response = userResult.value;
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              const userData = await response.json();
+              setCurrentUser(userData);
+            } catch (e) {
+               console.warn('Failed to parse user JSON, setting user to null.');
+               setCurrentUser(null);
+            }
+          } else {
+             // Received non-JSON response (likely HTML redirect)
+             console.warn('Received non-JSON response for user, setting user to null.');
+             setCurrentUser(null);
+          }
         } else {
-           setCurrentUser(null); // Ensure current user is null if fetch fails
-           // Do not set main page error here
+           setCurrentUser(null);
         }
 
       } catch (error) {
