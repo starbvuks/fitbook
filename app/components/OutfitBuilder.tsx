@@ -36,12 +36,16 @@ export interface OutfitBuilderProps {
 }
 
 const SLOT_LABELS = {
-  headwear: 'Headwear',
   top: 'Top',
-  outerwear: 'Outerwear',
   bottom: 'Bottom',
-  shoes: 'Shoes'
-}
+  dress: 'Dress',
+  outerwear: 'Outerwear',
+  shoes: 'Shoes',
+  headwear: 'Headwear',
+  accessory: 'Accessory'
+} as const
+
+type OutfitSlot = keyof typeof SLOT_LABELS
 
 export default function OutfitBuilder({
   slots,
@@ -274,14 +278,24 @@ export default function OutfitBuilder({
   }
 
   const filterItemsBySlot = (item: ClothingItem) => {
+    if (selectedSlot === 'headwear') return item.category === 'headwear'
     if (selectedSlot === 'top') return item.category === 'tops'
     if (selectedSlot === 'bottom') return item.category === 'bottoms'
-    if (selectedSlot === 'headwear') return item.category === 'accessories'
+    if (selectedSlot === 'dress') return item.category === 'dresses'
     if (selectedSlot === 'outerwear') return item.category === 'outerwear'
     if (selectedSlot === 'shoes') return item.category === 'shoes'
     if (selectedSlot === 'accessory') return item.category === 'accessories'
     return false
   }
+
+  const OUTFIT_SLOTS: OutfitSlot[] = [
+    'headwear',
+    'top',
+    'bottom',
+    // 'dress',
+    'outerwear',
+    'shoes',
+  ]
 
   return (
     <div 
@@ -331,13 +345,13 @@ export default function OutfitBuilder({
         <div className="p-3 space-y-4">
           {/* Main Items */}
           <div className="flex flex-col gap-4 md:gap-6">
-            {Object.entries(slots).map(([slot, item]) => (
+            {OUTFIT_SLOTS.map((slot) => (
               <div key={slot} className="relative">
                 <div
                   className={cn(
                     "relative flex items-center gap-4 rounded-lg border p-4 transition-colors",
                     "hover:bg-muted/80",
-                    item ? "bg-card" : "bg-muted/50",
+                    slots[slot] ? "bg-card" : "bg-muted/50",
                     hoveredSlot === slot && "ring-2 ring-primary"
                   )}
                   onClick={() => handleSlotClick(slot)}
@@ -353,20 +367,20 @@ export default function OutfitBuilder({
                     handleItemSelect(item)
                   }}
                 >
-                  {item ? (
+                  {slots[slot] ? (
                     <>
                       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
                         <Image
-                          src={item.images[0].url}
-                          alt={item.name}
+                          src={slots[slot]!.images[0].url}
+                          alt={slots[slot]!.name}
                           fill
                           className="object-cover"
                         />
                       </div>
                       <div className="flex-1 space-y-1">
-                        <p className="font-medium">{item.name}</p>
+                        <p className="font-medium">{slots[slot]!.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatPrice(item.price, currency)}
+                          {formatPrice(slots[slot]!.price, currency)}
                         </p>
                       </div>
                       <button

@@ -173,8 +173,8 @@ export default function CreateOutfitPage() {
       <div className="min-h-screen pt-16 bg-background">
         <div className="max-w-7xl mx-auto p-3 sm:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4 sm:gap-6">
-            {/* Left Column - Catalog */}
-            <div>
+            {/* Left Column - Catalog - Hidden on Mobile */}
+            <div className="hidden lg:block">
               <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-full">
                 <div className="p-3 sm:p-4 border-b border-border">
                   <h2 className="text-lg font-semibold mb-3">Available Items</h2>
@@ -218,7 +218,7 @@ export default function CreateOutfitPage() {
                       No items found
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-4 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                       {filteredItems.map(item => (
                         <DraggableItem key={item.id} item={item} currency={currency} />
                       ))}
@@ -228,7 +228,7 @@ export default function CreateOutfitPage() {
               </div>
             </div>
 
-            {/* Right Column - Outfit Builder */}
+            {/* Right Column - Outfit Builder - Full Width on Mobile */}
             <div className="bg-card rounded-xl border border-border shadow-soft h-[calc(100vh-8rem)] sm:h-[calc(100vh-6rem)]">
               <OutfitBuilder
                 slots={outfitSlots}

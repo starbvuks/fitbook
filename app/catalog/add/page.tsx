@@ -1,8 +1,20 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { ClothingItem } from '@/app/models/types'
+import { useToast } from '@/components/ui/use-toast'
+import type { ClothingItem, ClothingCategory } from '@/app/models/types'
 import AddItemForm from '@/app/components/AddItemForm'
+
+const categories: ClothingCategory[] = [
+  'tops',
+  'bottoms',
+  'dresses',
+  'outerwear',
+  'shoes',
+  'accessories',
+  'headwear'
+]
 
 export default function AddItemPage() {
   const router = useRouter()

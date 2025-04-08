@@ -16,7 +16,8 @@ const categories: ClothingCategory[] = [
   'dresses',
   'outerwear',
   'shoes',
-  'accessories'
+  'accessories',
+  'headwear'
 ]
 
 type ViewMode = 'large' | 'small' | 'stack'

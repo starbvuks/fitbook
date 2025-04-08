@@ -54,6 +54,7 @@ const categories: ClothingCategory[] = [
   'outerwear',
   'shoes',
   'accessories',
+  'headwear'
 ]
 
 const conditions = [

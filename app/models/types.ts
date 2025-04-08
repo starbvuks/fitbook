@@ -1,6 +1,6 @@
 export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'INR' | 'CAD' | 'AUD'
 
-export type ClothingCategory = 'tops' | 'bottoms' | 'dresses' | 'outerwear' | 'shoes' | 'accessories'
+export type ClothingCategory = 'tops' | 'bottoms' | 'dresses' | 'outerwear' | 'shoes' | 'accessories' | 'headwear'
 
 export type SeasonName = 'spring' | 'summer' | 'fall' | 'winter'
 export type OccasionName = 'casual' | 'formal' | 'business' | 'party' | 'sport' | 'beach' | 'evening' | 'wedding'
