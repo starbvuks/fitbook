@@ -119,25 +119,44 @@ export default function OutfitDetailPage({ params }: { params: Promise<{ id: str
         setLoading(true);
         setError(null);
 
-        const [profileResponse, outfitResponse, userResponse] = await Promise.all([
+        // 1. Fetch public outfit data first
+        const outfitResponse = await fetch(`/api/outfits/${resolvedParams.id}`);
+        if (!outfitResponse.ok) {
+          if (outfitResponse.status === 404) {
+             throw new Error('Outfit not found');
+          } else {
+            throw new Error('Failed to fetch outfit data');
+          }
+        }
+        const outfitData = await outfitResponse.json();
+        setOutfit(outfitData);
+
+        // 2. Attempt to fetch authenticated data (profile for currency, user for edit checks)
+        // Use Promise.allSettled to let them fail gracefully
+        const [profileResult, userResult] = await Promise.allSettled([
           fetch('/api/profile'),
-          fetch(`/api/outfits/${resolvedParams.id}`),
           fetch('/api/user/me')
         ]);
 
-        if (!profileResponse.ok) throw new Error('Failed to fetch profile');
-        const profileData = await profileResponse.json();
-        setCurrency(profileData.currency || 'INR');
-
-        if (!outfitResponse.ok) throw new Error('Failed to fetch outfit');
-        const outfitData = await outfitResponse.json();
-        console.log('Outfit data:', outfitData); // Debug log
-        setOutfit(outfitData);
-
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setCurrentUser(userData);
+        // Handle profile result (for currency)
+        if (profileResult.status === 'fulfilled' && profileResult.value.ok) {
+          const profileData = await profileResult.value.json();
+          setCurrency(profileData.currency || 'INR'); // Use fetched or default
+        } else {
+          console.warn('Failed to fetch profile for currency, using default.');
+          setCurrency('INR'); // Use default if fetch fails
+          // Do not set main page error here
         }
+
+        // Handle user result (for edit/delete buttons)
+        if (userResult.status === 'fulfilled' && userResult.value.ok) {
+          const userData = await userResult.value.json();
+          setCurrentUser(userData);
+        } else {
+           setCurrentUser(null); // Ensure current user is null if fetch fails
+           // Do not set main page error here
+        }
+
       } catch (error) {
         console.error('Error fetching data:', error);
         setError(error instanceof Error ? error.message : 'Failed to load outfit');

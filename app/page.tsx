@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { ArrowRight } from 'lucide-react'
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -33,30 +34,32 @@ export default async function Home() {
                 <>
                   <Link
                     href="/catalog"
-                    className="px-6 py-3 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
+                    className="group text-sm px-6 py-3 font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white hover:bg-accent-purple/20 transition-colors flex items-center gap-x-1"
                   >
                     My Catalog
                   </Link>
                   <Link
-                    href="/outfits/create"
-                    className="px-6 py-3 bg-background-soft border-2 border-border-bright rounded-xl font-medium hover:bg-accent-purple/20 transition-colors"
+                    href="/instructions"
+                    className="group text-sm font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white transition-colors flex items-center gap-x-1"
                   >
-                    Create Outfit
+                    How to Use
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                   </Link>
                 </>
               ) : (
                 <>
                   <Link
                     href="/auth/signin"
-                    className="px-8 py-4 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
+                    className="px-6 py-3 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
                   >
                     Get Started
                   </Link>
                   <Link
-                    href="/discover"
-                    className="px-8 py-4 bg-background-soft border border-border-bright rounded-xl font-medium hover:bg-background-softer transition-colors"
+                    href="/instructions"
+                    className="group text-sm px-6 py-3 font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white hover:bg-accent-purple/20 transition-colors flex items-center gap-x-1"
                   >
-                    Explore Looks
+                    How to Use
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                   </Link>
                 </>
               )}

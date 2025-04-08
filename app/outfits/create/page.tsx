@@ -175,7 +175,7 @@ export default function CreateOutfitPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4 sm:gap-6">
             {/* Left Column - Catalog */}
             <div>
-              <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-[calc(100vh-11rem)]">
+              <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-full">
                 <div className="p-3 sm:p-4 border-b border-border">
                   <h2 className="text-lg font-semibold mb-3">Available Items</h2>
                   <div className="space-y-3">

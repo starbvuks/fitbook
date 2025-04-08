@@ -135,9 +135,9 @@ export default function Navigation() {
               <div className="hidden sm:block">
                 <Link
                   href="/catalog/add"
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-accent-purple text-white hover:opacity-90 transition-opacity"
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-primary text-white hover:opacity-90 transition-opacity"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 " />
                   <span>Add Item</span>
                 </Link>
               </div>
@@ -145,7 +145,7 @@ export default function Navigation() {
               <div className="hidden sm:block">
                 <Link
                   href="/outfits/create"
-                  className="px-4 py-2 rounded-lg border border-border-bright hover:bg-accent-purple/10 transition-colors"
+                  className="px-4 py-2 rounded-lg border-2 border-border-bright hover:bg-accent-purple/20 transition-colors"
                 >
                   Create Outfit
                 </Link>

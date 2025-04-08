@@ -16,7 +16,9 @@ import {
   Tag,
   DollarSign,
   Pencil,
-  Trash2
+  Trash2,
+  LayoutGrid,
+  LayoutList
 } from 'lucide-react'
 import {
   AlertDialog,
@@ -36,6 +38,7 @@ import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import OutfitCard from '@/app/components/OutfitCard'
 
+
 export default function OutfitsPage() {
   const { toast } = useToast()
   const [outfits, setOutfits] = useState<Outfit[]>([])
@@ -53,6 +56,7 @@ export default function OutfitsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [maxPriceLimit, setMaxPriceLimit] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -106,12 +110,21 @@ export default function OutfitsPage() {
           if (seasonsResponse.ok) {
             const seasonsData = await seasonsResponse.json()
             setSeasons(seasonsData)
+          } else {
+            console.warn('Failed to fetch seasons')
+            setSeasons([]) // Ensure seasons is an array even if fetch fails
           }
 
           if (occasionsResponse.ok) {
             const occasionsData = await occasionsResponse.json()
             setOccasions(occasionsData)
+          } else {
+             console.warn('Failed to fetch occasions')
+             setOccasions([]) // Ensure occasions is an array even if fetch fails
           }
+        } else {
+          setSeasons([])
+          setOccasions([])
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -218,8 +231,7 @@ export default function OutfitsPage() {
       })
   }
 
-  // Only show filters if we have outfits
-  const showFilters = outfits.length > 0 && !loading
+  const showFilterControls = outfits.length > 0 && !loading
 
   if (error) {
     return (
@@ -249,10 +261,10 @@ export default function OutfitsPage() {
         ) : (
           <>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-display font-bold">My Outfits</h1>
-                <p className="text-foreground-soft">
+                <p className="text-muted-foreground">
                   {outfits.length > 0 
                     ? "Create and manage your outfit combinations"
                     : "Start creating your first outfit"}
@@ -260,116 +272,132 @@ export default function OutfitsPage() {
               </div>
               <Link
                 href="/outfits/create"
-                className="flex items-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors w-full sm:w-auto justify-center sm:justify-start"
+                className="btn btn-primary h-9 px-4 flex-1 sm:flex-initial justify-center"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 mr-1.5" />
                 {outfits.length > 0 ? "Create Outfit" : "Create Your First Outfit"}
               </Link>
             </div>
 
-            {/* Only show filters if we have outfits */}
-            {showFilters && (
-              <div className="mb-6 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                      type="text"
-                      placeholder="Search outfits..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2 self-end">
-                    <select
-                      value={sortBy}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as 'recent' | 'price' | 'rating')}
-                      className="select h-9 text-sm"
+            {/* Filter/Search Section - Adopted from Catalog */}
+            {showFilterControls && (
+              <div className="bg-card rounded-xl border border-border p-3 sm:p-4 mb-4 shadow-soft">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Search outfits..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="input pl-9 h-9 text-sm w-full"
+                      />
+                    </div>
+                    {/* Keep Sort By and View Mode controls separate */} 
+                    <div className="flex items-center gap-2 justify-end flex-shrink-0">
+                      <select
+                        value={sortBy}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as 'recent' | 'price' | 'rating')}
+                        className="select h-9 text-sm"
+                      >
+                        <option value="recent">Most Recent</option>
+                        <option value="rating">Highest Rating</option>
+                        <option value="price">Lowest Price</option>
+                      </select>
+                      <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
+                        <button
+                          onClick={() => setViewMode('grid')}
+                          className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
+                          title="Grid View"
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setViewMode('list')}
+                          className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
+                          title="List View"
+                        >
+                          <LayoutList className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className={`btn h-9 px-4 w-full sm:w-auto flex-shrink-0 ${ 
+                        showFilters
+                          ? 'btn-primary'
+                          : 'btn-ghost'
+                      }`}
                     >
-                      <option value="recent">Most Recent</option>
-                      <option value="rating">Highest Rating</option>
-                      <option value="price">Lowest Price</option>
-                    </select>
-                    <div className="flex items-center gap-1 border border-gray-300 dark:border-neutral-800 rounded-lg">
-                      <button
-                        onClick={() => setViewMode('grid')}
-                        className={`p-2 rounded-l ${viewMode === 'grid' ? 'bg-accent-purple text-white' : ''}`}
-                      >
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="3" y="3" width="7" height="7" />
-                          <rect x="14" y="3" width="7" height="7" />
-                          <rect x="3" y="14" width="7" height="7" />
-                          <rect x="14" y="14" width="7" height="7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setViewMode('list')}
-                        className={`p-2 rounded-r ${viewMode === 'list' ? 'bg-accent-purple text-white' : ''}`}
-                      >
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="3" y1="6" x2="21" y2="6" />
-                          <line x1="3" y1="12" x2="21" y2="12" />
-                          <line x1="3" y1="18" x2="21" y2="18" />
-                        </svg>
-                      </button>
-                    </div>
+                      <Filter className="w-4 h-4 mr-1.5" />
+                      Filters
+                    </button>
                   </div>
-                </div>
 
-                {/* Advanced Filters */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                  <select
-                    value={selectedSeason}
-                    onChange={(e) => setSelectedSeason(e.target.value)}
-                    className="h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                  >
-                    <option value="all">All Seasons</option>
-                    <option value="spring">Spring</option>
-                    <option value="summer">Summer</option>
-                    <option value="fall">Fall</option>
-                    <option value="winter">Winter</option>
-                  </select>
-                  <select
-                    value={selectedOccasion}
-                    onChange={(e) => setSelectedOccasion(e.target.value)}
-                    className="h-10 px-3 pr-8 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                  >
-                    <option value="all">All Occasions</option>
-                    <option value="casual">Casual</option>
-                    <option value="work">Work</option>
-                    <option value="formal">Formal</option>
-                    <option value="sport">Sport</option>
-                    <option value="special">Special</option>
-                  </select>
-                  
-                  {/* Min/Max Price Inputs - The only change we're keeping */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1">
-                      <label htmlFor="minOutfitPrice" className="text-xs font-medium text-muted-foreground mb-1 block">Min Price</label>
-                      <input
-                        type="text"
-                        id="minOutfitPrice"
-                        value={minPrice}
-                        onChange={handleMinPriceChange}
-                        placeholder="0"
-                        className="w-full h-10 px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                        inputMode="decimal"
-                      />
+                  {showFilters && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3 border-t border-border items-end">
+                      {/* Outfit-specific filters */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-muted-foreground">Season</label>
+                        <select
+                          value={selectedSeason}
+                          onChange={(e) => setSelectedSeason(e.target.value)}
+                          className="select h-9 text-sm w-full"
+                        >
+                          <option value="all">All Seasons</option>
+                          {seasons.map((season) => (
+                            <option key={season.id} value={season.name} className="capitalize">
+                              {season.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-muted-foreground">Occasion</label>
+                        <select
+                          value={selectedOccasion}
+                          onChange={(e) => setSelectedOccasion(e.target.value)}
+                          className="select h-9 text-sm w-full"
+                        >
+                          <option value="all">All Occasions</option>
+                           {occasions.map((occasion) => (
+                            <option key={occasion.id} value={occasion.name} className="capitalize">
+                              {occasion.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                         <div className="space-y-1.5">
+                          <label htmlFor="minOutfitPrice" className="text-xs font-medium text-muted-foreground">Min Price</label>
+                          <input
+                            type="text"
+                            id="minOutfitPrice"
+                            value={minPrice}
+                            onChange={handleMinPriceChange}
+                            placeholder="0"
+                            className="input h-9 text-sm w-full"
+                            inputMode="decimal"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label htmlFor="maxOutfitPrice" className="text-xs font-medium text-muted-foreground">Max Price</label>
+                          <input
+                            type="text"
+                            id="maxOutfitPrice"
+                            value={maxPrice}
+                            onChange={handleMaxPriceChange}
+                            placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency).replace(/\.\d+$/, '') : 'Max'}
+                            className="input h-9 text-sm w-full"
+                            inputMode="decimal"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <label htmlFor="maxOutfitPrice" className="text-xs font-medium text-muted-foreground mb-1 block">Max Price</label>
-                      <input
-                        type="text"
-                        id="maxOutfitPrice"
-                        value={maxPrice}
-                        onChange={handleMaxPriceChange}
-                        placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency).replace(/\.\d+$/, '') : 'Max'}
-                        className="w-full h-10 px-3 py-2 bg-white dark:bg-neutral-900 rounded-lg border border-gray-300 dark:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-accent-purple"
-                        inputMode="decimal"
-                      />
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
@@ -390,6 +418,44 @@ export default function OutfitsPage() {
                 </div>
               ))}
             </div>
+            {/* Show this if not loading and no outfits exist */}
+            {!loading && outfits.length === 0 && (
+              <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
+                <h3 className="text-lg font-medium mb-2">No outfits yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  Get started by creating your first outfit combination.
+                </p>
+                <Link
+                  href="/outfits/create"
+                  className="btn btn-primary inline-flex"
+                >
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Create Your First Outfit
+                </Link>
+              </div>
+            )}
+            {/* Show this if not loading, outfits exist, but filters match none */}
+            {!loading && outfits.length > 0 && filteredOutfits.length === 0 && (
+              <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
+                <h3 className="text-lg font-medium mb-2">No outfits found</h3>
+                <p className="text-muted-foreground mb-6">
+                  Try adjusting your search or filter criteria.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setSelectedSeason('all')
+                    setSelectedOccasion('all')
+                    setMinPrice('')
+                    setMaxPrice('')
+                    setShowFilters(false)
+                  }}
+                  className="btn btn-ghost"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
