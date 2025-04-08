@@ -96,7 +96,7 @@ export default function Navigation() {
                 href="/" 
                 className="text-xl flex items-center gap-1 font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
               >
-                <Image src="/logo.png" alt="Fitbook Logo" width={32} height={32} />
+                {/* <Image src="/logo.png" alt="Fitbook Logo" width={32} height={32} /> */}
                 Fitbook
               </Link>
             </div>
