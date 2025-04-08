@@ -2,13 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { DndProvider } from 'react-dnd'
+import dynamic from 'next/dynamic'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Save, Search, Filter } from 'lucide-react'
 import type { ClothingItem, Currency, Season, Occasion } from '@/app/models/types'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import OutfitBuilder from '@/app/components/OutfitBuilder'
 import DraggableItem from '@/app/components/DraggableItem'
+
+// Dynamically import DndProvider
+const DndProvider = dynamic(
+  () => import('react-dnd').then(mod => mod.DndProvider),
+  { ssr: false }
+)
 
 export default function CreateOutfitPage() {
   const router = useRouter()
@@ -144,14 +150,14 @@ export default function CreateOutfitPage() {
     return matchesSearch && matchesCategory
   })
 
-  if (error) {
+  if (error && !loading) {
     return (
       <div className="min-h-screen pt-16 bg-background">
         <div className="max-w-7xl mx-auto p-6">
           <div className="text-center py-12">
             <p className="text-red-500 mb-4">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => router.refresh()}
               className="px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors"
             >
               Try Again
@@ -238,7 +244,7 @@ export default function CreateOutfitPage() {
             </div>
           </div>
 
-          {error && (
+          {error && saving && (
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center">
               {error}
             </div>
