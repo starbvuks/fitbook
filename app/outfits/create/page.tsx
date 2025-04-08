@@ -240,6 +240,7 @@ export default function CreateOutfitPage() {
                 currency={currency}
                 onSave={handleSave}
                 isSaving={saving}
+                availableItems={availableItems}
               />
             </div>
           </div>

@@ -14,6 +14,7 @@ export default function Navigation() {
   const [sessionChecked, setSessionChecked] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
 
   // Handle session initialization
   useEffect(() => {
@@ -33,17 +34,13 @@ export default function Navigation() {
   // Handle click outside for profile dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false)
-      }
-      
-      // Don't close mobile menu when clicking on the mobile menu itself or the toggle button
-      const targetElement = event.target as HTMLElement;
-      const isToggleButton = targetElement.closest('[data-mobile-toggle]') !== null;
-      const isInsideMobileMenu = mobileMenuRef.current && mobileMenuRef.current.contains(targetElement);
-      
-      if (!isToggleButton && !isInsideMobileMenu && showMobileMenu) {
-        setShowMobileMenu(false);
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        mobileMenuButtonRef.current &&
+        !mobileMenuButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowMobileMenu(false)
       }
     }
 
@@ -51,7 +48,7 @@ export default function Navigation() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [menuRef, mobileMenuRef, showMobileMenu])
+  }, [showMobileMenu])
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -107,7 +104,7 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4 sm:space-x-8">
@@ -197,32 +194,48 @@ export default function Navigation() {
               </div>
 
               {/* Mobile Menu Button */}
-              <button 
-                data-mobile-toggle
-                className="md:hidden p-2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent-purple focus:ring-opacity-50"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMobileMenu(!showMobileMenu);
-                }}
-                aria-label="Toggle menu"
-              >
-                {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
+              <div className="flex md:hidden">
+                <button
+                  ref={mobileMenuButtonRef}
+                  type="button"
+                  className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMobileMenu(!showMobileMenu);
+                  }}
+                  aria-expanded={showMobileMenu}
+                >
+                  <span className="sr-only">Open main menu</span>
+                  {showMobileMenu ? (
+                    <X className="block h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <Menu className="block h-6 w-6" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               {/* Mobile Menu Button for Not Signed In State */}
-              <button 
-                data-mobile-toggle
-                className="md:hidden p-2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-accent-purple focus:ring-opacity-50"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMobileMenu(!showMobileMenu);
-                }}
-                aria-label="Toggle menu"
-              >
-                {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
+              <div className="flex md:hidden">
+                <button
+                  ref={mobileMenuButtonRef}
+                  type="button"
+                  className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMobileMenu(!showMobileMenu);
+                  }}
+                  aria-expanded={showMobileMenu}
+                >
+                  <span className="sr-only">Open main menu</span>
+                  {showMobileMenu ? (
+                    <X className="block h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <Menu className="block h-6 w-6" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
               
               <button
                 onClick={() => signIn('google')}
@@ -237,109 +250,86 @@ export default function Navigation() {
 
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div 
-          ref={mobileMenuRef}
-          className="fixed inset-0 z-50 top-16 bg-background border-t border-border overflow-y-auto pb-safe-area-inset-bottom"
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm rounded-xl md:hidden"
+          onClick={() => setShowMobileMenu(false)}
         >
-          <div className="px-4 py-6 space-y-6">
-            {session ? (
-              <>
-                {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Link
-                    href="/catalog/add"
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-accent-purple/10 hover:bg-accent-purple/20 transition-colors"
-                    onClick={() => setShowMobileMenu(false)}
-                  >
-                    <Plus className="w-6 h-6 text-accent-purple" />
-                    <span className="text-sm font-medium">Add Item</span>
-                  </Link>
-                  <Link
-                    href="/outfits/create"
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-accent-purple/10 hover:bg-accent-purple/20 transition-colors"
-                    onClick={() => setShowMobileMenu(false)}
-                  >
-                    <Shirt className="w-6 h-6 text-accent-purple" />
-                    <span className="text-sm font-medium">Create Outfit</span>
-                  </Link>
-                </div>
+          <div
+            className="fixed inset-y-0  right-0 z-50 w-72 shadow-xl rounded-xl"
+            ref={mobileMenuRef}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col h-full pt-16 ">
+              <div className="space-y-1 px-3 bg-zinc-900 py-3 rounded-t-xl">
+                <Link 
+                  href="/catalog" 
+                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span className="text-[15px]">My Catalog</span>
+                </Link>
+                <Link 
+                  href="/outfits"
+                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <Shirt className="w-5 h-5" />
+                  <span className="text-[15px]">My Outfits</span>
+                </Link>
+                <Link 
+                  href="/outfits/create"
+                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="text-[15px]">Create Outfit</span>
+                </Link>
+                <Link 
+                  href="/catalog/add"
+                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="text-[15px]">Add Item</span>
+                </Link>
+              </div>
 
-                {/* Navigation Links */}
-                <div className="space-y-1">
-                  <MobileNavLink href="/" icon={<Home />} onClick={() => setShowMobileMenu(false)}>
-                    Home
-                  </MobileNavLink>
-                  <MobileNavLink href="/catalog" icon={<ShoppingBag />} onClick={() => setShowMobileMenu(false)}>
-                    My Catalog
-                  </MobileNavLink>
-                  <MobileNavLink href="/outfits" icon={<Shirt />} onClick={() => setShowMobileMenu(false)}>
-                    My Outfits
-                  </MobileNavLink>
-                  <MobileNavLink href="/lookbooks" icon={<Book />} disabled>
-                    Lookbooks
-                  </MobileNavLink>
-                  <MobileNavLink href="/discover" icon={<Compass />} disabled>
-                    Discover
-                  </MobileNavLink>
-                </div>
-
-                {/* User Section */}
-                <div className="pt-6 border-t border-border">
-                  <div className="flex items-center gap-3 mb-4">
-                    {session.user?.image ? (
-                      <Image
-                        src={session.user.image}
-                        alt={session.user.name || 'User'}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-accent-purple flex items-center justify-center text-white">
-                        {session.user?.name?.[0] || 'U'}
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-medium">{session.user?.name}</p>
-                      <p className="text-sm text-foreground-soft truncate max-w-[200px]">
+              {/* <div className="mt-auto border-t rounded-b-xl border-zinc-800 bg-zinc-900">
+                {session ? (
+                  <div className="p-3">
+                    <div className="px-4 py-3 mb-1">
+                      <p className="text-[15px] font-medium text-white">{session.user?.name}</p>
+                      <p className="text-sm text-zinc-400 truncate">
                         {session.user?.email}
                       </p>
                     </div>
-                  </div>
-                  <div className="space-y-1">
-                    <MobileNavLink href="/profile" icon={<User />} onClick={() => setShowMobileMenu(false)}>
-                      Profile Settings
-                    </MobileNavLink>
                     <button
                       onClick={() => {
-                        setShowMobileMenu(false)
-                        signOut({ callbackUrl: '/' })
+                        setShowMobileMenu(false);
+                        signOut();
                       }}
-                      className="flex items-center w-full gap-3 px-4 py-3 text-left text-foreground-soft hover:text-foreground hover:bg-accent-purple/10 rounded-lg transition-colors"
+                      className="flex items-center gap-3 w-full px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     >
                       <LogOut className="w-5 h-5" />
-                      <span>Sign Out</span>
+                      <span className="text-[15px]">Sign Out</span>
                     </button>
                   </div>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-6 h-[calc(100vh-16rem)]">
-                <div className="text-center">
-                  <h2 className="text-xl font-bold mb-2">Welcome to Fitbook</h2>
-                  <p className="text-foreground-soft">Sign in to manage your wardrobe</p>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowMobileMenu(false)
-                    signIn('google')
-                  }}
-                  className="px-6 py-3 bg-accent-purple text-white rounded-lg hover:bg-accent-purple/90 transition-colors"
-                >
-                  Sign in with Google
-                </button>
-              </div>
-            )}
+                ) : (
+                  <div className="p-3">
+                    <button
+                      onClick={() => {
+                        setShowMobileMenu(false);
+                        signIn('google');
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      <span className="text-[15px]">Sign In with Google</span>
+                    </button>
+                  </div>
+                )}
+              </div> */}
+            </div>
           </div>
         </div>
       )}

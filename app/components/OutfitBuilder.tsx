@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import Image from 'next/image'
-import { X, Download, Save, ShoppingCart, CircleCheck } from 'lucide-react'
+import { X, Download, Save, ShoppingCart, CircleCheck, Plus } from 'lucide-react'
 import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
 type ClothingItemWithPosition = ClothingItem & { position?: string }
 
@@ -29,6 +30,7 @@ export interface OutfitBuilderProps {
   onSeasonsChange?: (seasons: Season[]) => void
   onOccasionsChange?: (occasions: Occasion[]) => void
   onTagsChange?: (tags: string[]) => void
+  availableItems?: ClothingItem[]
 }
 
 const SLOT_LABELS = {
@@ -58,7 +60,8 @@ export default function OutfitBuilder({
   onDescriptionChange,
   onSeasonsChange,
   onOccasionsChange,
-  onTagsChange
+  onTagsChange,
+  availableItems = []
 }: OutfitBuilderProps) {
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null)
   const [outfitName, setOutfitName] = useState(initialName)
@@ -67,6 +70,18 @@ export default function OutfitBuilder({
   const [occasions, setOccasions] = useState<Occasion[]>(initialOccasions)
   const [tags, setTags] = useState<string[]>(initialTags)
   const [error, setError] = useState<string | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
+  const [isItemPickerOpen, setIsItemPickerOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Update parent state when local state changes
   useEffect(() => {
@@ -92,6 +107,7 @@ export default function OutfitBuilder({
   const [{ isOver }, dropRef] = useDrop<ClothingItemWithPosition, void, { isOver: boolean }>(() => ({
     accept: 'CLOTHING_ITEM',
     hover: (item, monitor) => {
+      if (isMobile) return // Disable hover effects on mobile
       if (item.category === 'accessories') {
         const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
         setHoveredSlot(`${targetSlot}_accessory`)
@@ -105,6 +121,7 @@ export default function OutfitBuilder({
       }
     },
     drop: (item: ClothingItemWithPosition, monitor) => {
+      if (isMobile) return // Disable drop on mobile
       if (item.category === 'accessories') {
         const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
         onAddAccessory({ ...item, position: targetSlot })
@@ -130,6 +147,23 @@ export default function OutfitBuilder({
     const slotHeight = window.innerHeight / slots.length
     const index = Math.min(Math.floor((y - 100) / slotHeight), slots.length - 1)
     return slots[Math.max(0, index)]
+  }
+
+  const handleSlotClick = (slot: string) => {
+    if (!isMobile) return
+    setSelectedSlot(slot)
+    setIsItemPickerOpen(true)
+  }
+
+  const handleItemSelect = (item: ClothingItem) => {
+    if (!selectedSlot) return
+    if (selectedSlot.includes('accessory')) {
+      onAddAccessory({ ...item, position: selectedSlot.replace('_accessory', '') })
+    } else {
+      onAddItem(item, selectedSlot)
+    }
+    setIsItemPickerOpen(false)
+    setSelectedSlot(null)
   }
 
   const totalCost = Object.values(slots)
@@ -271,6 +305,7 @@ export default function OutfitBuilder({
             <div key={slot} className="relative">
               <div className="text-sm font-medium mb-2">{label}</div>
               <div
+                onClick={() => handleSlotClick(slot)}
                 className={`h-[100px] rounded-lg border-2 transition-colors ${
                   hoveredSlot === slot
                     ? 'border-accent-purple bg-accent-purple/10'
@@ -286,7 +321,10 @@ export default function OutfitBuilder({
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full text-sm text-foreground-soft">
-                    {window.innerWidth > 640 ? 'Drop item here' : 'Tap to add item'}
+                    <div className="flex items-center gap-2">
+                      <Plus className="w-4 h-4" />
+                      {isMobile ? 'Tap to add item' : 'Drop item here'}
+                    </div>
                   </div>
                 )}
               </div>
@@ -308,6 +346,7 @@ export default function OutfitBuilder({
               </div>
             ))}
             <div
+              onClick={() => handleSlotClick('accessory')}
               className={`h-[100px] rounded-lg border-2 border-dashed transition-colors ${
                 hoveredSlot?.endsWith('_accessory')
                   ? 'border-accent-purple bg-accent-purple/10'
@@ -315,7 +354,10 @@ export default function OutfitBuilder({
               }`}
             >
               <div className="flex items-center justify-center h-full text-sm text-foreground-soft">
-                {window.innerWidth > 640 ? 'Drop accessory here' : 'Tap to add accessory'}
+                <div className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  {isMobile ? 'Tap to add accessory' : 'Drop accessory here'}
+                </div>
               </div>
             </div>
           </div>
@@ -431,6 +473,47 @@ export default function OutfitBuilder({
           </div>
         </div>
       </div>
+
+      {/* Mobile Item Picker Sheet */}
+      <Sheet open={isItemPickerOpen} onOpenChange={setIsItemPickerOpen}>
+        <SheetContent side="bottom" className="h-[80vh]">
+          <SheetHeader>
+            <SheetTitle>Select {selectedSlot === 'accessory' ? 'Accessory' : SLOT_LABELS[selectedSlot as keyof typeof SLOT_LABELS]}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 grid grid-cols-2 gap-3 overflow-y-auto pb-safe">
+            {availableItems
+              .filter(item => {
+                if (selectedSlot === 'accessory') return item.category === 'accessories'
+                if (selectedSlot === 'top') return item.category === 'tops'
+                if (selectedSlot === 'bottom') return item.category === 'bottoms'
+                if (selectedSlot === 'headwear') return item.category === 'accessories'
+                if (selectedSlot === 'outerwear') return item.category === 'outerwear'
+                if (selectedSlot === 'shoes') return item.category === 'shoes'
+                return false
+              })
+              .map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => handleItemSelect(item)}
+                  className="relative aspect-square rounded-lg border border-border overflow-hidden hover:border-accent-purple transition-colors"
+                >
+                  <Image
+                    src={item.images[0].url}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="text-center px-2">
+                      <p className="text-white text-xs font-medium line-clamp-2">{item.name}</p>
+                      <p className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {error && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center">

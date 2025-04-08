@@ -20,7 +20,7 @@ export default async function Home() {
         {/* Content */}
         <div className="relative px-container">
           <div className="max-w-6xl mx-auto text-center">
-            <h1 className="font-display text-6xl md:text-7xl font-bold tracking-tight mb-16 animate-fade-in">
+            <h1 className="font-display text-3xl md:text-7xl font-bold tracking-tight mb-8 md:mb-16 animate-fade-in">
               <span>Manage your fits</span>
               <br />
               <span className="pt-3 text-accent-purple-light font-medium">
@@ -35,13 +35,13 @@ export default async function Home() {
                 <>
                   <Link
                     href="/catalog"
-                    className="px-6 py-3 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
+                    className="px-4 py-2 md:px-6 md:py-3 bg-accent-purple text-white rounded-xl font-medium hover:bg-accent-purple-dark transition-colors"
                   >
                     My Catalog
                   </Link>
                   <Link
                     href="/instructions"
-                    className="group text-sm px-6 py-3 font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white hover:bg-accent-purple/20 transition-colors flex items-center gap-x-1"
+                    className="group text-sm px-4 py-2 md:px-6 md:py-3 font-semibold border-2 border-border-bright rounded-xl leading-6 text-white/80 hover:text-white hover:bg-accent-purple/20 transition-colors flex items-center gap-x-1"
                   >
                     How to Use
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />

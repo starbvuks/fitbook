@@ -161,7 +161,7 @@ export default function CatalogPage() {
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+        <div className="flex flex-col gap-4 mb-6">
           <div>
             <h1 className="text-xl sm:text-2xl font-display font-bold mb-0.5">My Catalog</h1>
             <p className="text-sm text-muted-foreground">
@@ -171,169 +171,150 @@ export default function CatalogPage() {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
-              {(Object.entries(viewModeConfig) as [ViewMode, typeof viewModeConfig[ViewMode]][]).map(([mode, config]) => {
-                const Icon = config.icon
-                return (
-                  <button
-                    key={mode}
-                    onClick={() => setViewMode(mode)}
-                    className={`p-1.5 rounded-md transition-colors ${
-                      viewMode === mode
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                    }`}
-                    title={config.label}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </button>
-                )
-              })}
-            </div>
-            <Link
-              href="/catalog/add"
-              className="btn btn-primary h-9 px-4 flex-1 sm:flex-initial justify-center"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Add Item
-            </Link>
-          </div>
-        </div>
 
-        <div className="bg-card rounded-xl border border-border p-3 sm:p-4 mb-4 shadow-soft">
-          <div className="space-y-3 sm:space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search items..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input pl-9 h-9 text-sm w-full"
-                />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
+                {(Object.entries(viewModeConfig) as [ViewMode, typeof viewModeConfig[ViewMode]][]).map(([mode, config]) => {
+                  const Icon = config.icon
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setViewMode(mode)}
+                      className={`p-1.5 rounded-md transition-colors ${
+                        viewMode === mode
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                      }`}
+                      title={config.label}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </button>
+                  )
+                })}
               </div>
+              
+              <Link
+                href="/catalog/add"
+                className="btn btn-primary h-9 px-4 flex-shrink-0"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                <span className="hidden sm:inline">Add Item</span>
+                <span className="sm:hidden">Add</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`btn h-9 px-4 w-full sm:w-auto ${
-                  showFilters
-                    ? 'btn-primary'
-                    : 'btn-ghost'
+                onClick={() => setSelectedCategory('all')}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                  selectedCategory === 'all'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card hover:bg-accent border border-border'
                 }`}
               >
-                <Filter className="w-4 h-4 mr-1.5" />
-                Filters
+                All
               </button>
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
+                    selectedCategory === category
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card hover:bg-accent border border-border'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {showFilters && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-border items-end">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Category</label>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value as ClothingCategory | 'all')}
-                    className="select h-9 text-sm w-full"
-                  >
-                    <option value="all">All Categories</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category} className="capitalize">
-                        {category}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Status</label>
-                  <select
-                    value={ownershipFilter}
-                    onChange={(e) => setOwnershipFilter(e.target.value as OwnershipFilter)}
-                    className="select h-9 text-sm w-full"
-                  >
-                    <option value="all">All Items</option>
-                    <option value="owned">Owned</option>
-                    <option value="wanted">Want to Buy</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="minPrice" className="text-xs font-medium text-muted-foreground">Min Price</label>
-                  <input
-                    type="text"
-                    id="minPrice"
-                    value={minPrice}
-                    onChange={handleMinPriceChange}
-                    placeholder="0"
-                    className="input h-9 text-sm w-full"
-                    inputMode="decimal"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="maxPrice" className="text-xs font-medium text-muted-foreground">Max Price</label>
-                  <input
-                    type="text"
-                    id="maxPrice"
-                    value={maxPrice}
-                    onChange={handleMaxPriceChange}
-                    placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency).replace(/\.\d+$/, '') : 'Max'}
-                    className="input h-9 text-sm w-full"
-                    inputMode="decimal"
-                  />
-                </div>
-              </div>
-            )}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setOwnershipFilter('all')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                ownershipFilter === 'all'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card hover:bg-accent border border-border'
+              }`}
+            >
+              All Items
+            </button>
+            <button
+              onClick={() => setOwnershipFilter('owned')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                ownershipFilter === 'owned'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card hover:bg-accent border border-border'
+              }`}
+            >
+              Owned
+            </button>
+            <button
+              onClick={() => setOwnershipFilter('wanted')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                ownershipFilter === 'wanted'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card hover:bg-accent border border-border'
+              }`}
+            >
+              Wishlist
+            </button>
           </div>
         </div>
 
+        {/* Divider */}
+        <div className="h-px bg-border mb-6" />
+
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <LoadingSpinner text="Loading items..." />
+          <div className="flex justify-center items-center min-h-[200px]">
+            <LoadingSpinner />
           </div>
         ) : error ? (
-          <div className="bg-card rounded-xl border border-border p-8 text-center">
-            <p className="text-destructive mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
+          <div className="text-center py-12">
+            <p className="text-foreground-soft">{error}</p>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-foreground-soft mb-4">No items found</p>
+            <Link
+              href="/catalog/add"
               className="btn btn-primary"
             >
-              Try Again
-            </button>
+              Add Your First Item
+            </Link>
           </div>
-        ) : items.length > 0 ? (
-          <div className={`grid gap-3 ${viewMode === 'large' 
-            ? 'grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' 
-            : viewMode === 'small'
-              ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'
-              : 'grid-cols-1'
-          }`}>
+        ) : (
+          <div className={`grid gap-4 ${viewModeConfig[viewMode].gridCols}`}>
             {items.map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
                 className="cursor-pointer"
               >
-                <ItemCard item={item} currency={currency} onToggleOwnership={handleToggleOwnership} viewMode={viewMode} />
+                <ItemCard
+                  item={item}
+                  onToggleOwnership={handleToggleOwnership}
+                  viewMode={viewMode}
+                  currency={currency}
+                />
               </div>
             ))}
-          </div>
-        ) : (
-          <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
-            <h3 className="text-lg font-medium mb-2">No items found</h3>
-            <p className="text-muted-foreground mb-6">
-              {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice
-                ? "Try adjusting your filters"
-                : "Start adding items to your catalog"}
-            </p>
-            <Link
-              href="/catalog/add"
-              className="btn btn-primary inline-flex"
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Add Your First Item
-            </Link>
           </div>
         )}
       </div>

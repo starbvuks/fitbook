@@ -284,6 +284,7 @@ export default function EditOutfitPage({ params }: { params: Promise<{ id: strin
                 onSeasonsChange={setSelectedSeasons}
                 onOccasionsChange={setSelectedOccasions}
                 onTagsChange={setSelectedTags}
+                availableItems={availableItems}
               />
             </div>
           </div>

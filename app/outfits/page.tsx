@@ -252,211 +252,204 @@ export default function OutfitsPage() {
   }
 
   return (
-    <div className="min-h-screen pt-16 bg-background-soft">
-      <div className="max-w-7xl mx-auto p-3 sm:p-6">
-        {loading ? (
-          <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
-            <LoadingSpinner text="Loading outfits..." />
+    <div className="min-h-screen pt-16 bg-background">
+      <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4 mb-6">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-display font-bold mb-0.5">My Outfits</h1>
+            <p className="text-sm text-muted-foreground">
+              {filteredOutfits.length} outfits · Total value: {formatCurrency(
+                filteredOutfits.reduce((sum, outfit) => sum + outfit.totalCost, 0),
+                currency
+              )}
+            </p>
           </div>
-        ) : (
-          <>
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-display font-bold">My Outfits</h1>
-                <p className="text-muted-foreground">
-                  {outfits.length > 0 
-                    ? "Create and manage your outfit combinations"
-                    : "Start creating your first outfit"}
-                </p>
-              </div>
-              <Link
-                href="/outfits/create"
-                className="btn btn-primary h-9 px-4 flex-1 sm:flex-initial justify-center"
-              >
-                <Plus className="w-4 h-4 mr-1.5" />
-                {outfits.length > 0 ? "Create Outfit" : "Create Your First Outfit"}
-              </Link>
+
+          {/* Search and Controls */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search outfits..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+              />
             </div>
-
-            {/* Filter/Search Section - Adopted from Catalog */}
-            {showFilterControls && (
-              <div className="bg-card rounded-xl border border-border p-3 sm:p-4 mb-4 shadow-soft">
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <input
-                        type="text"
-                        placeholder="Search outfits..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="input pl-9 h-9 text-sm w-full"
-                      />
-                    </div>
-                    {/* Keep Sort By and View Mode controls separate */} 
-                    <div className="flex items-center gap-2 justify-end flex-shrink-0">
-                      <select
-                        value={sortBy}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as 'recent' | 'price' | 'rating')}
-                        className="select h-9 text-sm"
-                      >
-                        <option value="recent">Most Recent</option>
-                        <option value="rating">Highest Rating</option>
-                        <option value="price">Lowest Price</option>
-                      </select>
-                      <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
-                        <button
-                          onClick={() => setViewMode('grid')}
-                          className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-                          title="Grid View"
-                        >
-                          <LayoutGrid className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setViewMode('list')}
-                          className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}
-                          title="List View"
-                        >
-                          <LayoutList className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setShowFilters(!showFilters)}
-                      className={`btn h-9 px-4 w-full sm:w-auto flex-shrink-0 ${ 
-                        showFilters
-                          ? 'btn-primary'
-                          : 'btn-ghost'
-                      }`}
-                    >
-                      <Filter className="w-4 h-4 mr-1.5" />
-                      Filters
-                    </button>
-                  </div>
-
-                  {showFilters && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3 border-t border-border items-end">
-                      {/* Outfit-specific filters */}
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Season</label>
-                        <select
-                          value={selectedSeason}
-                          onChange={(e) => setSelectedSeason(e.target.value)}
-                          className="select h-9 text-sm w-full"
-                        >
-                          <option value="all">All Seasons</option>
-                          {seasons.map((season) => (
-                            <option key={season.id} value={season.name} className="capitalize">
-                              {season.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Occasion</label>
-                        <select
-                          value={selectedOccasion}
-                          onChange={(e) => setSelectedOccasion(e.target.value)}
-                          className="select h-9 text-sm w-full"
-                        >
-                          <option value="all">All Occasions</option>
-                           {occasions.map((occasion) => (
-                            <option key={occasion.id} value={occasion.name} className="capitalize">
-                              {occasion.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                         <div className="space-y-1.5">
-                          <label htmlFor="minOutfitPrice" className="text-xs font-medium text-muted-foreground">Min Price</label>
-                          <input
-                            type="text"
-                            id="minOutfitPrice"
-                            value={minPrice}
-                            onChange={handleMinPriceChange}
-                            placeholder="0"
-                            className="input h-9 text-sm w-full"
-                            inputMode="decimal"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label htmlFor="maxOutfitPrice" className="text-xs font-medium text-muted-foreground">Max Price</label>
-                          <input
-                            type="text"
-                            id="maxOutfitPrice"
-                            value={maxPrice}
-                            onChange={handleMaxPriceChange}
-                            placeholder={maxPriceLimit ? formatCurrency(maxPriceLimit, currency).replace(/\.\d+$/, '') : 'Max'}
-                            className="input h-9 text-sm w-full"
-                            inputMode="decimal"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className={viewMode === 'grid' 
-              ? "grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-              : "space-y-4"
-            }>
-              {filteredOutfits.map(outfit => (
-                <div key={outfit.id} className="group">
-                  <OutfitCard
-                    outfit={outfit}
-                    currency={currency}
-                    viewMode={viewMode}
-                    onDelete={handleDeleteOutfit}
-                    onShare={handleShareOutfit}
-                  />
-                </div>
-              ))}
-            </div>
-            {/* Show this if not loading and no outfits exist */}
-            {!loading && outfits.length === 0 && (
-              <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
-                <h3 className="text-lg font-medium mb-2">No outfits yet</h3>
-                <p className="text-muted-foreground mb-6">
-                  Get started by creating your first outfit combination.
-                </p>
-                <Link
-                  href="/outfits/create"
-                  className="btn btn-primary inline-flex"
-                >
-                  <Plus className="w-4 h-4 mr-1.5" />
-                  Create Your First Outfit
-                </Link>
-              </div>
-            )}
-            {/* Show this if not loading, outfits exist, but filters match none */}
-            {!loading && outfits.length > 0 && filteredOutfits.length === 0 && (
-              <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
-                <h3 className="text-lg font-medium mb-2">No outfits found</h3>
-                <p className="text-muted-foreground mb-6">
-                  Try adjusting your search or filter criteria.
-                </p>
+            
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
                 <button
-                  onClick={() => {
-                    setSearchQuery('')
-                    setSelectedSeason('all')
-                    setSelectedOccasion('all')
-                    setMinPrice('')
-                    setMaxPrice('')
-                    setShowFilters(false)
-                  }}
-                  className="btn btn-ghost"
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded-md transition-colors ${
+                    viewMode === 'grid'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  }`}
+                  title="Grid View"
                 >
-                  Clear Filters
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded-md transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  }`}
+                  title="List View"
+                >
+                  <LayoutList className="w-4 h-4" />
                 </button>
               </div>
-            )}
-          </>
+              
+              <Link
+                href="/outfits/create"
+                className="btn btn-primary h-9 px-4 flex-shrink-0"
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                <span className="hidden sm:inline">Create Outfit</span>
+                <span className="sm:hidden">Create</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedSeason('all')}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                  selectedSeason === 'all'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card hover:bg-accent border border-border'
+                }`}
+              >
+                All Seasons
+              </button>
+              {seasons.map((season) => (
+                <button
+                  key={season.name}
+                  onClick={() => setSelectedSeason(season.name)}
+                  className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
+                    selectedSeason === season.name
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card hover:bg-accent border border-border'
+                  }`}
+                >
+                  {season.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Occasions Filter */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedOccasion('all')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                selectedOccasion === 'all'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card hover:bg-accent border border-border'
+              }`}
+            >
+              All Occasions
+            </button>
+            {occasions.map((occasion) => (
+              <button
+                key={occasion.name}
+                onClick={() => setSelectedOccasion(occasion.name)}
+                className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
+                  selectedOccasion === occasion.name
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card hover:bg-accent border border-border'
+                }`}
+              >
+                {occasion.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort Options */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSortBy('recent')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                sortBy === 'recent'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card hover:bg-accent border border-border'
+              }`}
+            >
+              Most Recent
+            </button>
+            <button
+              onClick={() => setSortBy('price')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                sortBy === 'price'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card hover:bg-accent border border-border'
+              }`}
+            >
+              Price
+            </button>
+            <button
+              onClick={() => setSortBy('rating')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                sortBy === 'rating'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card hover:bg-accent border border-border'
+              }`}
+            >
+              Rating
+            </button>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-border mb-6" />
+
+        {/* Outfits Grid/List */}
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <LoadingSpinner />
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-foreground-soft">{error}</p>
+          </div>
+        ) : filteredOutfits.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-foreground-soft mb-4">No outfits found</p>
+            <Link
+              href="/outfits/create"
+              className="btn btn-primary"
+            >
+              Create Your First Outfit
+            </Link>
+          </div>
+        ) : (
+          <div className={`grid gap-4 ${
+            viewMode === 'grid'
+              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              : 'grid-cols-1'
+          }`}>
+            {filteredOutfits.map((outfit) => (
+              <Link
+                key={outfit.id}
+                href={`/outfits/${outfit.id}`}
+                className="block group"
+              >
+                <OutfitCard
+                  outfit={outfit}
+                  currency={currency}
+                  viewMode={viewMode}
+                  onDelete={handleDeleteOutfit}
+                />
+              </Link>
+            ))}
+          </div>
         )}
       </div>
     </div>
