@@ -205,72 +205,71 @@ export default function OutfitDetailClient({
           <div className="flex items-start gap-3">
             <button
               onClick={() => router.back()}
-              className="p-2 -ml-2 rounded-lg hover:bg-background-soft transition-colors"
+              className="p-2 -ml-2 mt-1 rounded-lg hover:bg-background-soft transition-colors flex-shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex-1 flex items-end justify-between min-w-0">
-              <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold truncate">
-                  {outfit.name}
-                </h1>
-                {outfit.description && (
-                  <p className="text-foreground-soft mt-2 text-sm sm:text-base line-clamp-2">
-                    {outfit.description}
-                  </p>
-                )}
-                <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-foreground-soft">
-                  <div className="flex items-center gap-1.5">
-                    <User className="w-4 h-4" />
-                    <span className="truncate max-w-[150px]">
-                      {outfit.user?.name || "Anonymous"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4" />
-                    <span>{formattedDate}</span>
-                  </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold">
+                {outfit.name}
+              </h1>
+              {outfit.description && (
+                <p className="text-foreground-soft mt-1 text-sm sm:text-base">
+                  {outfit.description}
+                </p>
+              )}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-foreground-soft">
+                <div className="flex items-center gap-1.5">
+                  <User className="w-4 h-4" />
+                  <span className="truncate max-w-[150px]">
+                    {outfit.user?.name || "Anonymous"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" />
+                  <span>{formattedDate}</span>
                 </div>
               </div>
-              <div className="flex flex-wrap justify-end items-center gap-x-2">
-                <button
-                  onClick={handleShare}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-foreground-soft hover:text-accent-purple transition-colors"
-                  title="Copy share link"
-                >
-                  <Share2 className="w-4 h-4" />
-                  <span className="text-sm">Share</span>
-                </button>
-                <button
-                  onClick={handleDownload}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-foreground-soft hover:text-accent-purple transition-colors"
-                  title="Download Outfit Image"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="text-sm">Download</span>
-                </button>
-                {canEditOutfit && (
-                  <>
-                    <button
-                      onClick={() => router.push(`/outfits/${outfit.id}/edit`)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-accent-purple-dark transition-colors"
-                      title="Edit Outfit"
-                    >
-                      <Edit className="w-4 h-4" />
-                      <span className="text-sm">Edit</span>
-                    </button>
-                    <button
-                      onClick={handleDelete}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
-                      title="Delete Outfit"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span className="text-sm">Delete</span>
-                    </button>
-                  </>
-                )}
-              </div>
             </div>
+          </div>
+
+          <div className="flex flex-wrap justify-start sm:justify-end items-center gap-2 pl-9 sm:pl-0">
+            <button
+              onClick={handleShare}
+              className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
+              title="Copy share link"
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="text-sm">Share</span>
+            </button>
+            <button
+              onClick={handleDownload}
+              className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
+              title="Download Outfit Image"
+            >
+              <Download className="w-4 h-4" />
+              <span className="text-sm">Download</span>
+            </button>
+            {canEditOutfit && (
+              <>
+                <button
+                  onClick={() => router.push(`/outfits/${outfit.id}/edit`)}
+                  className="btn btn-primary h-8 px-3 flex items-center gap-1.5"
+                  title="Edit Outfit"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span className="text-sm">Edit</span>
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="btn text-red-500 h-8 px-3 flex items-center gap-1.5"
+                  title="Delete Outfit"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="text-sm">Delete</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
