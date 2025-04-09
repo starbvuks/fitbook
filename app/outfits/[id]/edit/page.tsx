@@ -4,17 +4,56 @@ import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Save, Search, Filter } from 'lucide-react'
+import { Save, Search, Filter, Eye, EyeOff, Star } from 'lucide-react'
 import type { ClothingItem, Currency, Season, Occasion, Outfit } from '@/app/models/types'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import OutfitBuilder from '@/app/components/OutfitBuilder'
 import DraggableItem from '@/app/components/DraggableItem'
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { cn } from '@/lib/utils'
 
 // Dynamically import DndProvider
 const DndProvider = dynamic(
   () => import('react-dnd').then(mod => mod.DndProvider),
   { ssr: false }
 )
+
+// Simple Star Rating Input Component
+interface StarRatingInputProps {
+  rating: number | null | undefined;
+  setRating: (rating: number) => void;
+  maxRating?: number;
+}
+
+function StarRatingInput({ rating, setRating, maxRating = 5 }: StarRatingInputProps) {
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+
+  return (
+    <div className="flex items-center space-x-1">
+      {[...Array(maxRating)].map((_, index) => {
+        const starValue = index + 1;
+        const isFilled = starValue <= (hoverRating ?? rating ?? 0);
+        return (
+          <button
+            key={starValue}
+            type="button" // Prevent form submission
+            onClick={() => setRating(starValue)}
+            onMouseEnter={() => setHoverRating(starValue)}
+            onMouseLeave={() => setHoverRating(null)}
+            className={cn(
+              "p-1 rounded-full transition-colors",
+               isFilled ? "text-yellow-400" : "text-muted-foreground hover:text-yellow-300"
+            )}
+            aria-label={`Rate ${starValue} out of ${maxRating}`}
+          >
+            <Star className={cn("w-5 h-5", isFilled && "fill-current")} />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 interface EditOutfitPageProps {
   params: Promise<{
@@ -45,6 +84,8 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currency, setCurrency] = useState<Currency>('USD')
+  const [rating, setRating] = useState<number | null>(null)
+  const [isPublic, setIsPublic] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +108,7 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
         setAvailableItems(itemsData)
 
         if (!outfitResponse.ok) throw new Error('Failed to fetch outfit')
-        const outfitData: Outfit = await outfitResponse.json()
+        const outfitData: Outfit & { isPublic?: boolean } = await outfitResponse.json()
         
         // Set outfit data
         setName(outfitData.name || '')
@@ -75,6 +116,8 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
         setSelectedSeasons(outfitData.seasons || [])
         setSelectedOccasions(outfitData.occasions || [])
         setTags(outfitData.tags ? outfitData.tags.map(t => t.name) : [])
+        setRating(outfitData.rating || null)
+        setIsPublic(outfitData.isPublic || false)
 
         // Organize items into slots and accessories
         const slots: Record<string, ClothingItem | null> = {
@@ -163,7 +206,9 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
           items,
           seasons: selectedSeasons.map(s => s.name),
           occasions: selectedOccasions.map(o => o.name),
-          tags: tags
+          tags: tags,
+          rating: rating,
+          isPublic: isPublic
         })
       })
 
@@ -243,8 +288,24 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
     <DndProvider backend={HTML5Backend}>
       <div className="min-h-screen pt-16 bg-background">
         <div className="max-w-7xl mx-auto p-3 sm:p-6">
+          <div className="flex flex-col sm:flex-row justify-end items-center mb-4 gap-4 sm:gap-6">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Rating:</Label>
+              <StarRatingInput rating={rating} setRating={setRating} />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="public-switch" className="flex items-center gap-1.5 text-sm cursor-pointer">
+                {isPublic ? <Eye className="w-4 h-4"/> : <EyeOff className="w-4 h-4"/>}
+                {isPublic ? 'Public' : 'Private'}
+              </Label>
+              <Switch
+                id="public-switch"
+                checked={isPublic}
+                onCheckedChange={setIsPublic}
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4 sm:gap-6">
-            {/* Left Column - Catalog - Hidden on Mobile */}
             <div className="hidden lg:block">
               <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-full">
                 <div className="p-3 sm:p-4 border-b border-border">
@@ -299,7 +360,6 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
               </div>
             </div>
 
-            {/* Right Column - Outfit Builder - Full Width on Mobile */}
             <div className="bg-card rounded-xl border border-border shadow-soft h-[calc(100vh-8rem)] sm:h-[calc(100vh-6rem)]">
               <OutfitBuilder
                 slots={outfitSlots}

@@ -81,6 +81,8 @@ export interface Outfit {
   stats?: {
     timesWorn: number
   }
+  isPublic: boolean
+  thumbnailUrl?: string
 }
 
 export interface Lookbook {
@@ -129,4 +131,25 @@ export interface UserProfile extends User {
     totalSpent: number
     mostExpensiveItem: number
   }
-} 
+}
+
+// Type for the data expected from the /api/outfits/saved endpoint
+// (and potentially /api/outfits/public)
+export interface SavedOutfitStub {
+  id: string;
+  name: string;
+  createdAt: string; // Assuming string format, adjust if Date
+  thumbnailUrl?: string;
+  totalCost: number; // Assuming this is available for display
+  userId: string;    // Needed to identify creator
+  userName: string;  // Display name of creator
+  rating?: number;   // Average rating
+  // Potentially add first season/occasion if needed for display
+}
+
+// Union type for displaying either a full Outfit or a SavedOutfitStub/PublicOutfitStub
+// Add isPublic property to the Outfit part if needed later
+export type DisplayOutfit = (Outfit & { isSaved: false; isPublicOutfit?: false; }) 
+                          | (SavedOutfitStub & { isSaved: true; isPublicOutfit?: false; });
+// We might need a third variant for public outfits later if they differ significantly
+// For now, SavedOutfitStub structure might suffice for public display too. 

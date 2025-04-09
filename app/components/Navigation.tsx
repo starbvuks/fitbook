@@ -121,7 +121,7 @@ export default function Navigation() {
                 <NavLink href="/catalog"><span className="hover:text-accent-purple transition-colors">Catalog</span></NavLink>
                 <NavLink href="/outfits"><span className="hover:text-accent-purple transition-colors">Outfits</span></NavLink>
                 <NavLink href="/lookbooks" disabled>Lookbooks</NavLink>
-                <NavLink href="/discover" disabled>Discover</NavLink>
+                <NavLink href="/discover"><span className="hover:text-accent-purple transition-colors">Discover</span></NavLink>
               </div>
             )}
           </div>

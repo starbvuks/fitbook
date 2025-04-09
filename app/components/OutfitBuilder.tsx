@@ -210,12 +210,12 @@ export default function OutfitBuilder({
               <p className="text-white text-xs font-medium line-clamp-2">{item.name}</p>
               <p className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</p>
             </div>
-            <button
+              <button
               onClick={onRemove}
               className="absolute top-1 right-1 btn btn-ghost h-6 w-6 p-0 bg-black/40 hover:bg-black/60"
-            >
+              >
               <X className="w-3 h-3 text-white" />
-            </button>
+              </button>
           </div>
         ) : (
           // Main item details - always visible
@@ -227,7 +227,7 @@ export default function OutfitBuilder({
                   {item.brand && (
                     <p className="text-xs text-foreground-soft truncate">{item.brand}</p>
                   )}
-                </div>
+              </div>
                 <button
                   onClick={onRemove}
                   className="ml-2 btn btn-ghost h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -496,8 +496,8 @@ export default function OutfitBuilder({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add a description for this outfit..."
                 className="w-full h-20 p-2.5 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple resize-none text-sm"
-              />
-            </div>
+            />
+          </div>
 
             <div>
               <h3 className="text-sm font-medium mb-2">Seasons</h3>
@@ -529,7 +529,7 @@ export default function OutfitBuilder({
               <h3 className="text-sm font-medium mb-2">Occasions</h3>
               <div className="flex flex-wrap gap-1.5">
                 {(['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding'] as OccasionName[]).map((occasion: OccasionName) => (
-                  <button
+              <button
                     key={occasion}
                     onClick={() => {
                       const isSelected = occasions.some(o => o.name === occasion)
@@ -546,7 +546,7 @@ export default function OutfitBuilder({
                     }`}
                   >
                     {occasion}
-                  </button>
+              </button>
                 ))}
               </div>
             </div>
@@ -633,9 +633,9 @@ export default function OutfitBuilder({
                 {availableItems
                   .filter(filterItemsBySlot)
                   .map(item => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleItemSelect(item)}
+                <button
+                  key={item.id}
+                  onClick={() => handleItemSelect(item)}
                       className={cn(
                         "relative border border-border overflow-hidden hover:border-accent-purple transition-colors",
                         viewMode === 'list' 
@@ -647,13 +647,13 @@ export default function OutfitBuilder({
                         "relative",
                         viewMode === 'list' ? 'w-16 h-16' : 'w-full h-full'
                       )}>
-                        <Image
-                          src={item.images[0].url}
-                          alt={item.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
+                    <Image
+                      src={item.images[0].url}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                       {viewMode === 'list' ? (
                         <div className="flex-1">
                           <div className="text-sm font-medium line-clamp-1">{item.name}</div>
@@ -667,13 +667,13 @@ export default function OutfitBuilder({
                               <div className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</div>
                             </div>
                           </div>
-                        </div>
+                  </div>
                       )}
-                    </button>
-                  ))}
+                </button>
+              ))}
               </div>
             </div>
-          </div>
+        </div>
         </SheetContent>
       </Sheet>
     </div>

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
 import type { Outfit } from '@/app/models/types'
+import { z } from 'zod'
 
 // Helper function to extract ID from URL
 function getIdFromUrl(url: string): string {
@@ -90,17 +91,9 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Request body is empty' }, { status: 400 })
     }
 
-    // Use a validation schema if available (ensure it includes all fields)
-    // For now, directly destructure, assuming validation happens elsewhere or is simple
-    const {
-      name,
-      description,
-      items, // Expecting [{ wardrobeItemId: string, position?: string }]
-      seasons, // Expecting array of strings or objects like { name: string }
-      occasions, // Expecting array of strings or objects like { name: string }
-      tags, // Expecting array of strings or objects like { name: string }
-      rating // Assuming rating might also be updated
-    } = body;
+    // Extract isPublic and validate the rest of the body
+    const { isPublic, ...restOfBody } = body;
+    const data = updateOutfitSchema.parse(restOfBody);
 
     // Verify outfit exists and belongs to user
     const existingOutfit = await prisma.outfit.findUnique({
@@ -113,8 +106,8 @@ export async function PATCH(req: Request) {
 
     // Calculate total cost (only if items are being updated)
     let totalCost = existingOutfit.totalCost; // Default to existing cost
-    if (items) { 
-      const wardrobeItemIds = items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId);
+    if (data.items) { 
+      const wardrobeItemIds = data.items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId);
       if (wardrobeItemIds.length > 0) {
         const wardrobeItems = await prisma.wardrobeItem.findMany({
           where: { id: { in: wardrobeItemIds } }
@@ -125,11 +118,12 @@ export async function PATCH(req: Request) {
     
     // Helper to process connectOrCreate arrays
     const processConnectOrCreate = (dataArray: any[] | undefined) => {
-        if (!dataArray || !Array.isArray(dataArray) || dataArray.length === 0) {
-            return { set: [] }; // Disconnect all if array is empty or undefined
+        if (dataArray === undefined) return undefined; 
+        if (!Array.isArray(dataArray) || dataArray.length === 0) {
+            return { set: [] }; 
         }
         return {
-            set: [], // Disconnect existing before connecting new/existing
+            set: [], 
             connectOrCreate: dataArray.map((item: string | { name: string }) => {
                 const name = typeof item === 'string' ? item : item.name;
                 return { where: { name }, create: { name } };
@@ -139,23 +133,29 @@ export async function PATCH(req: Request) {
 
     // Prepare updates, only include fields if they are present in the body
     const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (description !== undefined) updateData.description = description;
-    if (rating !== undefined) updateData.rating = rating;
-    if (items !== undefined) {
-        updateData.totalCost = totalCost; // Update cost only if items change
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.rating !== undefined) updateData.rating = data.rating;
+    if (isPublic !== undefined) updateData.isPublic = isPublic;
+    if (data.items !== undefined) {
+        updateData.totalCost = totalCost; 
         updateData.items = {
             deleteMany: {},
-            create: items.map((item: { wardrobeItemId: string; position?: string }) => ({
+            create: data.items.map((item: { wardrobeItemId: string; position?: string }) => ({
                 wardrobeItem: { connect: { id: item.wardrobeItemId } },
-                position: item.position
+                position: item.position ?? 'default' 
             }))
         };
     }
-    if (seasons !== undefined) updateData.seasons = processConnectOrCreate(seasons);
-    if (occasions !== undefined) updateData.occasions = processConnectOrCreate(occasions);
-    if (tags !== undefined) {
-        updateData.tags = processConnectOrCreate(tags);
+    const seasonsUpdate = processConnectOrCreate(data.seasons);
+    if (seasonsUpdate !== undefined) updateData.seasons = seasonsUpdate;
+    
+    const occasionsUpdate = processConnectOrCreate(data.occasions);
+    if (occasionsUpdate !== undefined) updateData.occasions = occasionsUpdate;
+
+    const tagsUpdate = processConnectOrCreate(data.tags);
+    if (tagsUpdate !== undefined) {
+        updateData.tags = tagsUpdate;
     }
 
     // Update outfit
@@ -173,6 +173,9 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json(updatedOutfit)
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Validation error', details: error.errors }, { status: 400 })
+    }
     console.error("Error updating outfit:", error)
     return NextResponse.json({ error: "Failed to update outfit" }, { status: 500 })
   }

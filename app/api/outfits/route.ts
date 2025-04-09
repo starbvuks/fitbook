@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const data = outfitSchema.parse(body)
+    const { isPublic, ...restOfBody } = body;
+    const data = outfitSchema.parse(restOfBody)
 
     // Create or connect tags
     const tagConnections = data.tags?.map((name: string) => ({
@@ -115,6 +116,7 @@ export async function POST(request: NextRequest) {
         description: data.description,
         rating: data.rating,
         totalCost: totalCost._sum.price || 0,
+        isPublic: typeof isPublic === 'boolean' ? isPublic : false,
         user: {
           connect: {
             id: session.user.id

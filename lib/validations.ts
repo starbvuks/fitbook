@@ -55,6 +55,7 @@ export const outfitSchema = z.object({
   })),
   tags: z.array(z.string()).default([]),
   rating: z.number().min(1).max(5).optional(),
+  isPublic: z.boolean().optional().default(false),
   seasons: z.array(z.string()).default([]),
   occasions: z.array(z.string()).default([])
 })

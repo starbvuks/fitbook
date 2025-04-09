@@ -60,9 +60,10 @@ model User {
   featuredLookbook String?
   accounts        Account[]
   sessions        Session[]
-  wardrobe        WardrobeItem[]
-  outfits         Outfit[]
+  wardrobeItems   WardrobeItem[]
+  outfits         Outfit[]     @relation("UserOutfits")
   lookbooks       Lookbook[]
+  savedOutfits     SavedOutfit[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
@@ -138,13 +139,15 @@ model Outfit {
   timesWorn     Int          @default(0)
   lastWorn      DateTime?
   favorited     Boolean      @default(false)
+  isPublic      Boolean      @default(false)
   userId        String
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User         @relation("UserOutfits", fields: [userId], references: [id], onDelete: Cascade)
   items         OutfitItem[]
   tags          Tag[]
   lookbooks     Lookbook[]
   seasons       Season[]
   occasions     Occasion[]
+  savedBy       SavedOutfit[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -187,4 +190,18 @@ model Occasion {
   name          String        @unique
   wardrobeItems WardrobeItem[]
   outfits       Outfit[]
+}
+
+model SavedOutfit {
+  id        String   @id @default(cuid())
+  userId    String
+  outfitId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outfit Outfit @relation(fields: [outfitId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, outfitId])
+  @@index([userId])
+  @@index([outfitId])
 } 
