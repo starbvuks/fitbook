@@ -118,8 +118,8 @@ export default function Navigation() {
 
             {session && (
               <div className="hidden md:flex items-center space-x-8">
-                <NavLink href="/catalog">Catalog</NavLink>
-                <NavLink href="/outfits">Outfits</NavLink>
+                <NavLink href="/catalog"><span className="hover:text-accent-purple transition-colors">Catalog</span></NavLink>
+                <NavLink href="/outfits"><span className="hover:text-accent-purple transition-colors">Outfits</span></NavLink>
                 <NavLink href="/lookbooks" disabled>Lookbooks</NavLink>
                 <NavLink href="/discover" disabled>Discover</NavLink>
               </div>

@@ -132,7 +132,13 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
           throw new Error('Failed to fetch item')
         }
         const itemData = await itemResponse.json()
-        setItem(itemData)
+        setItem({
+          ...itemData,
+          tags: itemData.tags.map((tag: Tag) => ({ id: tag.id, name: tag.name })),
+          seasons: itemData.seasons.map((season: Season) => ({ id: season.id, name: season.name })),
+          occasions: itemData.occasions.map((occasion: Occasion) => ({ id: occasion.id, name: occasion.name })),
+          description: itemData.description || ''
+        })
       } catch (error) {
         console.error('Error fetching data:', error)
         setError(error instanceof Error ? error.message : 'Failed to load item details')
@@ -161,6 +167,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
         condition: editedItem.condition ?? item.condition,
         isOwned: editedItem.isOwned ?? item.isOwned,
         notes: editedItem.notes ?? item.notes,
+        description: editedItem.description ?? item.description,
         // Convert tags to array of strings
         tags: Array.from(new Set([...(editedItem.tags || item.tags || [])].map(tag => 
           typeof tag === 'string' ? tag : tag.name

@@ -1,23 +1,29 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Trash2, 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
   Share2,
   User,
   Clock,
   ExternalLink,
   ImageIcon,
-} from 'lucide-react';
-import type { Outfit, Currency, User as UserType, OutfitItem } from '@/app/models/types';
-import { formatPrice } from '@/lib/utils';
-import OutfitThumbnail from '@/app/components/OutfitThumbnail';
+} from "lucide-react";
+import type {
+  Outfit,
+  Currency,
+  User as UserType,
+  OutfitItem,
+  ClothingItem,
+} from "@/app/models/types";
+import { formatPrice } from "@/lib/utils";
+import OutfitThumbnail from "@/app/components/OutfitThumbnail";
 
 interface ItemDetailsProps {
   item: OutfitItem;
@@ -32,12 +38,16 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
   const handleItemClick = (e: React.MouseEvent) => {
     if (item.wardrobeItem?.purchaseUrl) {
       e.preventDefault();
-      window.open(item.wardrobeItem.purchaseUrl, '_blank', 'noopener,noreferrer');
+      window.open(
+        item.wardrobeItem.purchaseUrl,
+        "_blank",
+        "noopener,noreferrer"
+      );
     }
   };
 
   return (
-    <div 
+    <div
       className="bg-background-soft rounded-xl border border-border-bright overflow-hidden transition-all hover:border-accent-purple group cursor-pointer"
       onClick={handleItemClick}
     >
@@ -63,14 +73,16 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
           )}
         </div>
         <div className="p-4">
-          <span
-            className="text-lg font-medium group-hover:text-accent-purple transition-colors line-clamp-1"
-          >
+          <span className="text-lg font-medium group-hover:text-accent-purple transition-colors line-clamp-1">
             {item.wardrobeItem.name}
           </span>
-          <p className="text-sm text-muted-foreground line-clamp-1">{item.wardrobeItem.brand}</p>
+          <p className="text-sm text-muted-foreground line-clamp-1">
+            {item.wardrobeItem.brand}
+          </p>
           <div className="flex items-center justify-between mt-2">
-            <p className="font-semibold">{formatPrice(item.wardrobeItem.price, currency)}</p>
+            <p className="font-semibold">
+              {formatPrice(item.wardrobeItem.price, currency)}
+            </p>
           </div>
         </div>
       </div>
@@ -82,61 +94,68 @@ interface OutfitDetailClientProps {
   initialOutfit: Outfit & { stats: { timesWorn: number } };
 }
 
-export default function OutfitDetailClient({ initialOutfit }: OutfitDetailClientProps) {
+export default function OutfitDetailClient({
+  initialOutfit,
+}: OutfitDetailClientProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [outfit] = useState(initialOutfit);
-  const [currency] = useState<Currency>('INR');
-
-  // Order categories in the desired sequence
-  const categoryOrder = [
-    'headwear',
-    'tops',
-    'outerwear',
-    'bottoms',
-    'shoes',
-    'accessories'
-  ];
-
-  // Sort items based on category order
-  const sortedItems = [...outfit.items].sort((a, b) => {
-    const aIndex = categoryOrder.indexOf(a.wardrobeItem?.category || '');
-    const bIndex = categoryOrder.indexOf(b.wardrobeItem?.category || '');
-    return aIndex - bIndex;
-  });
+  const [currency] = useState<Currency>("INR");
 
   const handleShare = async () => {
     try {
       const url = `${window.location.origin}/outfits/${outfit.id}`;
       await navigator.clipboard.writeText(url);
-      // You might want to add a toast notification here
+      alert('Link copied to clipboard!');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
     }
   };
 
   const handleDelete = async () => {
-    if (!outfit || !confirm('Are you sure you want to delete this outfit?')) return;
+    if (!outfit || !confirm("Are you sure you want to delete this outfit?"))
+      return;
 
     try {
       const response = await fetch(`/api/outfits/${outfit.id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
-      if (!response.ok) throw new Error('Failed to delete outfit');
-      router.push('/outfits');
+      if (!response.ok) throw new Error("Failed to delete outfit");
+      router.push("/outfits");
     } catch (error) {
-      console.error('Error deleting outfit:', error);
+      console.error("Error deleting outfit:", error);
     }
   };
 
   const canEditOutfit = session?.user?.id === outfit.userId;
 
-  const formattedDate = new Date(outfit.createdAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  const formattedDate = new Date(outfit.createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
+
+  // Order categories in the desired sequence
+  const categoryOrder = [
+    "headwear",
+    "tops",
+    "outerwear",
+    "bottoms",
+    "shoes",
+    "accessories",
+  ];
+
+  // Sort items based on category order and limit to 6
+  const sortedItems = [...outfit.items]
+    .map((item: OutfitItem) => item.wardrobeItem)
+    .filter((item): item is ClothingItem => item !== undefined)
+    .sort((a, b) => {
+      const aIndex = categoryOrder.indexOf(a.category || "");
+      const bIndex = categoryOrder.indexOf(b.category || "");
+      return aIndex - bIndex;
+    })
+    .slice(0, 6);
 
   return (
     <div className="min-h-screen pt-16 bg-background">
@@ -150,53 +169,60 @@ export default function OutfitDetailClient({ initialOutfit }: OutfitDetailClient
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold truncate">{outfit.name}</h1>
-              {outfit.description && (
-                <p className="text-foreground-soft mt-2 text-sm sm:text-base line-clamp-2">{outfit.description}</p>
-              )}
-              <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-foreground-soft">
-                <div className="flex items-center gap-1.5">
-                  <User className="w-4 h-4" />
-                  <span className="truncate max-w-[150px]">{outfit.user?.name || 'Anonymous'}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  <span>{formattedDate}</span>
+            <div className="flex-1 flex items-end justify-between min-w-0">
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold truncate">
+                  {outfit.name}
+                </h1>
+                {outfit.description && (
+                  <p className="text-foreground-soft mt-2 text-sm sm:text-base line-clamp-2">
+                    {outfit.description}
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-foreground-soft">
+                  <div className="flex items-center gap-1.5">
+                    <User className="w-4 h-4" />
+                    <span className="truncate max-w-[150px]">
+                      {outfit.user?.name || "Anonymous"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4" />
+                    <span>{formattedDate}</span>
+                  </div>
                 </div>
               </div>
+              <div className="flex flex-wrap justify-end items-center gap-x-2">
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-foreground-soft hover:text-accent-purple transition-colors"
+                  title="Copy share link"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span className="text-sm">Share</span>
+                </button>
+                {canEditOutfit && (
+                  <>
+                    <button
+                      onClick={() => router.push(`/outfits/${outfit.id}/edit`)}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-accent-purple-dark transition-colors"
+                      title="Edit Outfit"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span className="text-sm">Edit</span>
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                      title="Delete Outfit"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm">Delete</span>
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-foreground-soft hover:text-accent-purple transition-colors"
-              title="Copy share link"
-            >
-              <Share2 className="w-4 h-4" />
-              <span className="text-sm">Share</span>
-            </button>
-            {canEditOutfit && (
-              <>
-                <button
-                  onClick={() => router.push(`/outfits/${outfit.id}/edit`)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white hover:bg-accent-purple-dark transition-colors"
-                  title="Edit Outfit"
-                >
-                  <Edit className="w-4 h-4" />
-                  <span className="text-sm">Edit</span>
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
-                  title="Delete Outfit"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="text-sm">Delete</span>
-                </button>
-              </>
-            )}
           </div>
         </div>
 
@@ -206,10 +232,8 @@ export default function OutfitDetailClient({ initialOutfit }: OutfitDetailClient
             {/* Main outfit display */}
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="aspect-[4/3] relative">
-                <OutfitThumbnail 
-                  items={sortedItems
-                    .map(item => item.wardrobeItem)
-                    .filter(item => item !== undefined)}
+                <OutfitThumbnail
+                  items={sortedItems}
                   className="w-full h-full"
                 />
               </div>
@@ -229,6 +253,7 @@ export default function OutfitDetailClient({ initialOutfit }: OutfitDetailClient
           {/* Right Column - Outfit Details */}
           <div className="space-y-4">
             {/* Price */}
+
             <div className="bg-card rounded-xl border border-border p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -295,4 +320,4 @@ export default function OutfitDetailClient({ initialOutfit }: OutfitDetailClient
       </div>
     </div>
   );
-} 
+}

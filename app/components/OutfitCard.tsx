@@ -21,6 +21,20 @@ export default function OutfitCard({
   onDelete,
   onShare
 }: OutfitCardProps) {
+  const sortedItems = outfit.items
+    .map(item => item.wardrobeItem)
+    .filter((item): item is ClothingItem => item !== undefined)
+    .sort((a, b) => {
+      const categoryOrder = ['tops', 'bottoms', 'outerwear', 'shoes', 'accessories']
+      return categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category)
+    })
+    .slice(0, 6)
+
+  const handleShare = (outfitId: string) => {
+    if (onShare) onShare(outfitId)
+    alert('Link copied to clipboard!')
+  }
+
   return (
     <div 
       className={`bg-card border border-border overflow-hidden hover:border-accent-purple transition-colors ${
@@ -34,9 +48,7 @@ export default function OutfitCard({
         >
           <div className={viewMode === 'list' ? "w-full sm:w-48 h-48" : "w-full"}>
             <OutfitThumbnail 
-              items={outfit.items
-                .map(item => item.wardrobeItem)
-                .filter((item): item is ClothingItem => item !== undefined)}
+              items={sortedItems}
               className="h-full w-full aspect-square"
             />
           </div>
@@ -55,7 +67,7 @@ export default function OutfitCard({
             <div className="flex items-center -mr-1 space-x-1 opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 touch:opacity-100">
               {onShare && (
                 <button
-                  onClick={() => onShare(outfit.id)}
+                  onClick={() => handleShare(outfit.id)}
                   className="p-1.5 text-foreground-soft hover:text-foreground rounded-md hover:bg-background-soft transition-colors"
                   aria-label="Share outfit"
                 >
@@ -121,7 +133,7 @@ export default function OutfitCard({
             <div className="mt-auto pt-2 flex items-center space-x-2 sm:hidden">
               {onShare && (
                 <button
-                  onClick={() => onShare(outfit.id)}
+                  onClick={() => handleShare(outfit.id)}
                   className="p-1.5 text-foreground-soft rounded-md bg-background-soft transition-colors"
                   aria-label="Share outfit"
                 >

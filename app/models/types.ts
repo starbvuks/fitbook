@@ -53,6 +53,7 @@ export interface ClothingItem {
   occasions: Occasion[]
   createdAt: Date
   updatedAt: Date
+  description?: string
 }
 
 export interface OutfitItem {
