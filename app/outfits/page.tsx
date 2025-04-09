@@ -213,34 +213,45 @@ export default function OutfitsPage() {
   };
 
   const handleDeleteOutfit = async (outfitId: string) => {
-    try {
-      setIsDeleting(true)
+    // Store the outfit being deleted in case we need to revert
+    const outfitToDelete = outfits.find(o => o.id === outfitId);
+    if (!outfitToDelete) return; // Should not happen, but good practice
 
+    // 1. Optimistically remove the outfit from the local state
+    setOutfits(prev => prev.filter(outfit => outfit.id !== outfitId));
+
+    try {
+      // Disable button while processing (optional, depends on where delete is triggered)
+      // setIsDeleting(true) // Assuming isDeleting state exists if needed elsewhere
+
+      // 2. Make the API call
       const response = await fetch(`/api/outfits/${outfitId}`, {
         method: 'DELETE',
-      })
+      });
 
+      // 3. Handle API response
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to delete outfit')
+        const error = await response.json().catch(() => ({})); // Try parsing error
+        throw new Error(error.message || 'Failed to delete outfit from server');
       }
 
-      // Remove the deleted outfit from state
-      setOutfits(prev => prev.filter(outfit => outfit.id !== outfitId))
-      
+      // Success: Show toast (already happens implicitly as UI is updated)
       toast({
         title: 'Outfit deleted',
-        description: 'The outfit was successfully deleted.',
-      })
+        description: 'The outfit was successfully removed.',
+      });
+
     } catch (error) {
-      console.error('Error deleting outfit:', error)
+      console.error('Error deleting outfit:', error);
+      // 4. Revert UI on error
+      setOutfits(prev => [...prev, outfitToDelete].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())); // Add back and re-sort
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to delete outfit',
+        title: 'Error Deleting Outfit',
+        description: error instanceof Error ? error.message : 'Could not delete outfit. Please try again.',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setIsDeleting(false)
+      // setIsDeleting(false) // Re-enable button if state exists
     }
   }
 
