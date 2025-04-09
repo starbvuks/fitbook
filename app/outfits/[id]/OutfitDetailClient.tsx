@@ -17,6 +17,7 @@ import {
   Clock,
   ExternalLink,
   ImageIcon,
+  CircleCheck,
 } from "lucide-react";
 import type {
   Outfit,
@@ -74,16 +75,24 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
               <ExternalLink className="w-6 h-6 text-white" />
             </div>
           )}
+          {item.wardrobeItem.isOwned && (
+            <div 
+              className="absolute top-2 left-2 bg-green-600 backdrop-blur-sm text-primary-foreground rounded-full p-1 text-xs"
+              title="Owned"
+            >
+               <CircleCheck className="w-3 h-3" />
+            </div>
+          )}
         </div>
-        <div className="p-4">
-          <span className="text-lg font-medium group-hover:text-accent-purple transition-colors line-clamp-1">
+        <div className="p-3">
+          <span className="text-base font-medium group-hover:text-accent-purple transition-colors line-clamp-1">
             {item.wardrobeItem.name}
           </span>
-          <p className="text-sm text-muted-foreground line-clamp-1">
+          <p className="text-xs text-muted-foreground line-clamp-1">
             {item.wardrobeItem.brand}
           </p>
-          <div className="flex items-center justify-between mt-2">
-            <p className="font-semibold">
+          <div className="flex items-center justify-between mt-1.5">
+            <p className="font-semibold text-sm">
               {formatPrice(item.wardrobeItem.price, currency)}
             </p>
           </div>

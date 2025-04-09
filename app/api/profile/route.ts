@@ -35,7 +35,7 @@ async function getUserStats(userId: string) {
       prisma.outfit.count({ where: { userId } }),
       prisma.lookbook.count({ where: { userId } }),
       prisma.wardrobeItem.aggregate({
-        where: { userId },
+        where: { userId, isOwned: true },
         _sum: { price: true }
       }),
       prisma.wardrobeItem.findFirst({

@@ -5,6 +5,7 @@ import { Providers } from './providers'
 import Navigation from './components/Navigation'
 import { Toaster } from "@/components/ui/toaster"
 import TopProgressBar from '@/app/components/TopProgressBar'
+import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from 'react'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -43,6 +44,7 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-foreground font-sans antialiased" suppressHydrationWarning>
         <Providers>
+          <Analytics />
           <Suspense fallback={null}>
             <TopProgressBar />
           </Suspense>

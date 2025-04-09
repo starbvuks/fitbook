@@ -249,12 +249,12 @@ export default function ProfilePage() {
                         {formatCurrency(profile.stats.totalSpent, profile.currency)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center mt-2">
+                    {/* <div className="flex justify-between items-center mt-2">
                       <span className="text-foreground-soft">Most Expensive</span>
                       <span className="font-medium">
                         {formatCurrency(profile.stats.mostExpensiveItem, profile.currency)}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Calendar, Tag, Trash2, Share2, Pencil, Loader2 } from 'lucide-react'
+import { Calendar, Tag, Trash2, Share2, Pencil, Loader2, Star } from 'lucide-react'
 import { formatPrice, cn } from '@/lib/utils'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import type { Outfit, Currency, ClothingItem } from '@/app/models/types'
@@ -51,6 +51,9 @@ export default function OutfitCard({
     router.push(`/outfits/${outfit.id}`)
   }
 
+  const firstSeason = outfit.seasons?.[0];
+  const remainingSeasonsCount = outfit.seasons ? outfit.seasons.length - 1 : 0;
+
   return (
     <div 
       onClick={handleNavigate}
@@ -81,16 +84,32 @@ export default function OutfitCard({
               className="h-full w-full"
            />
         </div>
-        <div className="flex flex-col p-3 sm:p-4 flex-1">
+        <div className="flex flex-col p-3 sm:p-4 flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <Link
-              href={`/outfits/${outfit.id}`}
-              className="hover:text-accent-purple transition-colors"
-            >
-              <h3 className="font-medium line-clamp-1">{outfit.name}</h3>
-            </Link>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base truncate group-hover:text-accent-purple transition-colors">
+                {outfit.name}
+              </h3>
+              <div className='flex items-center gap-2'>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                 {formatPrice(outfit.totalCost, currency)}
+              </p>
+              <span className='text-muted-foreground'>•</span>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                 {firstSeason && (
+                   <div className="flex items-center gap-1">
+                     <Calendar className="w-3 h-3" />
+                     <span className="capitalize">{firstSeason.name}</span>
+                     {remainingSeasonsCount > 0 && (
+                       <span className="ml-0.5">+{remainingSeasonsCount}</span>
+                     )}
+                   </div>
+                 )}
+              </div>
+              </div>
+            </div>
             
-            <div className="flex items-center -mr-1 space-x-1 opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 touch:opacity-100">
+            <div className="flex items-center flex-shrink-0 -mr-1 space-x-1 opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 touch:opacity-100">
               {onShare && (
                 <button
                   onClick={(e) => { e.stopPropagation(); handleShare(outfit.id); }}
@@ -136,16 +155,6 @@ export default function OutfitCard({
             </div>
           </div>
           
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-foreground-soft">
-            <span>{formatPrice(outfit.totalCost, currency)}</span>
-            {outfit.seasons.length > 0 && (
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                <span>{outfit.seasons[0].name}</span>
-              </div>
-            )}
-          </div>
-
           {outfit.tags.length > 0 && (
             <div className="mt-2 flex items-center gap-1">
               <Tag className="w-3 h-3 text-foreground-soft" />
