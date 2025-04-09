@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useToast } from '@/components/ui/use-toast';
 import {
   ArrowLeft,
   Edit,
@@ -101,14 +102,23 @@ export default function OutfitDetailClient({
   const { data: session } = useSession();
   const [outfit] = useState(initialOutfit);
   const [currency] = useState<Currency>("INR");
+  const { toast } = useToast();
 
   const handleShare = async () => {
     try {
       const url = `${window.location.origin}/outfits/${outfit.id}`;
       await navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
+      toast({
+        title: "Link Copied",
+        description: "Outfit link copied to clipboard.",
+      });
     } catch (error) {
       console.error('Error copying to clipboard:', error);
+      toast({
+        title: "Error",
+        description: "Failed to copy link.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -138,24 +148,29 @@ export default function OutfitDetailClient({
 
   // Order categories in the desired sequence
   const categoryOrder = [
-    "headwear",
-    "tops",
-    "outerwear",
-    "bottoms",
-    "shoes",
-    "accessories",
+    'headwear',
+    'tops',
+    'outerwear',
+    'bottoms',
+    'shoes',
+    'accessories',
   ];
 
-  // Sort items based on category order and limit to 6
-  const sortedItems = [...outfit.items]
-    .map((item: OutfitItem) => item.wardrobeItem)
-    .filter((item): item is ClothingItem => item !== undefined)
+  // Sort the original outfit.items array (which contains OutfitItem)
+  // And limit to 6 items for display in the detail view if needed (optional, remove .slice() if not desired)
+  const sortedOutfitItems = [...outfit.items]
     .sort((a, b) => {
-      const aIndex = categoryOrder.indexOf(a.category || "");
-      const bIndex = categoryOrder.indexOf(b.category || "");
+      // Access category through wardrobeItem
+      const aCategory = a.wardrobeItem?.category || '';
+      const bCategory = b.wardrobeItem?.category || '';
+      const aIndex = categoryOrder.indexOf(aCategory);
+      const bIndex = categoryOrder.indexOf(bCategory);
+      // Handle cases where category might not be found (put them at the end)
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
       return aIndex - bIndex;
-    })
-    .slice(0, 6);
+    });
+    // .slice(0, 6); // Optional: keep slice if you only want to show a few items
 
   return (
     <div className="min-h-screen pt-16 bg-background">
@@ -226,24 +241,29 @@ export default function OutfitDetailClient({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 md:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 md:gap-8">
           {/* Left Column - Outfit Display */}
-          <div className="space-y-4 md:space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Main outfit display */}
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="aspect-[4/3] relative">
                 <OutfitThumbnail
-                  items={sortedItems}
+                  // Map sorted OutfitItems to ClothingItems for the thumbnail
+                  items={sortedOutfitItems
+                    .map(item => item.wardrobeItem)
+                    .filter((item): item is ClothingItem => item !== undefined)
+                  }
                   className="w-full h-full"
                 />
               </div>
             </div>
 
             {/* Individual items grid */}
-            <div className="bg-card rounded-xl border border-border p-4">
-              <h2 className="text-lg font-semibold mb-3">Outfit Items</h2>
+            <div className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
+              <h2 className="text-xl font-semibold mb-4">Outfit Items</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {sortedItems.map((item) => (
+                {/* Map over the sorted OutfitItem array for details */}
+                {sortedOutfitItems.map((item) => (
                   <ItemDetails key={item.id} item={item} currency={currency} />
                 ))}
               </div>
