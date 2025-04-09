@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 const createItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  category: z.enum(['tops', 'bottoms', 'dresses', 'outerwear', 'shoes', 'accessories'], {
+  category: z.enum(['tops', 'bottoms', 'outerwear', 'shoes', 'accessories'], {
     required_error: "Category is required"
   }),
   brand: z.string().nullable().optional(),
@@ -33,7 +33,7 @@ const createItemSchema = z.object({
 
 const updateItemSchema = z.object({
   name: z.string().min(1, "Name is required").optional(),
-  category: z.enum(['tops', 'bottoms', 'dresses', 'outerwear', 'shoes', 'accessories']).optional(),
+  category: z.enum(['tops', 'bottoms', 'outerwear', 'shoes', 'accessories']).optional(),
   brand: z.string().nullable().optional(),
   price: z.number().nullable().optional(),
   purchaseUrl: z.string().url().nullable().optional(),

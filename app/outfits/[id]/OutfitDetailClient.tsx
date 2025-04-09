@@ -94,7 +94,6 @@ export default function OutfitDetailClient({ initialOutfit }: OutfitDetailClient
     'tops',
     'outerwear',
     'bottoms',
-    'dresses',
     'shoes',
     'accessories'
   ];

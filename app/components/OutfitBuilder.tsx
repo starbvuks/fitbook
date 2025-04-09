@@ -286,7 +286,7 @@ export default function OutfitBuilder({
     if (selectedSlot === 'headwear') return item.category === 'headwear'
     if (selectedSlot === 'top') return item.category === 'tops'
     if (selectedSlot === 'bottom') return item.category === 'bottoms'
-    if (selectedSlot === 'dress') return item.category === 'dresses'
+    // if (selectedSlot === 'dress') return item.category === 'dresses'
     if (selectedSlot === 'outerwear') return item.category === 'outerwear'
     if (selectedSlot === 'shoes') return item.category === 'shoes'
     if (selectedSlot === 'accessory') return item.category === 'accessories'

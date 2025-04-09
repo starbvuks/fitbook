@@ -29,13 +29,12 @@ import LoadingSpinner from '@/app/components/LoadingSpinner'
 import ImageUpload from '@/app/components/ImageUpload'
 import type { UploadResult } from '@/lib/images'
 
-const categories = ['tops', 'bottoms', 'dresses', 'outerwear', 'shoes', 'accessories'] as const
+const categories = ['tops', 'bottoms', 'outerwear', 'shoes', 'accessories'] as const
 type Category = (typeof categories)[number]
 type CategoryMap = { [K in Category]: ClothingCategory }
 const categoryMap: CategoryMap = {
   tops: 'tops',
   bottoms: 'bottoms',
-  dresses: 'dresses',
   outerwear: 'outerwear',
   shoes: 'shoes',
   accessories: 'accessories'
@@ -150,22 +149,46 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
     setIsUpdating(true)
 
     try {
-      // Ensure images have colors array
-      const images = (editedItem.images || item.images).map(image => ({
-        ...image,
-        colors: image.colors || []
-      }))
-
-      const updatedItem = {
-        ...item,
-        ...editedItem,
-        images
+      // Create a clean update object without any nested objects
+      const cleanUpdate = {
+        name: editedItem.name ?? item.name,
+        category: editedItem.category ?? item.category,
+        brand: editedItem.brand ?? item.brand,
+        price: editedItem.price ?? item.price,
+        purchaseUrl: editedItem.purchaseUrl ?? item.purchaseUrl,
+        size: editedItem.size ?? item.size,
+        material: editedItem.material ?? item.material,
+        condition: editedItem.condition ?? item.condition,
+        isOwned: editedItem.isOwned ?? item.isOwned,
+        notes: editedItem.notes ?? item.notes,
+        // Convert tags to array of strings
+        tags: Array.from(new Set([...(editedItem.tags || item.tags || [])].map(tag => 
+          typeof tag === 'string' ? tag : tag.name
+        ))),
+        // Convert seasons to array of strings
+        seasons: Array.from(new Set([...(editedItem.seasons || item.seasons || [])].map(season => 
+          typeof season === 'string' ? season : season.name
+        ))),
+        // Convert occasions to array of strings
+        occasions: Array.from(new Set([...(editedItem.occasions || item.occasions || [])].map(occasion => 
+          typeof occasion === 'string' ? occasion : occasion.name
+        ))),
+        // Ensure images have colors array
+        images: (editedItem.images || item.images || []).map(image => ({
+          id: image.id,
+          url: image.url,
+          publicId: image.publicId,
+          isPrimary: image.isPrimary,
+          colors: image.colors || []
+        }))
       }
+
+      console.log('Sending update:', cleanUpdate) // Debug log
 
       const response = await fetch(`/api/items/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedItem),
+        body: JSON.stringify(cleanUpdate),
       })
 
       if (!response.ok) {
@@ -243,9 +266,8 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
 
   const handleSeasonToggle = (seasonName: SeasonName) => {
     if (!item) return
-    setItem(prev => {
-      if (!prev) return prev
-      const currentSeasons = prev.seasons
+    setEditedItem(prev => {
+      const currentSeasons = prev.seasons || item.seasons || []
       const seasonExists = currentSeasons.some(s => s.name === seasonName)
       
       return {
@@ -259,9 +281,8 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
 
   const handleOccasionToggle = (occasionName: OccasionName) => {
     if (!item) return
-    setItem(prev => {
-      if (!prev) return prev
-      const currentOccasions = prev.occasions
+    setEditedItem(prev => {
+      const currentOccasions = prev.occasions || item.occasions || []
       const occasionExists = currentOccasions.some(o => o.name === occasionName)
       
       return {
@@ -274,13 +295,10 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
   }
 
   const handleCategoryChange = (category: Category) => {
-    setItem(prev => {
-      if (!prev) return prev
-      return {
-        ...prev,
-        category: category
-      }
-    })
+    setEditedItem(prev => ({
+      ...prev,
+      category
+    }))
   }
 
   if (loading) return (

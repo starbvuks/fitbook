@@ -13,7 +13,6 @@ import { cn } from '@/lib/utils'
 const categories: ClothingCategory[] = [
   'tops',
   'bottoms',
-  'dresses',
   'outerwear',
   'shoes',
   'accessories',

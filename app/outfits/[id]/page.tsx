@@ -34,7 +34,7 @@ function isCurrency(value: string): value is Currency {
 }
 
 function isClothingCategory(value: string): value is ClothingCategory {
-  return ['tops', 'bottoms', 'dresses', 'outerwear', 'shoes', 'accessories'].includes(value);
+  return ['tops', 'bottoms', 'outerwear', 'shoes', 'accessories'].includes(value);
 }
 
 // Helper to transform color data

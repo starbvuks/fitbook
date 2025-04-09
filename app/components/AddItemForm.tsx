@@ -50,7 +50,6 @@ function FormSection({ title, children }: FormSectionProps) {
 const categories: ClothingCategory[] = [
   'tops',
   'bottoms',
-  'dresses',
   'outerwear',
   'shoes',
   'accessories',
