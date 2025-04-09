@@ -90,103 +90,84 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Request body is empty' }, { status: 400 })
     }
 
-    const { name, description, items, seasons, occasions, tags } = body
+    // Use a validation schema if available (ensure it includes all fields)
+    // For now, directly destructure, assuming validation happens elsewhere or is simple
+    const {
+      name,
+      description,
+      items, // Expecting [{ wardrobeItemId: string, position?: string }]
+      seasons, // Expecting array of strings or objects like { name: string }
+      occasions, // Expecting array of strings or objects like { name: string }
+      tags, // Expecting array of strings or objects like { name: string }
+      rating // Assuming rating might also be updated
+    } = body;
 
     // Verify outfit exists and belongs to user
     const existingOutfit = await prisma.outfit.findUnique({
-      where: {
-        id,
-        userId: session.user.id
-      }
+      where: { id, userId: session.user.id }
     })
 
     if (!existingOutfit) {
-      return NextResponse.json({ error: 'Outfit not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Outfit not found or unauthorized' }, { status: 404 })
     }
 
-    // Calculate total cost
-    const wardrobeItems = await prisma.wardrobeItem.findMany({
-      where: {
-        id: {
-          in: items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId)
-        }
+    // Calculate total cost (only if items are being updated)
+    let totalCost = existingOutfit.totalCost; // Default to existing cost
+    if (items) { 
+      const wardrobeItemIds = items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId);
+      if (wardrobeItemIds.length > 0) {
+        const wardrobeItems = await prisma.wardrobeItem.findMany({
+          where: { id: { in: wardrobeItemIds } }
+        });
+        totalCost = wardrobeItems.reduce((sum: number, item: { price: number }) => sum + item.price, 0);
       }
-    })
-
-    const totalCost = wardrobeItems.reduce((sum: number, item: { price: number }) => sum + item.price, 0)
-
-    // Prepare seasons data
-    const seasonsData = seasons && seasons.length > 0 ? {
-      set: [], // Clear existing seasons
-      connectOrCreate: Array.isArray(seasons)
-        ? seasons.map((season: string | { id?: string; name: string }) => {
-            const seasonName = typeof season === 'string' ? season : season.name
-            return {
-              where: { name: seasonName },
-              create: { name: seasonName }
-            }
-          })
-        : []
-    } : undefined
-
-    // Prepare occasions data
-    const occasionsData = occasions && occasions.length > 0 ? {
-      set: [], // Clear existing occasions
-      connectOrCreate: Array.isArray(occasions)
-        ? occasions.map((occasion: string | { id?: string; name: string }) => {
-            const occasionName = typeof occasion === 'string' ? occasion : occasion.name
-            return {
-              where: { name: occasionName },
-              create: { name: occasionName }
-            }
-          })
-        : []
-    } : undefined
-
-    // Prepare tags data
-    const tagsData = tags && tags.length > 0 ? {
-      set: [], // Clear existing tags
-      connectOrCreate: tags.map((tag: string | { name: string }) => {
-        const tagName = typeof tag === 'string' ? tag : tag.name
-        return {
-          where: { name: tagName },
-          create: { name: tagName }
+    }
+    
+    // Helper to process connectOrCreate arrays
+    const processConnectOrCreate = (dataArray: any[] | undefined) => {
+        if (!dataArray || !Array.isArray(dataArray) || dataArray.length === 0) {
+            return { set: [] }; // Disconnect all if array is empty or undefined
         }
-      })
-    } : undefined
+        return {
+            set: [], // Disconnect existing before connecting new/existing
+            connectOrCreate: dataArray.map((item: string | { name: string }) => {
+                const name = typeof item === 'string' ? item : item.name;
+                return { where: { name }, create: { name } };
+            })
+        };
+    };
+
+    // Prepare updates, only include fields if they are present in the body
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (rating !== undefined) updateData.rating = rating;
+    if (items !== undefined) {
+        updateData.totalCost = totalCost; // Update cost only if items change
+        updateData.items = {
+            deleteMany: {},
+            create: items.map((item: { wardrobeItemId: string; position?: string }) => ({
+                wardrobeItem: { connect: { id: item.wardrobeItemId } },
+                position: item.position
+            }))
+        };
+    }
+    if (seasons !== undefined) updateData.seasons = processConnectOrCreate(seasons);
+    if (occasions !== undefined) updateData.occasions = processConnectOrCreate(occasions);
+    if (tags !== undefined) {
+        updateData.tags = processConnectOrCreate(tags);
+    }
 
     // Update outfit
     const updatedOutfit = await prisma.outfit.update({
       where: { id },
-      data: {
-        name: body.name,
-        description: body.description,
-        rating: body.rating,
-        totalCost,
-        seasons: seasonsData,
-        occasions: occasionsData,
-        tags: tagsData,
-        items: {
-          deleteMany: {},
-          create: items.map((item: { wardrobeItemId: string; position?: string }) => ({
-            wardrobeItem: {
-              connect: {
-                id: item.wardrobeItemId
-              }
-            },
-            position: item.position
-          }))
-        }
-      },
-      include: {
-        items: {
-          include: {
-            wardrobeItem: true
-          }
-        },
+      data: updateData,
+      include: { // Include relations in the response
+        items: { include: { wardrobeItem: { include: { images: true } } } },
         tags: true,
         seasons: true,
-        occasions: true
+        occasions: true,
+        user: { select: { id: true, name: true, image: true } } // Include user info
       }
     })
 

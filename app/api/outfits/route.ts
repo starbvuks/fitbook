@@ -25,19 +25,30 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc'
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        rating: true,
+        totalCost: true,
+        createdAt: true,
         items: {
-          include: {
+          select: {
             wardrobeItem: {
-              include: {
-                images: true
+              select: {
+                id: true,
+                category: true,
+                images: {
+                  select: { url: true },
+                  orderBy: { isPrimary: 'desc' },
+                  take: 1,
+                }
               }
             }
           }
         },
-        tags: true,
-        occasions: true,
-        seasons: true
+        tags: { select: { id: true, name: true } },
+        occasions: { select: { id: true, name: true } },
+        seasons: { select: { id: true, name: true } }
       }
     })
 

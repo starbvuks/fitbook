@@ -1,14 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import Image from 'next/image'
-import { X, Download, Save, ShoppingCart, CircleCheck, Plus, List, Grid } from 'lucide-react'
+import { X, Save, ShoppingCart, CircleCheck, Plus, List, Grid, DollarSign } from 'lucide-react'
 import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, cn } from '@/lib/utils'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
-import { cn } from '@/lib/utils'
 
 type ClothingItemWithPosition = ClothingItem & { position?: string }
 
@@ -258,29 +257,21 @@ export default function OutfitBuilder({
   )
 
   const handleSave = async () => {
-    // Reset error state
-    setError(null)
-
-    // Validate outfit name
     if (!outfitName.trim()) {
-      setError('Please give your outfit a name')
-      return
+      setError('Outfit name is required.');
+      return;
     }
-
-    // Check if at least one item is added
-    const hasMainItem = Object.values(slots).some(item => item !== null)
-    if (!hasMainItem) {
-      setError('Add at least one clothing item to your outfit')
-      return
-    }
-
-    // If validation passes, call onSave with the outfit name
+    setError(null); // Clear previous errors
     try {
-      await onSave(outfitName.trim())
+      await onSave(outfitName); // Call the parent's save function
+      // Optionally show success feedback here if needed
     } catch (err) {
-      setError('Failed to save outfit. Please try again.')
+      // The parent's handleSave already sets the error state in CreateOutfitPage
+      // but we might want a local error state for the builder too.
+      setError(err instanceof Error ? err.message : 'Failed to save outfit');
     }
-  }
+    // isSaving is set by the parent component
+  };
 
   const filterItemsBySlot = (item: ClothingItem) => {
     if (selectedSlot === 'headwear') return item.category === 'headwear'
@@ -304,36 +295,54 @@ export default function OutfitBuilder({
 
   return (
     <div 
-      ref={dropRef as any}
-      className="h-full flex flex-col"
+      ref={isMobile ? undefined : dropRef as any} // Only enable drop on desktop
+      className="flex flex-col h-full p-3 sm:p-4 bg-card rounded-xl border-2 border-border"
       onMouseLeave={() => setHoveredSlot(null)}
     >
-      {/* Header with name and total */}
-      <div className="flex flex-col gap-3 p-3 border-b border-border">
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            value={outfitName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOutfitName(e.target.value)}
-            placeholder="Enter outfit name..."
-            className="text-lg font-display font-bold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none transition-colors flex-1 placeholder:text-muted-foreground"
-          />
+      {/* Header: Name, Price, Save (NO Download) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
+        <input
+          type="text"
+          value={outfitName}
+          onChange={(e) => setOutfitName(e.target.value)}
+          placeholder="Enter outfit name..."
+          className="text-lg font-semibold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none focus:ring-0 placeholder-muted-foreground w-full sm:w-auto"
+        />
+        <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center gap-1.5 text-lg">
+            <span>{formatPrice(totalCost, currency)}</span>
+          </div>
           <button
             onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center text-sm gap-2 px-3 py-1.5 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors disabled:opacity-50"
+            disabled={isSaving || !outfitName.trim()}
+            className={cn(
+              "btn btn-primary h-8 px-3 flex items-center gap-1.5",
+              isSaving && "opacity-75 cursor-not-allowed"
+            )}
           >
-            <Save className="w-4 h-4" />
-            <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save'}</span>
+            {isSaving ? (
+              <>
+                <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save
+              </>
+            )}
           </button>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Total Cost:</span>
-          <span className="font-semibold">{formatPrice(totalCost, currency)}</span>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      {/* Error display */}
+      {error && <p className="text-sm text-red-500 mb-2">Error: {error}</p>}
+      
+      {/* Builder Area */}
+      <div 
+        className="flex-1 overflow-y-auto"
+        onMouseLeave={() => setHoveredSlot(null)}
+      >
         {/* Mobile Outfit Preview */}
         <div className="sm:hidden p-3 bg-background-soft border-b border-border">
           <div className="aspect-[3/4] relative rounded-lg overflow-hidden border border-border">
@@ -667,12 +676,6 @@ export default function OutfitBuilder({
           </div>
         </SheetContent>
       </Sheet>
-
-      {error && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center z-50">
-          {error}
-        </div>
-      )}
     </div>
   )
 } 

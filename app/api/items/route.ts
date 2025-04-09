@@ -166,15 +166,19 @@ export async function GET(request: NextRequest) {
           ],
         }),
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        brand: true,
+        price: true,
+        category: true,
+        isOwned: true,
+        purchaseUrl: true,
         images: {
-          include: {
-            colors: true,
-          },
+          select: { url: true },
+          orderBy: { isPrimary: 'desc' },
+          take: 1,
         },
-        tags: true,
-        seasons: true,
-        occasions: true,
       },
       orderBy: {
         createdAt: 'desc',

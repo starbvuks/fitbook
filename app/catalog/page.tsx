@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Plus, Filter, Search, LayoutGrid, LayoutList, Grid3X3 } from 'lucide-react'
 import type { ClothingItem, ClothingCategory, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import ItemCard from '@/app/components/ItemCard'
-import LoadingSpinner from '@/app/components/LoadingSpinner'
+import SkeletonCard from '@/app/components/SkeletonCard'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -42,6 +42,18 @@ const viewModeConfig = {
 
 const SEASONS: SeasonName[] = ['spring', 'summer', 'fall', 'winter']
 const OCCASIONS: OccasionName[] = ['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding']
+
+function CatalogSkeleton({ viewMode }: { viewMode: ViewMode }) {
+  const count = viewMode === 'large' ? 8 : viewMode === 'small' ? 12 : 5;
+  const gridCols = viewModeConfig[viewMode].gridCols;
+  return (
+    <div className={`grid gap-3 ${gridCols}`}>
+      {Array.from({ length: count }).map((_, index) => (
+        <SkeletonCard key={index} viewMode={viewMode} />
+      ))}
+    </div>
+  );
+}
 
 export default function CatalogPage() {
   const [items, setItems] = useState<ClothingItem[]>([])
@@ -83,6 +95,7 @@ export default function CatalogPage() {
   }, [])
 
   useEffect(() => {
+    let isMounted = true;
     const fetchItems = async () => {
       setLoading(true)
       setError(null)
@@ -112,17 +125,27 @@ export default function CatalogPage() {
         }
 
         const data = await response.json()
-        setItems(data)
+        if (isMounted) {
+          setItems(data)
+        }
       } catch (error) {
-        console.error('Error fetching items:', error)
-        setError('Failed to load items. Please try again.')
+        if (isMounted) {
+          console.error('Error fetching items:', error)
+          setError('Failed to load items. Please try again.')
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     const timeoutId = setTimeout(fetchItems, 300)
-    return () => clearTimeout(timeoutId)
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId)
+    }
   }, [selectedCategory, searchQuery, ownershipFilter, minPrice, maxPrice])
 
   const handleToggleOwnership = async (itemId: string, isOwned: boolean) => {
@@ -298,25 +321,19 @@ export default function CatalogPage() {
         <div className="h-px bg-border mb-6" />
 
         {loading ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <LoadingSpinner />
-          </div>
+          <CatalogSkeleton viewMode={viewMode} />
         ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-foreground-soft">{error}</p>
-          </div>
-        ) : items.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-foreground-soft mb-4">No items found</p>
-            <Link
-              href="/catalog/add"
-              className="btn btn-primary py-2 px-4 rounded-full"
+          <div className="bg-card rounded-xl border border-border p-8 text-center">
+            <p className="text-destructive mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn btn-primary"
             >
-              Add Your First Item
-            </Link>
+              Try Again
+            </button>
           </div>
-        ) : (
-          <div className={`grid gap-4 ${viewModeConfig[viewMode].gridCols}`}>
+        ) : items.length > 0 ? (
+          <div className={`grid gap-3 ${viewModeConfig[viewMode].gridCols}`}>
             {filteredItems.map((item) => (
               <div
                 key={item.id}
@@ -331,6 +348,22 @@ export default function CatalogPage() {
                 />
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
+            <h3 className="text-lg font-medium mb-2">No items found</h3>
+            <p className="text-muted-foreground mb-6">
+              {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice
+                ? "Try adjusting your filters"
+                : "Start adding items to your catalog"}
+            </p>
+            <Link
+              href="/catalog/add"
+              className="btn btn-primary inline-flex"
+            >
+              <Plus className="w-4 h-4 mr-1.5" />
+              {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice ? 'Clear Filters' : 'Add Your First Item'}
+            </Link>
           </div>
         )}
       </div>

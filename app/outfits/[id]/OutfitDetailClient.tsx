@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useToast } from '@/components/ui/use-toast';
+import html2canvas from 'html2canvas';
 import {
   ArrowLeft,
   Edit,
   Trash2,
   Share2,
+  Download,
   User,
   Clock,
   ExternalLink,
@@ -103,6 +105,7 @@ export default function OutfitDetailClient({
   const [outfit] = useState(initialOutfit);
   const [currency] = useState<Currency>("INR");
   const { toast } = useToast();
+  const outfitDisplayRef = useRef<HTMLDivElement>(null);
 
   const handleShare = async () => {
     try {
@@ -138,6 +141,35 @@ export default function OutfitDetailClient({
     }
   };
 
+  const handleDownload = async () => {
+    if (!outfitDisplayRef.current) {
+        toast({ title: "Error", description: "Cannot find outfit element to capture.", variant: "destructive" });
+        return;
+    }
+
+    toast({ title: "Generating Image...", description: "Please wait a moment." });
+
+    try {
+      const canvas = await html2canvas(outfitDisplayRef.current, {
+        backgroundColor: '#111111',
+        useCORS: true,
+        scale: 2,
+        logging: false,
+      });
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      const filename = outfit.name.trim().replace(/\s+/g, '-').toLowerCase() || 'outfit';
+      link.download = `${filename}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error generating outfit image:', error);
+      toast({ title: "Error", description: "Could not generate outfit image.", variant: "destructive" });
+    }
+  };
+
   const canEditOutfit = session?.user?.id === outfit.userId;
 
   const formattedDate = new Date(outfit.createdAt).toLocaleDateString("en-US", {
@@ -146,7 +178,6 @@ export default function OutfitDetailClient({
     day: "numeric",
   });
 
-  // Order categories in the desired sequence
   const categoryOrder = [
     'headwear',
     'tops',
@@ -156,26 +187,20 @@ export default function OutfitDetailClient({
     'accessories',
   ];
 
-  // Sort the original outfit.items array (which contains OutfitItem)
-  // And limit to 6 items for display in the detail view if needed (optional, remove .slice() if not desired)
   const sortedOutfitItems = [...outfit.items]
     .sort((a, b) => {
-      // Access category through wardrobeItem
       const aCategory = a.wardrobeItem?.category || '';
       const bCategory = b.wardrobeItem?.category || '';
       const aIndex = categoryOrder.indexOf(aCategory);
       const bIndex = categoryOrder.indexOf(bCategory);
-      // Handle cases where category might not be found (put them at the end)
       if (aIndex === -1) return 1;
       if (bIndex === -1) return -1;
       return aIndex - bIndex;
     });
-    // .slice(0, 6); // Optional: keep slice if you only want to show a few items
 
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex items-start gap-3">
             <button
@@ -216,6 +241,14 @@ export default function OutfitDetailClient({
                   <Share2 className="w-4 h-4" />
                   <span className="text-sm">Share</span>
                 </button>
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-foreground-soft hover:text-accent-purple transition-colors"
+                  title="Download Outfit Image"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="text-sm">Download</span>
+                </button>
                 {canEditOutfit && (
                   <>
                     <button
@@ -242,13 +275,10 @@ export default function OutfitDetailClient({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 md:gap-8">
-          {/* Left Column - Outfit Display */}
           <div className="space-y-4 sm:space-y-6">
-            {/* Main outfit display */}
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="aspect-[4/3] relative">
                 <OutfitThumbnail
-                  // Map sorted OutfitItems to ClothingItems for the thumbnail
                   items={sortedOutfitItems
                     .map(item => item.wardrobeItem)
                     .filter((item): item is ClothingItem => item !== undefined)
@@ -258,11 +288,9 @@ export default function OutfitDetailClient({
               </div>
             </div>
 
-            {/* Individual items grid */}
-            <div className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
+            <div ref={outfitDisplayRef} className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
               <h2 className="text-xl font-semibold mb-4">Outfit Items</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {/* Map over the sorted OutfitItem array for details */}
                 {sortedOutfitItems.map((item) => (
                   <ItemDetails key={item.id} item={item} currency={currency} />
                 ))}
@@ -270,10 +298,7 @@ export default function OutfitDetailClient({
             </div>
           </div>
 
-          {/* Right Column - Outfit Details */}
           <div className="space-y-4">
-            {/* Price */}
-
             <div className="bg-card rounded-xl border border-border p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -285,7 +310,6 @@ export default function OutfitDetailClient({
               </div>
             </div>
 
-            {/* Seasons */}
             {outfit.seasons.length > 0 && (
               <div className="bg-card rounded-xl border border-border p-4">
                 <h3 className="text-sm font-medium mb-2">Seasons</h3>
@@ -302,7 +326,6 @@ export default function OutfitDetailClient({
               </div>
             )}
 
-            {/* Occasions */}
             {outfit.occasions.length > 0 && (
               <div className="bg-card rounded-xl border border-border p-4">
                 <h3 className="text-sm font-medium mb-2">Occasions</h3>
@@ -319,7 +342,6 @@ export default function OutfitDetailClient({
               </div>
             )}
 
-            {/* Tags */}
             {outfit.tags && outfit.tags.length > 0 && (
               <div className="bg-card rounded-xl border border-border p-4">
                 <h3 className="text-sm font-medium mb-2">Tags</h3>

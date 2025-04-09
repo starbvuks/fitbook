@@ -40,6 +40,7 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedSeasons, setSelectedSeasons] = useState<Season[]>([])
   const [selectedOccasions, setSelectedOccasions] = useState<Occasion[]>([])
+  const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -73,6 +74,7 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
         setDescription(outfitData.description || '')
         setSelectedSeasons(outfitData.seasons || [])
         setSelectedOccasions(outfitData.occasions || [])
+        setTags(outfitData.tags ? outfitData.tags.map(t => t.name) : [])
 
         // Organize items into slots and accessories
         const slots: Record<string, ClothingItem | null> = {
@@ -159,8 +161,9 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
           name: outfitName.trim(),
           description,
           items,
-          seasons: selectedSeasons,
-          occasions: selectedOccasions
+          seasons: selectedSeasons.map(s => s.name),
+          occasions: selectedOccasions.map(o => o.name),
+          tags: tags
         })
       })
 
@@ -208,7 +211,17 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
     return matchesSearch && matchesCategory
   })
 
-  if (error && !loading) {
+  // Use the loading state to show a full-page spinner
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-16 bg-background flex items-center justify-center">
+        <LoadingSpinner text="Loading Outfit Editor..." />
+      </div>
+    )
+  }
+
+  // Handle errors *after* loading is complete
+  if (error) {
     return (
       <div className="min-h-screen pt-16 bg-background">
         <div className="max-w-7xl mx-auto p-6">
@@ -302,10 +315,12 @@ export default function EditOutfitPage({ params }: EditOutfitPageProps) {
                 initialDescription={description}
                 initialSeasons={selectedSeasons}
                 initialOccasions={selectedOccasions}
+                initialTags={tags}
                 onNameChange={setName}
                 onDescriptionChange={setDescription}
                 onSeasonsChange={setSelectedSeasons}
                 onOccasionsChange={setSelectedOccasions}
+                onTagsChange={setTags}
                 availableItems={availableItems}
               />
             </div>

@@ -38,9 +38,35 @@ import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import OutfitCard from '@/app/components/OutfitCard'
 import { cn } from '@/lib/utils'
+import SkeletonCard from '@/app/components/SkeletonCard'
 
 const SEASONS: SeasonName[] = ['spring', 'summer', 'fall', 'winter']
 const OCCASIONS: OccasionName[] = ['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding']
+
+// Skeleton Loader Component for Outfits
+function OutfitsSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
+  const count = viewMode === 'grid' ? 8 : 5; 
+  const skeletonViewMode = viewMode === 'grid' ? 'large' : 'stack'; // Map to SkeletonCard viewMode
+
+  if (viewMode === 'list') {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: count }).map((_, index) => (
+          <SkeletonCard key={index} viewMode={skeletonViewMode} />
+        ))}
+      </div>
+    );
+  }
+
+  // Grid view
+  return (
+    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      {Array.from({ length: count }).map((_, index) => (
+        <SkeletonCard key={index} viewMode={skeletonViewMode} />
+      ))}
+    </div>
+  );
+}
 
 export default function OutfitsPage() {
   const { toast } = useToast()
@@ -84,9 +110,10 @@ export default function OutfitsPage() {
   }, [])
 
   useEffect(() => {
+    let isMounted = true; // Flag to prevent state update on unmounted component
     const fetchData = async () => {
       try {
-        setLoading(true)
+        setLoading(true) // Ensure loading is true at start of fetch
         setError(null)
 
         // Fetch all data in parallel
@@ -103,33 +130,52 @@ export default function OutfitsPage() {
 
         if (!outfitsResponse.ok) throw new Error('Failed to fetch outfits')
         const outfitsData = await outfitsResponse.json()
-        setOutfits(outfitsData.outfits || [])
+        if (isMounted) {
+          setOutfits(outfitsData.outfits || [])
+        }
 
         // Always fetch and set seasons and occasions regardless of outfits
         if (seasonsResponse.ok) {
           const seasonsData = await seasonsResponse.json()
-          setSeasons(seasonsData)
+          if (isMounted) {
+            setSeasons(seasonsData)
+          }
         } else {
           console.warn('Failed to fetch seasons')
-          setSeasons([])
+          if (isMounted) {
+            setSeasons([])
+          }
         }
 
         if (occasionsResponse.ok) {
           const occasionsData = await occasionsResponse.json()
-          setOccasions(occasionsData)
+          if (isMounted) {
+            setOccasions(occasionsData)
+          }
         } else {
           console.warn('Failed to fetch occasions')
-          setOccasions([])
+          if (isMounted) {
+            setOccasions([])
+          }
         }
       } catch (error) {
-        console.error('Error fetching data:', error)
-        setError(error instanceof Error ? error.message : 'An error occurred')
+        if (isMounted) {
+          console.error('Error fetching data:', error)
+          setError(error instanceof Error ? error.message : 'An error occurred')
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     fetchData()
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    }
   }, [])
 
   const filteredOutfits = outfits.filter(outfit => {
@@ -414,9 +460,7 @@ export default function OutfitsPage() {
 
         {/* Outfits Grid/List */}
         {loading ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <LoadingSpinner />
-          </div>
+          <OutfitsSkeleton viewMode={viewMode} />
         ) : error ? (
           <div className="text-center py-12">
             <p className="text-foreground-soft">{error}</p>
