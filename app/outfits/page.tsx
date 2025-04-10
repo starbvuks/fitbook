@@ -367,7 +367,7 @@ export default function OutfitsPage() {
   }
 
   return (
-    <div className="min-h-screen pt-16 bg-background">
+    <div className="min-h-screen pt-20 bg-background">
       <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="flex flex-col gap-4 mb-6">

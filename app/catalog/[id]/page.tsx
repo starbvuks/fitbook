@@ -29,16 +29,16 @@ import LoadingSpinner from '@/app/components/LoadingSpinner'
 import ImageUpload from '@/app/components/ImageUpload'
 import type { UploadResult } from '@/lib/images'
 
-const categories = ['tops', 'bottoms', 'outerwear', 'shoes', 'accessories'] as const
+const categories = ['headwear' ,'tops', 'bottoms', 'outerwear', 'shoes', 'accessories'] as const
 type Category = (typeof categories)[number]
 type CategoryMap = { [K in Category]: ClothingCategory }
 const categoryMap: CategoryMap = {
+  headwear: 'headwear'
   tops: 'tops',
   bottoms: 'bottoms',
   outerwear: 'outerwear',
   shoes: 'shoes',
   accessories: 'accessories',
-  headwear: 'headwear'
 }
 const conditions = [
   { value: 'new', label: 'New' },

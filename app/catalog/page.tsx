@@ -198,7 +198,7 @@ export default function CatalogPage() {
   })
 
   return (
-    <div className="min-h-screen pt-16 bg-background">
+    <div className="min-h-screen pt-20 bg-background">
       <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 mb-6">
           <div>
