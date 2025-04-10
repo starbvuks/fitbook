@@ -352,59 +352,7 @@ export default function DiscoverPage() {
                       className="w-full h-full"
                     />
                     
-                    {/* Hover overlay - Only visible on larger screens */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 hidden sm:flex flex-col justify-between p-4 group-hover:opacity-100 transition-opacity">
-                      <div className="flex justify-end space-x-1.5">
-                        {/* Save Button */}
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                onClick={(e) => handleToggleSave(outfit.id, e)}
-                                disabled={processingSave.has(outfit.id)}
-                                className="p-2 rounded-full bg-black/60 backdrop-blur-sm text-white hover:bg-black/80 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                              >
-                                {processingSave.has(outfit.id) ? (
-                                  <Loader2 className="h-5 w-5 animate-spin" />
-                                ) : outfit.hasSaved ? (
-                                  <BookmarkX className="h-5 w-5 text-blue-500" />
-                                ) : (
-                                  <BookmarkPlus className="h-5 w-5" />
-                                )}
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{outfit.hasSaved ? 'Unsave outfit' : 'Save outfit'}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      
-                      {/* User Info */}
-                      <div>
-                        <h3 className="text-white font-medium truncate">{outfit.name}</h3>
-                        {outfit.user && (
-                          <div className="flex items-center gap-2 mt-2">
-                            <div className="h-6 w-6 rounded-full bg-background overflow-hidden flex-shrink-0 border border-border">
-                              {outfit.user.image ? (
-                                <Image
-                                  src={outfit.user.image}
-                                  alt={outfit.user.name || 'User'}
-                                  width={24}
-                                  height={24}
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <User className="h-4 w-4 m-1 text-muted-foreground" />
-                              )}
-                            </div>
-                            <span className="text-white text-sm truncate">
-                              {outfit.user?.name || outfit.user?.username || 'Anonymous'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* Hover overlay - Only visible on larger screens */} */}
                   </div>
                 </Link>
                 
