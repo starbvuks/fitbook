@@ -13,8 +13,7 @@ import type {
   Image,
   Color,
   OutfitItem,
-  ImageType
-} from '@/app/models/types';
+} from '../../models/types';
 
 interface OutfitWithStats extends Outfit {
   stats: {
