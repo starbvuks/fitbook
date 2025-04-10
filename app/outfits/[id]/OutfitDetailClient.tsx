@@ -227,7 +227,7 @@ export default function OutfitDetailClient({
               onClick={() => router.back()}
               className="p-2 -ml-2 mt-1 rounded-lg hover:bg-accent-purple/20 transition-colors flex-shrink-0"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 hidden sm:block" />
             </button>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold">
@@ -252,10 +252,10 @@ export default function OutfitDetailClient({
                 </div>
                 </div>
 
-                <div className="flex flex-wrap justify-start sm:justify-end items-center gap-2 pl-9 sm:pl-0">
+                <div className="flex flex-wrap justify-start sm:justify-end items-center gap-1.5 sm:gap-2 mt-3 sm:mt-0">
                   <button
                     onClick={handleShare}
-                    className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
+                    className="btn btn-ghost border-2 h-8 px-3 flex items-center gap-1.5"
                     title="Copy share link"
                   >
                     <Share2 className="w-4 h-4" />
@@ -263,7 +263,7 @@ export default function OutfitDetailClient({
                   </button>
                   <button
                     onClick={handleDownload}
-                    className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
+                    className="btn btn-ghost border-2 h-8 px-2 flex items-center gap-1.5"
                     title="Download Outfit Image"
                   >
                     <Download className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function OutfitDetailClient({
                         onClick={() =>
                           router.push(`/outfits/${outfit.id}/edit`)
                         }
-                        className="btn btn-primary h-8 px-3 flex items-center gap-1.5"
+                        className="btn btn-primary h-8 px-2 flex items-center gap-1.5"
                         title="Edit Outfit"
                       >
                         <Edit className="w-4 h-4" />
@@ -283,7 +283,7 @@ export default function OutfitDetailClient({
                       </button>
                       <button
                         onClick={handleDelete}
-                        className="btn text-red-500 h-8 px-3 flex items-center gap-1.5"
+                        className="btn text-red-500 border border-red-500 h-8 px-2 flex items-center gap-1.5"
                         title="Delete Outfit"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -300,7 +300,7 @@ export default function OutfitDetailClient({
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 md:gap-8">
           <div className="space-y-4 sm:space-y-6">
             <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <div className="aspect-[4/3] relative">
+              <div className="sm:aspect-[4/3] relative">
                 <OutfitThumbnail
                   items={sortedOutfitItems
                     .map((item) => item.wardrobeItem)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -172,13 +172,13 @@ export default function EditOutfitClient({
     setAccessories(prev => prev.filter((_, i) => i !== index))
   }
 
-  const filteredItems = availableItems.filter(item => {
-    const matchesSearch = searchQuery === '' || 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  const filteredItems = useMemo(() => {
+    return availableItems.filter(item => {
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [availableItems, searchQuery, selectedCategory]);
 
   // No full page loading needed here as data is passed via props
   // Error handling specific to save operation is done within handleSave
@@ -187,25 +187,44 @@ export default function EditOutfitClient({
     <DndProvider backend={HTML5Backend}>
       <div className="min-h-screen pt-16 bg-background">
         <div className="max-w-7xl mx-auto p-3 sm:p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 sm:gap-6">
             {/* Left Column - Catalog - Hidden on Mobile */}
             <div className="hidden lg:block">
               <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-full">
                 <div className="p-3 sm:p-4 border-b border-border">
-                  <div className="relative mb-3">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                      type="text"
-                      placeholder="Search wardrobe..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
+                  <h2 className="text-lg font-semibold mb-3">Available Items</h2>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input
+                          type="text"
+                          placeholder="Search wardrobe..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="input pl-9 h-9 text-sm w-full"
+                        />
+                      </div>
+                      <div className="w-1/3">
+                        <select
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className="select h-9 text-sm w-full"
+                        >
+                          <option value="all">All Categories</option>
+                          <option value="headwear">Headwear</option>
+                          <option value="tops">Tops</option>
+                          <option value="outerwear">Outerwear</option>
+                          <option value="bottoms">Bottoms</option>
+                          <option value="shoes">Shoes</option>
+                          <option value="accessories">Accessories</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                  {/* Add category filter dropdown if needed */}
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 sm:p-4">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
                     {filteredItems.map(item => (
                       <DraggableItem key={item.id} item={item} currency={currency} />
                     ))}
@@ -215,31 +234,39 @@ export default function EditOutfitClient({
             </div>
 
             {/* Right Column - Builder */}
-            <OutfitBuilder
-              initialName={name}
-              onNameChange={setName}
-              slots={outfitSlots}
-              accessories={accessories}
-              initialSeasons={selectedSeasons}
-              initialOccasions={selectedOccasions}
-              initialTags={tags}
-              onAddItem={handleAddItem}
-              onRemoveItem={handleRemoveItem}
-              onAddAccessory={handleAddAccessory}
-              onRemoveAccessory={handleRemoveAccessory}
-              onSeasonsChange={setSelectedSeasons}
-              onOccasionsChange={setSelectedOccasions}
-              onTagsChange={setTags}
-              onSave={handleSave}
-              isSaving={saving}
-              currency={currency}
-              initialDescription={description}
-              onDescriptionChange={setDescription}
-              initialIsPublic={isPublic}
-              onIsPublicChange={setIsPublic}
-              availableItems={initialAvailableItems}
-            />
+            <div className="bg-card rounded-xl border border-border shadow-soft h-[calc(100vh-8rem)] sm:h-[calc(100vh-6rem)]">
+              <OutfitBuilder
+                initialName={name}
+                onNameChange={setName}
+                slots={outfitSlots}
+                accessories={accessories}
+                initialSeasons={selectedSeasons}
+                initialOccasions={selectedOccasions}
+                initialTags={tags}
+                onAddItem={handleAddItem}
+                onRemoveItem={handleRemoveItem}
+                onAddAccessory={handleAddAccessory}
+                onRemoveAccessory={handleRemoveAccessory}
+                onSeasonsChange={setSelectedSeasons}
+                onOccasionsChange={setSelectedOccasions}
+                onTagsChange={setTags}
+                onSave={handleSave}
+                isSaving={saving}
+                currency={currency}
+                initialDescription={description}
+                onDescriptionChange={setDescription}
+                initialIsPublic={isPublic}
+                onIsPublicChange={setIsPublic}
+                availableItems={initialAvailableItems}
+              />
+            </div>
           </div>
+
+          {error && saving && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center">
+              {error}
+            </div>
+          )}
         </div>
       </div>
     </DndProvider>

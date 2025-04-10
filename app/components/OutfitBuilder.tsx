@@ -89,8 +89,10 @@ export default function OutfitBuilder({
 
   // Update local name when initialName changes
   useEffect(() => {
-    setOutfitName(initialName)
-  }, [initialName])
+    if (initialName !== outfitName) {
+      setOutfitName(initialName);
+    }
+  }, [initialName]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -317,9 +319,9 @@ export default function OutfitBuilder({
           value={outfitName}
           onChange={(e) => setOutfitName(e.target.value)}
           placeholder="Enter outfit name..."
-          className="text-lg font-semibold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none focus:ring-0 placeholder-muted-foreground w-full sm:w-auto"
+          className="text-lg font-semibold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none focus:ring-0 placeholder-muted-foreground w-full sm:w-[70%]"
         />
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2 mt-3 sm:mt-0">
           <div className="flex items-center gap-1.5 text-lg">
             <span>{formatPrice(totalCost, currency)}</span>
           </div>

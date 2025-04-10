@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Menu, X, Home, ShoppingBag, Shirt, Book, Compass, User, LogOut } from 'lucide-react'
+import { Plus, Menu, X, Home, ShoppingBag, Shirt, Search, Compass, User, LogOut } from 'lucide-react'
 
 export default function Navigation() {
   const { data: session, status } = useSession()
@@ -276,6 +276,14 @@ export default function Navigation() {
                 >
                   <Shirt className="w-5 h-5" />
                   <span className="text-[15px]">My Outfits</span>
+                </Link>
+                <Link 
+                  href="/discover"
+                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <Compass className="w-5 h-5" />
+                  <span className="text-[15px]">Discover</span>
                 </Link>
                 <Link 
                   href="/outfits/create"

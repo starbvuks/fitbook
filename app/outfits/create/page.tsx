@@ -172,38 +172,39 @@ export default function CreateOutfitPage() {
     <DndProvider backend={HTML5Backend}>
       <div className="min-h-screen pt-16 bg-background">
         <div className="max-w-7xl mx-auto p-3 sm:p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 sm:gap-6">
             {/* Left Column - Catalog - Hidden on Mobile */}
             <div className="hidden lg:block">
               <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-full">
                 <div className="p-3 sm:p-4 border-b border-border">
                   <h2 className="text-lg font-semibold mb-3">Available Items</h2>
                   <div className="space-y-3">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <input
-                        type="text"
-                        placeholder="Search items..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="input pl-9 h-9 text-sm w-full"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Filter className="w-4 h-4 text-muted-foreground" />
-                      <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="select h-9 text-sm flex-1"
-                      >
-                        <option value="all">All Categories</option>
-                        <option value="headwear">Headwear</option>
-                        <option value="tops">Tops</option>
-                        <option value="outerwear">Outerwear</option>
-                        <option value="bottoms">Bottoms</option>
-                        <option value="shoes">Shoes</option>
-                        <option value="accessories">Accessories</option>
-                      </select>
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input
+                          type="text"
+                          placeholder="Search items..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="input pl-9 h-9 text-sm w-full"
+                        />
+                      </div>
+                      <div className="w-1/3">
+                        <select
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className="select h-9 text-sm w-full"
+                        >
+                          <option value="all">All Categories</option>
+                          <option value="headwear">Headwear</option>
+                          <option value="tops">Tops</option>
+                          <option value="outerwear">Outerwear</option>
+                          <option value="bottoms">Bottoms</option>
+                          <option value="shoes">Shoes</option>
+                          <option value="accessories">Accessories</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -218,7 +219,7 @@ export default function CreateOutfitPage() {
                       No items found
                     </div>
                   ) : (
-                    <div className="grid grid-cols-4 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
                       {filteredItems.map(item => (
                         <DraggableItem key={item.id} item={item} currency={currency} />
                       ))}

@@ -45,9 +45,22 @@ interface PublicOutfit extends Omit<Outfit, 'user'> { // Omit the original 'user
 // Skeleton Loader Component for Discover
 function DiscoverSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {Array.from({ length: 12 }).map((_, index) => ( // Show 12 skeletons initially
-        <SkeletonCard key={index} viewMode="large" />
+    <div className="mt-12 sm:mt-0 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-4">
+      {Array.from({ length: 10 }).map((_, index) => ( // Show 10 skeletons initially
+        <div key={index} className="rounded-xl border border-border overflow-hidden animate-pulse bg-neutral-800/50">
+          <div className="aspect-[1/1] sm:aspect-[3/4] bg-background-soft" />
+          <div className="p-2 sm:p-3 space-y-2">
+            <div className="h-3 sm:h-4 bg-background-soft rounded w-4/5" />
+            <div className="flex items-center gap-1.5">
+              <div className="h-4 w-4 rounded-full bg-background-soft" />
+              <div className="h-2.5 bg-background-soft rounded w-1/2" />
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <div className="h-2.5 bg-background-soft rounded w-1/4" />
+              <div className="h-3 w-8 bg-background-soft rounded-full" />
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -286,27 +299,27 @@ export default function DiscoverPage() {
   }
 
   if (isNavigating) {
-    //... Navigation loading ...
+    return <LoadingOverlay />;
   }
 
   return (
-    <div className="min-h-screen pt-24 bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen pt-20 sm:pt-24 bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-4 lg:px-8">
         {/* Header remains the same */}
-        <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-col gap-2 sm:gap-4 mb-3 sm:mb-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl sm:text-3xl font-display font-bold">Discover</h1>
-            <div className="flex items-center gap-4">
-              <div className="relative rounded-full border border-border bg-background px-3 py-1.5 text-sm flex items-center w-[250px]">
-                <Search className="h-4 w-4 text-muted-foreground mr-2" />
+            <h1 className="text-2xl md:text-3xl font-display font-bold">Discover</h1>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="relative rounded-full border border-border bg-background px-2 sm:px-3 py-1.5 text-sm flex items-center w-[220px] sm:w-[250px]">
+                <Search className="h-4 w-4 text-muted-foreground mr-1.5 sm:mr-2" />
                 <input 
                   type="text" 
-                  placeholder="Search outfits or users..." 
-                  className="bg-transparent outline-none flex-1"
+                  placeholder="Search outfits..." 
+                  className="bg-transparent outline-none flex-1 text-xs sm:text-sm"
                   value={searchQuery}
                   onChange={handleSearchChange}
                  />
-                 {isSearching && <Loader2 className="h-4 w-4 text-muted-foreground animate-spin ml-2" />} 
+                 {isSearching && <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground animate-spin ml-1.5 sm:ml-2" />} 
               </div>
             </div>
           </div>
@@ -320,18 +333,18 @@ export default function DiscoverPage() {
         ) : outfits.length === 0 ? (
           <div className="text-center py-12"><p className="text-muted-foreground mb-4">{searchQuery ? 'No outfits found for your search.' : 'No public outfits found.'}</p></div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="mt-12 sm:mt-0 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 ">
             {outfits.map((outfit) => (
               <div 
                 key={outfit.id} 
-                className="group relative overflow-hidden rounded-xl border border-border bg-background transition-all hover:border-primary"
+                className="group relative overflow-hidden rounded-xl border border-border bg-background transition-all hover:shadow-md hover:border-primary"
               >
                 <Link 
                   href={`/outfits/${outfit.id}`} 
-                  className="block"
+                  className="block outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   onClick={() => handleOutfitClick(outfit.id)}
                 >
-                  <div className="aspect-[3/4] sm:aspect-auto relative overflow-hidden">
+                  <div className="aspect-[1/1] sm:aspect-[3/4] relative overflow-hidden">
                     <OutfitThumbnail 
                       items={outfit.items
                         .map(item => item.wardrobeItem)
@@ -339,8 +352,8 @@ export default function DiscoverPage() {
                       className="w-full h-full"
                     />
                     
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-4">
+                    {/* Hover overlay - Only visible on larger screens */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 hidden sm:flex flex-col justify-between p-4 group-hover:opacity-100 transition-opacity">
                       <div className="flex justify-end space-x-1.5">
                         {/* Save Button */}
                         <TooltipProvider>
@@ -348,7 +361,7 @@ export default function DiscoverPage() {
                             <TooltipTrigger asChild>
                               <button 
                                 onClick={(e) => handleToggleSave(outfit.id, e)}
-                                disabled={processingSave.has(outfit.id)} // Disable while processing
+                                disabled={processingSave.has(outfit.id)}
                                 className="p-2 rounded-full bg-black/60 backdrop-blur-sm text-white hover:bg-black/80 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               >
                                 {processingSave.has(outfit.id) ? (
@@ -395,52 +408,97 @@ export default function DiscoverPage() {
                   </div>
                 </Link>
                 
-                {/* Bottom info bar */}
-                <div className="p-3 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium truncate text-sm">{outfit.name}</h3>
-                    <p className="text-muted-foreground text-xs">
+                {/* Bottom info bar - Enhanced with more content */}
+                <div className="p-2 sm:p-3 space-y-1">
+                  <h3 className="font-medium truncate text-xs sm:text-sm">{outfit.name}</h3>
+                  
+                  {/* Creator info */}
+                  {outfit.user && (
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-4 w-4 rounded-full bg-background overflow-hidden flex-shrink-0 border border-border">
+                        {outfit.user.image ? (
+                          <Image
+                            src={outfit.user.image}
+                            alt={outfit.user.name || 'User'}
+                            width={16}
+                            height={16}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-2.5 w-2.5 m-0.5 text-muted-foreground" />
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground truncate">
+                        {outfit.user?.name || outfit.user?.username || 'Anonymous'}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Price and actions row */}
+                  <div className="flex items-center justify-between pt-1">
+                    <p className="text-xs font-medium">
                       {formatPrice(outfit.totalCost, currency)}
                     </p>
+                    
+                    {/* Action buttons container */}
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <button 
+                        onClick={(e) => handleToggleSave(outfit.id, e)}
+                        disabled={processingSave.has(outfit.id)}
+                        className="p-2 rounded-full hover:bg-background-soft transition-colors"
+                        aria-label={outfit.hasSaved ? "Unsave outfit" : "Save outfit"}
+                      >
+                        {processingSave.has(outfit.id) ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : outfit.hasSaved ? (
+                          <BookmarkX className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <BookmarkPlus className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                      
+                      {/* Upvote Button */}
+                      <button 
+                        onClick={(e) => handleToggleUpvote(outfit.id, e)}
+                        disabled={processingUpvote.has(outfit.id)}
+                        className={cn(
+                          "flex items-center gap-1 p-2 rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none",
+                          outfit.hasUpvoted
+                            ? "text-primary hover:bg-primary/10"
+                            : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                        )}
+                        aria-label="Toggle upvote outfit"
+                      >
+                        {processingUpvote.has(outfit.id) ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <ArrowUp className={cn(
+                            "h-4 w-4 transition-all",
+                            outfit.hasUpvoted ? "fill-current" : ""
+                          )} />
+                        )}
+                        <span className="text-xs font-medium tabular-nums">{outfit.upvoteCount}</span>
+                      </button>
+                    </div>
                   </div>
-                  
-                  {/* Upvote Button */}
-                  <button 
-                    onClick={(e) => handleToggleUpvote(outfit.id, e)}
-                    disabled={processingUpvote.has(outfit.id)} // Disable while processing
-                    className={cn(
-                      "flex items-center gap-1.5 p-1.5 rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none",
-                      outfit.hasUpvoted
-                        ? "text-primary hover:bg-primary/10"
-                        : "text-muted-foreground hover:text-primary hover:bg-primary/10"
-                    )}
-                    aria-label="Toggle upvote outfit"
-                  >
-                    {processingUpvote.has(outfit.id) ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ArrowUp className={cn(
-                        "h-4 w-4 transition-all",
-                        outfit.hasUpvoted ? "fill-current" : ""
-                      )} />
-                    )}
-                    <span className="text-xs font-medium tabular-nums">{outfit.upvoteCount}</span>
-                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
         
-        {/* Load more trigger remains the same */}
+        {/* Load more trigger - optimized for mobile */}
         {nextCursor && !isSearching && (
-          <div ref={loadMoreRef} className="py-8 flex justify-center">
+          <div ref={loadMoreRef} className="py-4 sm:py-8 flex justify-center">
             {loadingMore ? (
               <LoadingSpinner />
             ) : (
-              <button onClick={() => fetchOutfits(searchQuery, true)} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+              <button 
+                onClick={() => fetchOutfits(searchQuery, true)} 
+                className="flex items-center gap-1.5 text-sm px-3 py-1.5 border border-border rounded-full text-muted-foreground hover:text-foreground hover:bg-background-soft transition-colors"
+              >
                 <span>Load more</span>
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -448,4 +506,13 @@ export default function DiscoverPage() {
       </div>
     </div>
   )
+}
+
+// Add a loading overlay component for navigation
+function LoadingOverlay() {
+  return (
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <LoadingSpinner size="lg" text="Loading outfit..." />
+    </div>
+  );
 }

@@ -58,7 +58,7 @@ export default function OutfitThumbnail({ items, className = '' }: OutfitThumbna
 
   return (
     <div className={cn(
-      `relative aspect-square overflow-hidden rounded-lg`,
+      `relative aspect-square overflow-hidden sm:rounded-lg`,
       className
     )}>
       <div className={cn(
