@@ -351,8 +351,7 @@ export default function DiscoverPage() {
                         .filter((item): item is ClothingItem => Boolean(item))}
                       className="w-full h-full"
                     />
-                    
-                    {/* Hover overlay - Only visible on larger screens */} */}
+                
                   </div>
                 </Link>
                 
