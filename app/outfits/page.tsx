@@ -185,6 +185,9 @@ export default function OutfitsPage() {
     if (selectedOccasions.length > 0 && !outfit.occasions.some(occasion => selectedOccasions.includes(occasion.name))) {
       return false
     }
+    if (searchQuery && !outfit.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false
+    }
     return true
   }).sort((a, b) => {
     switch (sortBy) {
@@ -497,11 +500,8 @@ export default function OutfitsPage() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
                       className="absolute top-2 right-2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+                      aria-label="Delete outfit"
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
