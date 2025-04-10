@@ -48,12 +48,12 @@ function FormSection({ title, children }: FormSectionProps) {
 }
 
 const categories: ClothingCategory[] = [
+  'headwear',
+  'outerwear',
   'tops',
   'bottoms',
-  'outerwear',
   'shoes',
-  'accessories',
-  'headwear'
+  'accessories'
 ]
 
 const conditions = [

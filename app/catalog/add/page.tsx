@@ -7,12 +7,12 @@ import type { ClothingItem, ClothingCategory } from '@/app/models/types'
 import AddItemForm from '@/app/components/AddItemForm'
 
 const categories: ClothingCategory[] = [
+  'headwear',
+  'outerwear',
   'tops',
   'bottoms',
-  'outerwear',
   'shoes',
-  'accessories',
-  'headwear'
+  'accessories'
 ]
 
 export default function AddItemPage() {
@@ -62,7 +62,7 @@ export default function AddItemPage() {
           <AddItemForm
             onSubmit={handleSubmit}
             onCancel={() => router.push('/catalog')}
-            category="tops"
+            category="headwear"
           />
         </div>
       </div>

@@ -33,7 +33,7 @@ export default function OutfitCard({
     .map(item => item.wardrobeItem)
     .filter((item): item is ClothingItem => item !== undefined)
     .sort((a, b) => {
-      const categoryOrder = ['tops', 'bottoms', 'outerwear', 'shoes', 'accessories']
+      const categoryOrder = ['headwear', 'outerwear', 'tops', 'bottoms', 'shoes', 'accessories']
       return categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category)
     })
     .slice(0, 6)

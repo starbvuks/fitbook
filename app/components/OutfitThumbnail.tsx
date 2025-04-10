@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils' // Assuming cn is available
 // Define the desired display order for categories
 const CATEGORY_ORDER: ClothingCategory[] = [
   'headwear',
-  'tops',
   'outerwear',
+  'tops',
   'bottoms',
   'shoes',
   'accessories'

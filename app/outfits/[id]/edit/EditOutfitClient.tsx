@@ -213,8 +213,8 @@ export default function EditOutfitClient({
                         >
                           <option value="all">All Categories</option>
                           <option value="headwear">Headwear</option>
-                          <option value="tops">Tops</option>
                           <option value="outerwear">Outerwear</option>
+                          <option value="tops">Tops</option>
                           <option value="bottoms">Bottoms</option>
                           <option value="shoes">Shoes</option>
                           <option value="accessories">Accessories</option>

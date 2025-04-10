@@ -11,12 +11,12 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 const categories: ClothingCategory[] = [
+  'headwear',
+  'outerwear',
   'tops',
   'bottoms',
-  'outerwear',
   'shoes',
-  'accessories',
-  'headwear'
+  'accessories'
 ]
 
 type ViewMode = 'large' | 'small' | 'stack'

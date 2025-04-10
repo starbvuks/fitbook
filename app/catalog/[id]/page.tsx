@@ -29,7 +29,7 @@ import LoadingSpinner from '@/app/components/LoadingSpinner'
 import ImageUpload from '@/app/components/ImageUpload'
 import type { UploadResult } from '@/lib/images'
 
-const categories = ['headwear' ,'tops', 'bottoms', 'outerwear', 'shoes', 'accessories'] as const
+const categories = ['headwear', 'outerwear', 'tops', 'bottoms', 'shoes', 'accessories'] as const
 type Category = (typeof categories)[number]
 type CategoryMap = { [K in Category]: ClothingCategory }
 const categoryMap: CategoryMap = {

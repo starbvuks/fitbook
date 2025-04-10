@@ -201,8 +201,8 @@ export default function OutfitDetailClient({
 
   const categoryOrder = [
     "headwear",
-    "tops",
     "outerwear",
+    "tops",
     "bottoms",
     "shoes",
     "accessories",

@@ -138,7 +138,7 @@ export default function OutfitBuilder({
       } else {
         const slot = item.category === 'tops' ? 'top' : 
                     item.category === 'bottoms' ? 'bottom' : 
-                    (item as ClothingItemWithPosition).position === 'headwear' ? 'headwear' :
+                    item.category === 'headwear' ? 'headwear' :
                     item.category === 'outerwear' ? 'outerwear' :
                     item.category === 'shoes' ? 'shoes' : null
         setHoveredSlot(slot)
@@ -152,7 +152,7 @@ export default function OutfitBuilder({
       } else {
         const slot = item.category === 'tops' ? 'top' : 
                     item.category === 'bottoms' ? 'bottom' : 
-                    item.position === 'headwear' ? 'headwear' :
+                    item.category === 'headwear' ? 'headwear' :
                     item.category === 'outerwear' ? 'outerwear' :
                     item.category === 'shoes' ? 'shoes' : null
         if (slot) onAddItem(item, slot)
@@ -181,10 +181,13 @@ export default function OutfitBuilder({
 
   const handleItemSelect = (item: ClothingItem) => {
     if (!selectedSlot) return
-    if (selectedSlot === 'headwear' && item.category === 'accessories') {
-      setError('Accessories cannot be added as headwear')
+    
+    // Only accessories should have this restriction, not headwear
+    if (selectedSlot === 'accessory' && item.category !== 'accessories') {
+      setError('Only accessories can be added as accessories')
       return
     }
+    
     if (selectedSlot === 'accessory') {
       onAddAccessory({ ...item, position: 'accessory' })
     } else {
@@ -290,7 +293,6 @@ export default function OutfitBuilder({
     if (selectedSlot === 'headwear') return item.category === 'headwear'
     if (selectedSlot === 'top') return item.category === 'tops'
     if (selectedSlot === 'bottom') return item.category === 'bottoms'
-    // if (selectedSlot === 'dress') return item.category === 'dresses'
     if (selectedSlot === 'outerwear') return item.category === 'outerwear'
     if (selectedSlot === 'shoes') return item.category === 'shoes'
     if (selectedSlot === 'accessory') return item.category === 'accessories'
@@ -299,10 +301,9 @@ export default function OutfitBuilder({
 
   const OUTFIT_SLOTS: OutfitSlot[] = [
     'headwear',
+    'outerwear',
     'top',
     'bottom',
-    // 'dress',
-    'outerwear',
     'shoes',
   ]
 

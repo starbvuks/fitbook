@@ -54,13 +54,14 @@ export async function GET(request: NextRequest, { params }: any) {
 
 // PATCH /api/outfits/[id]
 export async function PATCH(request: NextRequest, { params }: any) {
+  const outfitId = params.id;
+  
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const outfitId = params.id
     const userId = session.user.id
 
     const outfit = await prisma.outfit.findUnique({
@@ -108,6 +109,7 @@ export async function PATCH(request: NextRequest, { params }: any) {
       }
     }
 
+    // Increase transaction timeout to 30 seconds
     const updatedOutfit = await prisma.$transaction(async (tx: any) => {
       let newTotalCost = 0;
 
@@ -150,12 +152,14 @@ export async function PATCH(request: NextRequest, { params }: any) {
           occasions: true
         }
       });
+    }, {
+      timeout: 30000 // Increase timeout to 30 seconds
     });
 
     return NextResponse.json(updatedOutfit)
 
   } catch (error: unknown) { 
-    console.error(`Error updating outfit ${params.id}:`, error)
+    console.error(`Error updating outfit ${outfitId}:`, error instanceof Error ? error.message : 'Unknown error')
     
     if (error instanceof z.ZodError) {
        const formattedErrors = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
