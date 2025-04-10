@@ -37,7 +37,8 @@ const categoryMap: CategoryMap = {
   bottoms: 'bottoms',
   outerwear: 'outerwear',
   shoes: 'shoes',
-  accessories: 'accessories'
+  accessories: 'accessories',
+  headwear: 'headwear'
 }
 const conditions = [
   { value: 'new', label: 'New' },
