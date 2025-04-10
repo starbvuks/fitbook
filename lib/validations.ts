@@ -27,7 +27,7 @@ export const imageSchema = z.object({
 
 export const wardrobeItemSchema = z.object({
   name: z.string().min(1),
-  category: z.enum(['tops', 'bottoms', 'outerwear', 'shoes', 'accessories']),
+  category: z.enum(['tops', 'bottoms', 'outerwear', 'shoes', 'accessories', 'headwear']),
   brand: z.string().optional(),
   price: z.number().min(0),
   size: z.string().optional(),
