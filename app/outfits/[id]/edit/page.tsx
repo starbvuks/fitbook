@@ -2,13 +2,12 @@ import { notFound } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import EditOutfitClient from './EditOutfitClient' // Assume client logic is moved here
-import type { Outfit, ClothingItem, Season, Occasion } from '@/app/models/types'
+import EditOutfitClient from '@/app/outfits/[id]/edit/EditOutfitClient' // Try absolute path
+import type { Outfit, ClothingItem, Season, Occasion, Currency, ClothingCategory } from '@/app/models/types'
 
 interface EditOutfitPageProps {
-  params: {
-    id: string
-  }
+  params: any; // Use any for params
+  // You might also need searchParams: any if you use them
 }
 
 // Fetch data on the server
@@ -25,10 +24,23 @@ async function getOutfitData(outfitId: string) {
     prisma.outfit.findUnique({
       where: { id: outfitId },
       include: {
-        items: { include: { wardrobeItem: { include: { images: true } } } },
+        items: { 
+          include: { 
+            wardrobeItem: { 
+              include: { 
+                images: { include: { colors: true } },
+                colors: true, 
+                tags: true, 
+                seasons: true, 
+                occasions: true 
+              } 
+            } 
+          } 
+        },
         tags: true,
         seasons: true,
-        occasions: true
+        occasions: true,
+        user: true
       }
     }),
     prisma.user.findUnique({ 
@@ -37,7 +49,13 @@ async function getOutfitData(outfitId: string) {
     }),
     prisma.wardrobeItem.findMany({ 
         where: { userId },
-        include: { images: true, colors: true, tags: true, seasons: true, occasions: true }
+        include: { 
+          images: { include: { colors: true } },
+          colors: true, 
+          tags: true, 
+          seasons: true, 
+          occasions: true 
+        }
     })
   ])
 
@@ -53,14 +71,21 @@ async function getOutfitData(outfitId: string) {
   return {
     error: null,
     status: 200,
-    outfit: outfit as Outfit, // Cast to ensure type conformity
+    outfit: outfit as Outfit,
     items: availableItems as ClothingItem[],
     profile: profile
   };
 }
 
 export default async function EditOutfitPage({ params }: EditOutfitPageProps) {
-  const { id } = params
+  const id = params?.id; // Safely access id
+  if (!id) {
+    return (
+       <div className="min-h-screen pt-16 flex items-center justify-center text-red-500">
+         <p>Error: Missing Outfit ID.</p>
+       </div>
+    );
+  }
   const { error, status, outfit, items, profile } = await getOutfitData(id);
 
   if (error) {
@@ -79,7 +104,7 @@ export default async function EditOutfitPage({ params }: EditOutfitPageProps) {
     <EditOutfitClient 
       initialOutfit={outfit!} 
       initialAvailableItems={items}
-      initialCurrency={profile?.currency || 'USD'} 
+      initialCurrency={(profile?.currency || 'USD') as Currency}
     />
   );
 } 
