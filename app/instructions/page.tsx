@@ -23,6 +23,9 @@ export default function InstructionsPage() {
                 <li>Click the &quot;Add Item&quot; button.</li>
                 <li>Fill in the item details: Name, Category, Brand, Color, Material, Purchase Date, and Price.</li>
                 <li>
+                  <strong>Categories:</strong> Choose from Headwear, Outerwear, Tops, Bottoms, Shoes, or Accessories.
+                </li>
+                <li>
                   <strong>Adding Images:</strong> You can either upload images directly from your device or paste image URLs.
                   Multiple images are supported! The first image will be used as the primary thumbnail.
                 </li>
@@ -96,12 +99,13 @@ export default function InstructionsPage() {
                 <li>Give your outfit a name at the top.</li>
                 <li>On the left, you&apos;ll see your catalog items. Use search and category filters to find items quickly.</li>
                 <li>
-                  <strong>Drag and Drop:</strong> Simply drag items from the catalog (left) and drop them into the corresponding slots (Headwear, Top, Bottom, etc.) on the right.
+                  <strong>Drag and Drop:</strong> Simply drag items from the catalog (left) and drop them into the corresponding slots (Headwear, Outerwear, Top, Bottom, etc.) on the right.
                   Drop accessories into the dedicated accessories area.
                 </li>
                 <li>The total cost of the outfit updates automatically in the top right of the builder.</li>
-                <li>Click the <span className="inline-flex items-center justify-center bg-card border border-border rounded px-1 py-0.5 mx-0.5"><Download className="w-3 h-3"/></span> icon to download an image of your composed outfit (coming soon!).</li>
+                <li>Click the <span className="inline-flex items-center justify-center bg-card border border-border rounded px-1 py-0.5 mx-0.5"><Download className="w-3 h-3"/></span> icon to download an image of your composed outfit.</li>
                 <li>Add optional details like Seasons and Occasions using the selectors.</li>
+                <li><strong>Public/Private Setting:</strong> Choose whether your outfit appears on the Discover page for others to see. Private outfits are only visible to you.</li>
                 <li>Click &quot;Save Outfit&quot; when you&apos;re done.</li>
               </ol>
               <div className="bg-card rounded-xl border border-border p-4 shadow-soft overflow-hidden">
@@ -140,14 +144,57 @@ export default function InstructionsPage() {
                   <span>Use the icons on the outfit card to Edit (<Pencil className="w-3 h-3 inline"/>), Share (<Share2 className="w-3 h-3 inline"/>), or Delete (<Trash2 className="w-3 h-3 inline"/>) an outfit.</span>
                 </li>
               </ul>
-              {/* Optional: Add screenshot of My Outfits page if available */}
             </div>
           </section>
 
-          {/* Step 5: Managing Profile */}
+          {/* Step 5: Discover Community Outfits */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
               <span className="bg-primary text-primary-foreground rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold">5</span>
+              Discover Community Outfits
+            </h2>
+            <div className="space-y-6">
+              <p className="text-muted-foreground">
+                Visit the <Link href="/discover" className="link">Discover</Link> page to explore outfits created by the community.
+              </p>
+              <ul className="space-y-3 pl-2 text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                  <span>Browse public outfits shared by other users for inspiration.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                  <span>Search for specific outfits using the search bar at the top.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                  <span>Upvote outfits you like using the arrow button.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                  <span>Save outfits to your collection using the bookmark button.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
+                  <span>Click on any outfit to view its full details, including all items used.</span>
+                </li>
+              </ul>
+              <div className="bg-card rounded-xl border border-border p-4 shadow-soft overflow-hidden">
+                <Image
+                  src="/instructions/discover.png"
+                  alt="Discover Screen"
+                  width={800}
+                  height={450}
+                  className="rounded-lg object-contain"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Step 6: Managing Profile */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold">6</span>
               Update Your Profile
             </h2>
             <div className="space-y-6">
