@@ -8,6 +8,8 @@ import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName
 import { formatPrice, cn } from '@/lib/utils'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 type ClothingItemWithPosition = ClothingItem & { position?: string }
 
@@ -31,6 +33,8 @@ export interface OutfitBuilderProps {
   onSeasonsChange?: (seasons: Season[]) => void
   onOccasionsChange?: (occasions: Occasion[]) => void
   onTagsChange?: (tags: string[]) => void
+  initialIsPublic?: boolean
+  onIsPublicChange?: (isPublic: boolean) => void
   availableItems?: ClothingItem[]
 }
 
@@ -66,6 +70,8 @@ export default function OutfitBuilder({
   onSeasonsChange,
   onOccasionsChange,
   onTagsChange,
+  initialIsPublic = false,
+  onIsPublicChange,
   availableItems = []
 }: OutfitBuilderProps) {
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null)
@@ -79,6 +85,7 @@ export default function OutfitBuilder({
   const [isItemPickerOpen, setIsItemPickerOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [isPublic, setIsPublic] = useState(initialIsPublic)
 
   // Update local name when initialName changes
   useEffect(() => {
@@ -114,6 +121,10 @@ export default function OutfitBuilder({
   useEffect(() => {
     if (onTagsChange) onTagsChange(tags)
   }, [tags, onTagsChange])
+
+  useEffect(() => {
+    if (onIsPublicChange) onIsPublicChange(isPublic)
+  }, [isPublic, onIsPublicChange])
 
   const [{ isOver }, dropRef] = useDrop<ClothingItemWithPosition, void, { isOver: boolean }>(() => ({
     accept: 'CLOTHING_ITEM',
@@ -676,6 +687,21 @@ export default function OutfitBuilder({
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Public/Private Toggle */}
+      <div className="p-4 border-t border-border">
+        <div className="flex items-center justify-between">
+           <Label htmlFor="public-toggle" className="text-sm font-medium text-muted-foreground">
+             Make Outfit Public?
+           </Label>
+           <Switch
+             id="public-toggle"
+             checked={isPublic}
+             onCheckedChange={setIsPublic}
+             aria-label="Toggle outfit visibility"
+           />
+        </div>
+      </div>
     </div>
   )
 } 

@@ -6,7 +6,7 @@ export default function InstructionsPage() {
   return (
     <div className="min-h-screen pt-16 bg-background-soft">
       <div className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <h1 className="text-3xl sm:text-4xl font-display font-bold text-center mb-10">How to Use FitBook</h1>
+        <h1 className="text-3xl sm:text-4xl font-display font-bold text-left mb-10 text-accent-purple-dark">How to Use Fitbook</h1>
 
         <div className="space-y-12">
           {/* Step 1: Adding Items */}
@@ -176,6 +176,7 @@ export default function InstructionsPage() {
             </div>
           </section>
 
+            <p className="text-muted-foreground mb-4">the website icon used is: fashion by GreenHill from <a href="https://thenounproject.com/browse/icons/term/fashion/" target="_blank" title="fashion Icons">Noun Project</a> (CC BY 3.0)</p>
           <div className="text-center pt-8 border-t border-border">
             <p className="text-muted-foreground mb-4">Ready to get started?</p>
             <Link href="/catalog" className="btn btn-primary py-2 px-4 rounded-full">

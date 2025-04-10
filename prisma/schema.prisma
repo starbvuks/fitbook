@@ -63,6 +63,8 @@ model User {
   wardrobe        WardrobeItem[]
   outfits         Outfit[]
   lookbooks       Lookbook[]
+  savedOutfits    SavedOutfit[]
+  upvotedOutfits  Upvote[]      @relation("UserUpvotes")
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
@@ -138,6 +140,7 @@ model Outfit {
   timesWorn     Int          @default(0)
   lastWorn      DateTime?
   favorited     Boolean      @default(false)
+  isPublic      Boolean      @default(false)
   userId        String
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   items         OutfitItem[]
@@ -145,6 +148,8 @@ model Outfit {
   lookbooks     Lookbook[]
   seasons       Season[]
   occasions     Occasion[]
+  savedBy       SavedOutfit[]
+  upvotesReceived Upvote[]     @relation("OutfitUpvotes")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -187,4 +192,26 @@ model Occasion {
   name          String        @unique
   wardrobeItems WardrobeItem[]
   outfits       Outfit[]
+}
+
+model SavedOutfit {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  outfit    Outfit   @relation(fields: [outfitId], references: [id], onDelete: Cascade)
+  outfitId  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, outfitId])
+}
+
+model Upvote {
+  id        String   @id @default(cuid())
+  user      User     @relation("UserUpvotes", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  outfit    Outfit   @relation("OutfitUpvotes", fields: [outfitId], references: [id], onDelete: Cascade)
+  outfitId  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, outfitId])
 } 

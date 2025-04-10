@@ -11,8 +11,9 @@ import type {
   ClothingCategory,
   ClothingItem,
   Image,
-  Color
-} from '@/app/models/types';
+  Color,
+  OutfitItem,
+} from '../../models/types';
 
 interface OutfitWithStats extends Outfit {
   stats: {
@@ -135,9 +136,11 @@ export default async function OutfitDetailPage({
     description: outfit.description || undefined,
     totalCost: outfit.totalCost,
     rating: outfit.rating || undefined,
-    createdAt: outfit.createdAt.toISOString(),
-    updatedAt: outfit.updatedAt.toISOString(),
+    createdAt: outfit.createdAt,
+    updatedAt: outfit.updatedAt,
     userId: outfit.userId,
+    timesWorn: outfit.timesWorn ?? 0,
+    isPublic: outfit.isPublic ?? false,
     favorited: outfit.favorited,
     user: outfit.user && isCurrency(outfit.user.currency) ? {
       id: outfit.user.id,
@@ -147,7 +150,7 @@ export default async function OutfitDetailPage({
       language: outfit.user.language,
       darkMode: outfit.user.darkMode
     } : undefined,
-    items: outfit.items.map(item => ({
+    items: outfit.items.map((item) => ({
       id: item.id,
       outfitId: item.outfitId,
       wardrobeItemId: item.wardrobeItemId,
@@ -165,11 +168,11 @@ export default async function OutfitDetailPage({
         condition: item.wardrobeItem.condition || undefined,
         isOwned: item.wardrobeItem.isOwned,
         notes: item.wardrobeItem.notes || undefined,
-        images: item.wardrobeItem.images.map(img => ({
+        images: item.wardrobeItem.images.map((img) => ({
           id: img.id,
           url: img.url,
           publicId: img.publicId,
-          colors: (img.colors || []).map(transformColor),
+          colors: img.colors?.map(transformColor),
           isPrimary: img.isPrimary
         })),
         tags: item.wardrobeItem.tags,
@@ -183,7 +186,7 @@ export default async function OutfitDetailPage({
     occasions: outfit.occasions.filter(o => isOccasionName(o.name)) as Occasion[],
     tags: outfit.tags,
     stats: {
-      timesWorn: outfit.timesWorn || 0
+      timesWorn: outfit.timesWorn ?? 0
     }
   };
 

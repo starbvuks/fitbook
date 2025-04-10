@@ -359,7 +359,7 @@ export default function CatalogPage() {
             </p>
             <Link
               href="/catalog/add"
-              className="btn btn-primary inline-flex"
+              className="btn btn-primary py-2 px-4 rounded-full"
             >
               <Plus className="w-4 h-4 mr-1.5" />
               {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice ? 'Clear Filters' : 'Add Your First Item'}
