@@ -3,7 +3,7 @@ import { ClothingCategory } from '@/app/models/types'
 
 export const itemSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  category: z.enum(['tops', 'bottoms', 'outerwear', 'shoes', 'accessories'] as const),
+  category: z.enum(['tops', 'bottoms', 'outerwear', 'shoes', 'accessories', 'headwear'] as const),
   brand: z.string().nullable().optional(),
   price: z.number().min(0, "Price must be positive").nullable().optional(),
   purchaseUrl: z.string().url().nullable().optional(),
