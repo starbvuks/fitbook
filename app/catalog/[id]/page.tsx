@@ -33,7 +33,7 @@ const categories = ['headwear' ,'tops', 'bottoms', 'outerwear', 'shoes', 'access
 type Category = (typeof categories)[number]
 type CategoryMap = { [K in Category]: ClothingCategory }
 const categoryMap: CategoryMap = {
-  headwear: 'headwear'
+  headwear: 'headwear',
   tops: 'tops',
   bottoms: 'bottoms',
   outerwear: 'outerwear',
