@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useToast } from '@/components/ui/use-toast'
+import { useSession } from 'next-auth/react'
 import { 
   Plus, 
   Filter, 
@@ -18,7 +19,11 @@ import {
   Pencil,
   Trash2,
   LayoutGrid,
-  LayoutList
+  LayoutList,
+  User as UserIcon,
+  Bookmark,
+  BookmarkX,
+  Loader2
 } from 'lucide-react'
 import {
   AlertDialog,
@@ -30,7 +35,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "../../components/ui/alert-dialog"
+import {
+  SegmentedControl,
+  SegmentedControlItem
+} from "../components/ui/segmented-control"
 import type { Outfit, Season, Occasion, Currency, ClothingItem, SeasonName, OccasionName } from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
@@ -70,11 +79,17 @@ function OutfitsSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
 
 export default function OutfitsPage() {
   const { toast } = useToast()
-  const [outfits, setOutfits] = useState<Outfit[]>([])
+  const { data: session } = useSession()
+  const userId = session?.user?.id
+
+  const [myOutfits, setMyOutfits] = useState<Outfit[]>([])
+  const [savedOutfitsList, setSavedOutfitsList] = useState<Outfit[]>([])
+  const [displayMode, setDisplayMode] = useState<'myOutfits' | 'savedOutfits' | 'all'>('myOutfits')
+  const [loadingMyOutfits, setLoadingMyOutfits] = useState(true)
+  const [loadingSavedOutfits, setLoadingSavedOutfits] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [seasons, setSeasons] = useState<Season[]>([])
   const [occasions, setOccasions] = useState<Occasion[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [currency, setCurrency] = useState<Currency>('USD')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSeasons, setSelectedSeasons] = useState<SeasonName[]>([])
@@ -86,6 +101,10 @@ export default function OutfitsPage() {
   const [maxPriceLimit, setMaxPriceLimit] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  // Combined loading state
+  const loading = loadingMyOutfits || loadingSavedOutfits
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -110,75 +129,67 @@ export default function OutfitsPage() {
   }, [])
 
   useEffect(() => {
-    let isMounted = true; // Flag to prevent state update on unmounted component
-    const fetchData = async () => {
+    let isMounted = true;
+    
+    const fetchMyOutfits = async () => {
       try {
-        setLoading(true) // Ensure loading is true at start of fetch
-        setError(null)
-
-        // Fetch all data in parallel
-        const [profileResponse, outfitsResponse, seasonsResponse, occasionsResponse] = await Promise.all([
-          fetch('/api/profile'),
-          fetch('/api/outfits'),
-          fetch('/api/seasons'),
-          fetch('/api/occasions')
-        ])
-
-        if (!profileResponse.ok) throw new Error('Failed to fetch profile')
-        const profileData = await profileResponse.json()
-        setCurrency(profileData.currency || 'INR')
-
-        if (!outfitsResponse.ok) throw new Error('Failed to fetch outfits')
-        const outfitsData = await outfitsResponse.json()
+        setLoadingMyOutfits(true)
+        const response = await fetch('/api/outfits')
+        if (!response.ok) throw new Error('Failed to fetch your outfits')
+        const data = await response.json()
+        if (isMounted) setMyOutfits(data.outfits || [])
+      } catch (err) {
         if (isMounted) {
-          setOutfits(outfitsData.outfits || [])
-        }
-
-        // Always fetch and set seasons and occasions regardless of outfits
-        if (seasonsResponse.ok) {
-          const seasonsData = await seasonsResponse.json()
-          if (isMounted) {
-            setSeasons(seasonsData)
-          }
-        } else {
-          console.warn('Failed to fetch seasons')
-          if (isMounted) {
-            setSeasons([])
-          }
-        }
-
-        if (occasionsResponse.ok) {
-          const occasionsData = await occasionsResponse.json()
-          if (isMounted) {
-            setOccasions(occasionsData)
-          }
-        } else {
-          console.warn('Failed to fetch occasions')
-          if (isMounted) {
-            setOccasions([])
-          }
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error('Error fetching data:', error)
-          setError(error instanceof Error ? error.message : 'An error occurred')
+          console.error('Error fetching my outfits:', err)
+          setError(prev => prev || (err instanceof Error ? err.message : 'Error fetching outfits'))
         }
       } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
+        if (isMounted) setLoadingMyOutfits(false)
       }
     }
 
-    fetchData()
-    
-    // Cleanup function
-    return () => {
-      isMounted = false;
+    const fetchSavedOutfits = async () => {
+       try {
+        setLoadingSavedOutfits(true)
+        const response = await fetch('/api/outfits/saved')
+        if (!response.ok) throw new Error('Failed to fetch saved outfits')
+        const data = await response.json()
+        if (isMounted) setSavedOutfitsList(data.outfits || [])
+      } catch (err) {
+        if (isMounted) {
+          console.error('Error fetching saved outfits:', err)
+          setError(prev => prev || (err instanceof Error ? err.message : 'Error fetching saved outfits'))
+        }
+      } finally {
+        if (isMounted) setLoadingSavedOutfits(false)
+      }
     }
+
+    fetchMyOutfits()
+    fetchSavedOutfits()
+    
+    return () => { isMounted = false; }
   }, [])
 
-  const filteredOutfits = outfits.filter(outfit => {
+  // Determine which outfits to display based on the mode
+  const outfitsToDisplay = (() => {
+    switch (displayMode) {
+      case 'myOutfits':
+        return myOutfits;
+      case 'savedOutfits':
+        return savedOutfitsList;
+      case 'all':
+        // Combine and deduplicate
+        const combined = [...myOutfits, ...savedOutfitsList];
+        const uniqueOutfits = Array.from(new Map(combined.map(o => [o.id, o])).values());
+        return uniqueOutfits;
+      default:
+        return myOutfits;
+    }
+  })();
+
+  // Apply filters and sorting to the selected list
+  const filteredOutfits = outfitsToDisplay.filter(outfit => {
     if (selectedSeasons.length > 0 && !outfit.seasons.some(season => selectedSeasons.includes(season.name))) {
       return false
     }
@@ -215,47 +226,89 @@ export default function OutfitsPage() {
     }
   };
 
-  const handleDeleteOutfit = async (outfitId: string) => {
-    // Store the outfit being deleted in case we need to revert
-    const outfitToDelete = outfits.find(o => o.id === outfitId);
-    if (!outfitToDelete) return; // Should not happen, but good practice
-
-    // 1. Optimistically remove the outfit from the local state
-    setOutfits(prev => prev.filter(outfit => outfit.id !== outfitId));
+  // Function to unsave an outfit (used for saved outfits)
+  const handleUnsaveOutfit = async (outfitId: string) => {
+    // Optimistic UI update - remove from saved list
+    const originalSavedOutfits = [...savedOutfitsList];
+    setSavedOutfitsList(prev => prev.filter(o => o.id !== outfitId));
 
     try {
-      // Disable button while processing (optional, depends on where delete is triggered)
-      // setIsDeleting(true) // Assuming isDeleting state exists if needed elsewhere
-
-      // 2. Make the API call
-      const response = await fetch(`/api/outfits/${outfitId}`, {
-        method: 'DELETE',
+      const response = await fetch(`/api/outfits/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ outfitId })
       });
 
-      // 3. Handle API response
       if (!response.ok) {
-        const error = await response.json().catch(() => ({})); // Try parsing error
-        throw new Error(error.message || 'Failed to delete outfit from server');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || 'Failed to unsave outfit');
+      }
+      const result = await response.json();
+      if (result.saved === false) {
+        toast({
+          title: 'Outfit Unsaved',
+          description: 'Removed from your saved list.',
+        });
+      } else {
+         // Should not happen in this flow, but handle unexpected success
+         console.warn("API indicated outfit was saved during an unsave operation.");
+         setSavedOutfitsList(originalSavedOutfits); // Revert
+         toast({ title: "Error", description: "Unexpected response from server.", variant: "destructive" });
       }
 
-      // Success: Show toast (already happens implicitly as UI is updated)
-      toast({
-        title: 'Outfit deleted',
-        description: 'The outfit was successfully removed.',
-      });
-
     } catch (error) {
-      console.error('Error deleting outfit:', error);
-      // 4. Revert UI on error
-      setOutfits(prev => [...prev, outfitToDelete].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())); // Add back and re-sort
+      console.error('Error unsaving outfit:', error);
+      // Revert UI on error
+      setSavedOutfitsList(originalSavedOutfits);
       toast({
-        title: 'Error Deleting Outfit',
-        description: error instanceof Error ? error.message : 'Could not delete outfit. Please try again.',
+        title: 'Error Unsaving Outfit',
+        description: error instanceof Error ? error.message : 'Could not unsave outfit.',
         variant: 'destructive',
       });
-    } finally {
-      // setIsDeleting(false) // Re-enable button if state exists
-    }
+    } 
+  }
+
+  // Updated Delete Handler (only for owned outfits)
+  const handleDeleteOutfit = async (outfitId: string) => {
+      const isMyOutfit = myOutfits.some(o => o.id === outfitId);
+      
+      if (!isMyOutfit) {
+          toast({ title: "Cannot Delete", description: "This action is not allowed here.", variant: "destructive" });
+          return; // Should not be callable if UI is correct, but safe guard
+      }
+  
+      // Optimistic UI update - remove from myOutfits and potentially savedOutfitsList
+      const originalMyOutfits = [...myOutfits];
+      const originalSavedOutfits = [...savedOutfitsList];
+      setMyOutfits(prev => prev.filter(o => o.id !== outfitId));
+      setSavedOutfitsList(prev => prev.filter(o => o.id !== outfitId)); // Also remove if saved
+      
+      try {
+          const response = await fetch(`/api/outfits/${outfitId}`, {
+              method: 'DELETE',
+          });
+  
+          if (!response.ok) {
+              const error = await response.json().catch(() => ({}));
+              throw new Error(error.message || 'Failed to delete outfit from server');
+          }
+  
+          toast({
+              title: 'Outfit deleted',
+              description: 'Successfully removed from your outfits.',
+          });
+  
+      } catch (error) {
+          console.error('Error deleting outfit:', error);
+          // Revert UI on error
+          setMyOutfits(originalMyOutfits);
+          setSavedOutfitsList(originalSavedOutfits);
+          toast({
+              title: 'Error Deleting Outfit',
+              description: error instanceof Error ? error.message : 'Could not delete outfit.',
+              variant: 'destructive',
+          });
+      } 
   }
 
   const handleShareOutfit = (outfitId: string) => {
@@ -280,7 +333,11 @@ export default function OutfitsPage() {
       })
   }
 
-  const showFilterControls = outfits.length > 0 && !loading
+  const showFilterControls = outfitsToDisplay.length > 0 && !loading
+
+  const handleCardClick = () => {
+    setIsNavigating(true);
+  };
 
   if (error) {
     return (
@@ -300,20 +357,41 @@ export default function OutfitsPage() {
     )
   }
 
+  // Show loader during navigation
+  if (isNavigating) {
+    return (
+      <div className="min-h-screen pt-16 bg-background flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="flex flex-col gap-4 mb-6">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-display font-bold mb-0.5">My Outfits</h1>
-            <p className="text-sm text-muted-foreground">
-              {filteredOutfits.length} outfits · Total value: {formatCurrency(
-                filteredOutfits.reduce((sum, outfit) => sum + outfit.totalCost, 0),
-                currency
-              )}
-            </p>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl sm:text-2xl font-display font-bold mb-0.5">Outfits</h1>
+            <SegmentedControl 
+              value={displayMode}
+              onValueChange={(value: string) => setDisplayMode(value as 'myOutfits' | 'savedOutfits' | 'all')}
+              className="w-fit"
+            >
+              <SegmentedControlItem value="myOutfits">
+                <UserIcon className="h-4 w-4 mr-1.5" /> My Outfits
+              </SegmentedControlItem>
+              <SegmentedControlItem value="savedOutfits">
+                <Bookmark className="h-4 w-4 mr-1.5" /> Saved
+              </SegmentedControlItem>
+              <SegmentedControlItem value="all">
+                All
+              </SegmentedControlItem>
+            </SegmentedControl>
           </div>
+          <p className="text-sm text-muted-foreground">
+            Displaying {filteredOutfits.length} outfits
+          </p>
 
           {/* Search and Controls */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -481,13 +559,22 @@ export default function OutfitsPage() {
           </div>
         ) : filteredOutfits.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-foreground-soft mb-4">No outfits found</p>
-            <Link
-              href="/outfits/create"
-              className="btn btn-primary py-2 px-4 rounded-full"
-            >
-              Create Your First Outfit
-            </Link>
+            <p className="text-foreground-soft mb-4">
+              {displayMode === 'savedOutfits' 
+                ? "You haven't saved any outfits yet." 
+                : "No outfits found matching your criteria."
+              }
+            </p>
+            {displayMode !== 'savedOutfits' && (
+               <Link href="/outfits/create" className="btn btn-primary py-2 px-4 rounded-full">
+                 Create Your First Outfit
+               </Link>
+            )}
+             {displayMode === 'savedOutfits' && (
+               <Link href="/discover" className="btn btn-secondary py-2 px-4 rounded-full">
+                 Discover Outfits
+               </Link>
+            )}
           </div>
         ) : (
           <div className={`grid gap-4 ${
@@ -495,48 +582,90 @@ export default function OutfitsPage() {
               ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
               : 'grid-cols-1'
           }`}>
-            {filteredOutfits.map((outfit) => (
-              <div key={outfit.id} className="group relative">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button
-                      className="absolute top-2 right-2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
-                      aria-label="Delete outfit"
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Outfit</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this outfit? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDeleteOutfit(outfit.id);
-                        }}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                
-                <Link href={`/outfits/${outfit.id}`} className="block">
-                  <OutfitCard
-                    outfit={outfit}
-                    currency={currency}
-                    viewMode={viewMode}
-                  />
-                </Link>
-              </div>
-            ))}
+            {filteredOutfits.map((outfit) => {
+              const isOwned = outfit.userId === userId;
+              const showDelete = isOwned;
+              const isSaved = savedOutfitsList.some(saved => saved.id === outfit.id);
+              const showUnsave = !isOwned && isSaved;
+
+              return (
+                <div key={outfit.id} className="group relative">
+                  {/* Delete Button (Owned) */}
+                  {showDelete && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="absolute top-2 right-2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+                          aria-label="Delete outfit"
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Outfit</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure? This cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={(e) => { e.preventDefault(); handleDeleteOutfit(outfit.id); }}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                  {/* Unsave Button (Saved but not Owned) */}
+                  {showUnsave && (
+                     <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                           className="absolute top-2 right-2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+                           aria-label="Unsave outfit"
+                         >
+                           <BookmarkX className="w-4 h-4 text-blue-500" />
+                         </button>
+                       </AlertDialogTrigger>
+                       <AlertDialogContent>
+                         <AlertDialogHeader>
+                           <AlertDialogTitle>Unsave Outfit</AlertDialogTitle>
+                           <AlertDialogDescription>
+                             Remove this outfit from your saved list?
+                           </AlertDialogDescription>
+                         </AlertDialogHeader>
+                         <AlertDialogFooter>
+                           <AlertDialogCancel>Cancel</AlertDialogCancel>
+                           <AlertDialogAction
+                             onClick={(e) => { e.preventDefault(); handleUnsaveOutfit(outfit.id); }}
+                             className="bg-blue-500 text-white hover:bg-blue-600"
+                           >
+                             Unsave
+                           </AlertDialogAction>
+                         </AlertDialogFooter>
+                       </AlertDialogContent>
+                     </AlertDialog>
+                  )}
+                  
+                  {/* Outfit Card Link */}
+                  <Link 
+                    href={`/outfits/${outfit.id}`} 
+                    className="block" 
+                    onClick={handleCardClick}
+                   >
+                    <OutfitCard
+                      outfit={outfit}
+                      currency={currency}
+                      viewMode={viewMode}
+                    />
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

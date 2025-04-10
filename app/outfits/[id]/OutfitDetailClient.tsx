@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useToast } from '@/components/ui/use-toast';
-import html2canvas from 'html2canvas';
+import { useToast } from "@/components/ui/use-toast";
+import html2canvas from "html2canvas";
 import {
   ArrowLeft,
   Edit,
@@ -76,11 +76,11 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
             </div>
           )}
           {item.wardrobeItem.isOwned && (
-            <div 
+            <div
               className="absolute top-2 left-2 bg-green-600 backdrop-blur-sm text-primary-foreground rounded-full p-1 text-xs"
               title="Owned"
             >
-               <CircleCheck className="w-3 h-3" />
+              <CircleCheck className="w-3 h-3" />
             </div>
           )}
         </div>
@@ -125,7 +125,7 @@ export default function OutfitDetailClient({
         description: "Outfit link copied to clipboard.",
       });
     } catch (error) {
-      console.error('Error copying to clipboard:', error);
+      console.error("Error copying to clipboard:", error);
       toast({
         title: "Error",
         description: "Failed to copy link.",
@@ -152,30 +152,42 @@ export default function OutfitDetailClient({
 
   const handleDownload = async () => {
     if (!outfitDisplayRef.current) {
-        toast({ title: "Error", description: "Cannot find outfit element to capture.", variant: "destructive" });
-        return;
+      toast({
+        title: "Error",
+        description: "Cannot find outfit element to capture.",
+        variant: "destructive",
+      });
+      return;
     }
 
-    toast({ title: "Generating Image...", description: "Please wait a moment." });
+    toast({
+      title: "Generating Image...",
+      description: "Please wait a moment.",
+    });
 
     try {
       const canvas = await html2canvas(outfitDisplayRef.current, {
-        backgroundColor: '#111111',
+        backgroundColor: "#111111",
         useCORS: true,
         scale: 2,
         logging: false,
       });
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
       link.href = dataUrl;
-      const filename = outfit.name.trim().replace(/\s+/g, '-').toLowerCase() || 'outfit';
+      const filename =
+        outfit.name.trim().replace(/\s+/g, "-").toLowerCase() || "outfit";
       link.download = `${filename}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error('Error generating outfit image:', error);
-      toast({ title: "Error", description: "Could not generate outfit image.", variant: "destructive" });
+      console.error("Error generating outfit image:", error);
+      toast({
+        title: "Error",
+        description: "Could not generate outfit image.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -188,24 +200,23 @@ export default function OutfitDetailClient({
   });
 
   const categoryOrder = [
-    'headwear',
-    'tops',
-    'outerwear',
-    'bottoms',
-    'shoes',
-    'accessories',
+    "headwear",
+    "tops",
+    "outerwear",
+    "bottoms",
+    "shoes",
+    "accessories",
   ];
 
-  const sortedOutfitItems = [...outfit.items]
-    .sort((a, b) => {
-      const aCategory = a.wardrobeItem?.category || '';
-      const bCategory = b.wardrobeItem?.category || '';
-      const aIndex = categoryOrder.indexOf(aCategory);
-      const bIndex = categoryOrder.indexOf(bCategory);
-      if (aIndex === -1) return 1;
-      if (bIndex === -1) return -1;
-      return aIndex - bIndex;
-    });
+  const sortedOutfitItems = [...outfit.items].sort((a, b) => {
+    const aCategory = a.wardrobeItem?.category || "";
+    const bCategory = b.wardrobeItem?.category || "";
+    const aIndex = categoryOrder.indexOf(aCategory);
+    const bIndex = categoryOrder.indexOf(bCategory);
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
 
   return (
     <div className="min-h-screen pt-16 bg-background">
@@ -214,7 +225,7 @@ export default function OutfitDetailClient({
           <div className="flex items-start gap-3">
             <button
               onClick={() => router.back()}
-              className="p-2 -ml-2 mt-1 rounded-lg hover:bg-background-soft transition-colors flex-shrink-0"
+              className="p-2 -ml-2 mt-1 rounded-lg hover:bg-accent-purple/20 transition-colors flex-shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -227,7 +238,8 @@ export default function OutfitDetailClient({
                   {outfit.description}
                 </p>
               )}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-foreground-soft">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mt-2 text-sm text-foreground-soft">
+                <div className="flex gap-4">
                 <div className="flex items-center gap-1.5">
                   <User className="w-4 h-4" />
                   <span className="truncate max-w-[150px]">
@@ -238,47 +250,50 @@ export default function OutfitDetailClient({
                   <Clock className="w-4 h-4" />
                   <span>{formattedDate}</span>
                 </div>
+                </div>
+
+                <div className="flex flex-wrap justify-start sm:justify-end items-center gap-2 pl-9 sm:pl-0">
+                  <button
+                    onClick={handleShare}
+                    className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
+                    title="Copy share link"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span className="text-sm">Share</span>
+                  </button>
+                  <button
+                    onClick={handleDownload}
+                    className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
+                    title="Download Outfit Image"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span className="text-sm">Download</span>
+                  </button>
+                  {canEditOutfit && (
+                    <>
+                      <button
+                        onClick={() =>
+                          router.push(`/outfits/${outfit.id}/edit`)
+                        }
+                        className="btn btn-primary h-8 px-3 flex items-center gap-1.5"
+                        title="Edit Outfit"
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span className="text-sm">Edit</span>
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        className="btn text-red-500 h-8 px-3 flex items-center gap-1.5"
+                        title="Delete Outfit"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="text-sm">Delete</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="flex flex-wrap justify-start sm:justify-end items-center gap-2 pl-9 sm:pl-0">
-            <button
-              onClick={handleShare}
-              className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
-              title="Copy share link"
-            >
-              <Share2 className="w-4 h-4" />
-              <span className="text-sm">Share</span>
-            </button>
-            <button
-              onClick={handleDownload}
-              className="btn btn-ghost h-8 px-3 flex items-center gap-1.5"
-              title="Download Outfit Image"
-            >
-              <Download className="w-4 h-4" />
-              <span className="text-sm">Download</span>
-            </button>
-            {canEditOutfit && (
-              <>
-                <button
-                  onClick={() => router.push(`/outfits/${outfit.id}/edit`)}
-                  className="btn btn-primary h-8 px-3 flex items-center gap-1.5"
-                  title="Edit Outfit"
-                >
-                  <Edit className="w-4 h-4" />
-                  <span className="text-sm">Edit</span>
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="btn text-red-500 h-8 px-3 flex items-center gap-1.5"
-                  title="Delete Outfit"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="text-sm">Delete</span>
-                </button>
-              </>
-            )}
           </div>
         </div>
 
@@ -288,15 +303,17 @@ export default function OutfitDetailClient({
               <div className="aspect-[4/3] relative">
                 <OutfitThumbnail
                   items={sortedOutfitItems
-                    .map(item => item.wardrobeItem)
-                    .filter((item): item is ClothingItem => item !== undefined)
-                  }
+                    .map((item) => item.wardrobeItem)
+                    .filter((item): item is ClothingItem => item !== undefined)}
                   className="w-full h-full"
                 />
               </div>
             </div>
 
-            <div ref={outfitDisplayRef} className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6">
+            <div
+              ref={outfitDisplayRef}
+              className="bg-card rounded-xl md:rounded-2xl border border-border p-4 md:p-6"
+            >
               <h2 className="text-xl font-semibold mb-4">Outfit Items</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {sortedOutfitItems.map((item) => (

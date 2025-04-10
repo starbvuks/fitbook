@@ -1,15 +1,22 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { outfitSchema, updateOutfitSchema } from '@/lib/validations'
-import type { Outfit } from '@/app/models/types'
+import { outfitSchema } from '@/lib/validations'
+import { Prisma, PrismaClient } from '@prisma/client'
+import type { OutfitItem as OutfitItemType } from '@/app/models/types'
+import { z } from 'zod'
 
 // Helper function to extract ID from URL
 function getIdFromUrl(url: string): string {
   const segments = new URL(url).pathname.split('/')
   return segments[segments.length - 1]
 }
+
+// Define a partial schema specifically for PATCH, including isPublic
+const outfitPatchSchema = outfitSchema.partial().extend({
+  isPublic: z.boolean().optional()
+});
 
 export async function GET(req: Request) {
   try {
@@ -76,105 +83,131 @@ export async function GET(req: Request) {
   }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const id = getIdFromUrl(req.url)
+    const outfitId = params.id
+    const userId = session.user.id
 
-    const body = await req.json()
-    if (!body) {
-      return NextResponse.json({ error: 'Request body is empty' }, { status: 400 })
-    }
-
-    // Use a validation schema if available (ensure it includes all fields)
-    // For now, directly destructure, assuming validation happens elsewhere or is simple
-    const {
-      name,
-      description,
-      items, // Expecting [{ wardrobeItemId: string, position?: string }]
-      seasons, // Expecting array of strings or objects like { name: string }
-      occasions, // Expecting array of strings or objects like { name: string }
-      tags, // Expecting array of strings or objects like { name: string }
-      rating // Assuming rating might also be updated
-    } = body;
-
-    // Verify outfit exists and belongs to user
-    const existingOutfit = await prisma.outfit.findUnique({
-      where: { id, userId: session.user.id }
+    // Check if user owns the outfit
+    const outfit = await prisma.outfit.findUnique({
+      where: { id: outfitId }
     })
 
-    if (!existingOutfit) {
-      return NextResponse.json({ error: 'Outfit not found or unauthorized' }, { status: 404 })
+    if (!outfit) {
+      return NextResponse.json({ error: 'Outfit not found' }, { status: 404 })
     }
 
-    // Calculate total cost (only if items are being updated)
-    let totalCost = existingOutfit.totalCost; // Default to existing cost
-    if (items) { 
-      const wardrobeItemIds = items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId);
-      if (wardrobeItemIds.length > 0) {
-        const wardrobeItems = await prisma.wardrobeItem.findMany({
-          where: { id: { in: wardrobeItemIds } }
-        });
-        totalCost = wardrobeItems.reduce((sum: number, item: { price: number }) => sum + item.price, 0);
+    if (outfit.userId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Validate request body using the specific PATCH schema
+    const body = await request.json()
+    const validation = outfitPatchSchema.safeParse(body)
+
+    if (!validation.success) {
+      const formattedErrors = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return NextResponse.json({ error: `Validation failed: ${formattedErrors}` }, { status: 400 })
+    }
+
+    const data = validation.data
+
+    // Prepare update data - Use 'any' as specific type is problematic
+    const updateData: any = {} 
+    if (data.name !== undefined) updateData.name = data.name
+    if (data.description !== undefined) updateData.description = data.description
+    if (data.rating !== undefined) updateData.rating = data.rating
+    if (data.isPublic !== undefined) updateData.isPublic = data.isPublic
+
+    // Handle relational updates (Tags, Seasons, Occasions)
+    if (data.tags) {
+      updateData.tags = {
+        set: [],
+        connectOrCreate: data.tags.map((name: string) => ({ where: { name }, create: { name } }))
       }
     }
-    
-    // Helper to process connectOrCreate arrays
-    const processConnectOrCreate = (dataArray: any[] | undefined) => {
-        if (!dataArray || !Array.isArray(dataArray) || dataArray.length === 0) {
-            return { set: [] }; // Disconnect all if array is empty or undefined
+    if (data.seasons) {
+      updateData.seasons = {
+        set: [],
+        connectOrCreate: data.seasons.map((name: string) => ({ where: { name }, create: { name } }))
+      }
+    }
+    if (data.occasions) {
+      updateData.occasions = {
+        set: [],
+        connectOrCreate: data.occasions.map((name: string) => ({ where: { name }, create: { name } }))
+      }
+    }
+
+    // Transaction
+    const updatedOutfit = await prisma.$transaction(async (tx: any) => {
+      let newTotalCost = 0;
+
+      // Handle item updates if present
+      if (data.items) {
+        // 1. Delete existing OutfitItems for this outfit
+        await tx.outfitItem.deleteMany({ where: { outfitId } })
+
+        // 2. Create new OutfitItems
+        if (data.items.length > 0) {
+           await tx.outfitItem.createMany({ 
+             data: data.items.map((item: { wardrobeItemId: string; position: string }) => ({ 
+               outfitId,
+               wardrobeItemId: item.wardrobeItemId,
+               position: item.position
+             })) 
+           });
+
+           // 3. Recalculate total cost based on NEW items
+           const itemIds = data.items.map((item: { wardrobeItemId: string }) => item.wardrobeItemId);
+           const costResult = await tx.wardrobeItem.aggregate({
+             where: { id: { in: itemIds } },
+             _sum: { price: true }
+           });
+           newTotalCost = costResult._sum.price || 0;
+           updateData.totalCost = newTotalCost;
+        } else {
+           updateData.totalCost = 0;
         }
-        return {
-            set: [], // Disconnect existing before connecting new/existing
-            connectOrCreate: dataArray.map((item: string | { name: string }) => {
-                const name = typeof item === 'string' ? item : item.name;
-                return { where: { name }, create: { name } };
-            })
-        };
-    };
-
-    // Prepare updates, only include fields if they are present in the body
-    const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (description !== undefined) updateData.description = description;
-    if (rating !== undefined) updateData.rating = rating;
-    if (items !== undefined) {
-        updateData.totalCost = totalCost; // Update cost only if items change
-        updateData.items = {
-            deleteMany: {},
-            create: items.map((item: { wardrobeItemId: string; position?: string }) => ({
-                wardrobeItem: { connect: { id: item.wardrobeItemId } },
-                position: item.position
-            }))
-        };
-    }
-    if (seasons !== undefined) updateData.seasons = processConnectOrCreate(seasons);
-    if (occasions !== undefined) updateData.occasions = processConnectOrCreate(occasions);
-    if (tags !== undefined) {
-        updateData.tags = processConnectOrCreate(tags);
-    }
-
-    // Update outfit
-    const updatedOutfit = await prisma.outfit.update({
-      where: { id },
-      data: updateData,
-      include: { // Include relations in the response
-        items: { include: { wardrobeItem: { include: { images: true } } } },
-        tags: true,
-        seasons: true,
-        occasions: true,
-        user: { select: { id: true, name: true, image: true } } // Include user info
+      } else {
+        // If items are not part of the update, keep the existing totalCost
+        const currentOutfit = await tx.outfit.findUnique({ where: { id: outfitId }, select: { totalCost: true } });
+        if (currentOutfit) {
+           updateData.totalCost = currentOutfit.totalCost;
+        }
       }
-    })
+
+      // Update the outfit itself
+      return tx.outfit.update({
+        where: { id: outfitId },
+        data: updateData,
+        include: {
+          items: { include: { wardrobeItem: true } },
+          tags: true,
+          seasons: true,
+          occasions: true
+        }
+      });
+    });
 
     return NextResponse.json(updatedOutfit)
-  } catch (error) {
-    console.error("Error updating outfit:", error)
-    return NextResponse.json({ error: "Failed to update outfit" }, { status: 500 })
+
+  } catch (error: unknown) { 
+    console.error(`Error updating outfit ${params.id}:`, error)
+    
+    if (error instanceof z.ZodError) {
+       const formattedErrors = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+       return NextResponse.json({ error: `Validation failed: ${formattedErrors}` }, { status: 400 })
+    } else if (error instanceof Error) {
+       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    return NextResponse.json({ error: 'Failed to update outfit' }, { status: 500 })
   }
 }
 

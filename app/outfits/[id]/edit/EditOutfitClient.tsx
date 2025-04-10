@@ -1,0 +1,247 @@
+'use client'
+
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { Save, Search, Filter } from 'lucide-react'
+import type { ClothingItem, Currency, Season, Occasion, Outfit, Tag } from '@/app/models/types'
+import LoadingSpinner from '@/app/components/LoadingSpinner'
+import OutfitBuilder from '@/app/components/OutfitBuilder'
+import DraggableItem from '@/app/components/DraggableItem'
+
+// Dynamically import DndProvider
+const DndProvider = dynamic(
+  () => import('react-dnd').then(mod => mod.DndProvider),
+  { ssr: false }
+)
+
+interface EditOutfitClientProps {
+  initialOutfit: Outfit;
+  initialAvailableItems: ClothingItem[];
+  initialCurrency: Currency;
+}
+
+export default function EditOutfitClient({ 
+  initialOutfit, 
+  initialAvailableItems, 
+  initialCurrency 
+}: EditOutfitClientProps) {
+  const router = useRouter()
+  const [name, setName] = useState(initialOutfit.name || '')
+  const [description, setDescription] = useState(initialOutfit.description || '')
+  const [outfitSlots, setOutfitSlots] = useState<Record<string, ClothingItem | null>>({
+    headwear: null,
+    top: null,
+    outerwear: null,
+    bottom: null,
+    shoes: null
+  })
+  const [accessories, setAccessories] = useState<ClothingItem[]>([])
+  const [availableItems, setAvailableItems] = useState<ClothingItem[]>(initialAvailableItems)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedSeasons, setSelectedSeasons] = useState<Season[]>(initialOutfit.seasons || [])
+  const [selectedOccasions, setSelectedOccasions] = useState<Occasion[]>(initialOutfit.occasions || [])
+  const [tags, setTags] = useState<string[]>(initialOutfit.tags ? initialOutfit.tags.map((t: Tag) => t.name) : [])
+  const [isPublic, setIsPublic] = useState(initialOutfit.isPublic || false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const currency = initialCurrency // Use prop directly
+
+  // Populate initial slots and accessories from initialOutfit
+  useEffect(() => {
+    const slots: Record<string, ClothingItem | null> = {
+      headwear: null,
+      top: null,
+      outerwear: null,
+      bottom: null,
+      shoes: null
+    };
+    const outfitAccessories: ClothingItem[] = [];
+
+    if (initialOutfit.items && Array.isArray(initialOutfit.items)) {
+      initialOutfit.items.forEach(item => {
+        if (!item.wardrobeItem) return;
+
+        if (item.position.startsWith('accessory_')) {
+          outfitAccessories.push(item.wardrobeItem);
+        } else if (slots.hasOwnProperty(item.position)) { // Check if position is a valid slot
+          slots[item.position] = item.wardrobeItem;
+        }
+      });
+    }
+
+    setOutfitSlots(slots);
+    setAccessories(outfitAccessories);
+  }, [initialOutfit.items]); // Depend only on items
+
+  // Auto-dismiss error after 5 seconds or when user starts typing
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
+
+  // Clear error when user starts typing name
+  useEffect(() => {
+    setError(null)
+  }, [name])
+
+  const handleSave = async (outfitName: string) => {
+    if (!outfitName.trim()) {
+      setError('Please enter an outfit name')
+      return
+    }
+
+    const items = [
+      ...Object.entries(outfitSlots)
+        .filter(([_, item]) => item !== null)
+        .map(([slot, item]) => ({
+          wardrobeItemId: item!.id,
+          position: slot
+        })),
+      ...accessories.map((item, index) => ({
+        wardrobeItemId: item.id,
+        position: `accessory_${index}`
+      }))
+    ]
+
+    if (items.length === 0) {
+      setError('Please add at least one item to your outfit')
+      return
+    }
+
+    setSaving(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`/api/outfits/${initialOutfit.id}`, { // Use initialOutfit.id
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: outfitName.trim(),
+          description,
+          items,
+          seasons: selectedSeasons.map(s => s.name),
+          occasions: selectedOccasions.map(o => o.name),
+          tags: tags,
+          isPublic: isPublic
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to update outfit')
+      }
+      
+      // Navigate to the specific outfit page after successful save
+      router.push(`/outfits/${initialOutfit.id}`)
+      router.refresh() // Optional: force refresh if needed
+
+    } catch (error) {
+      console.error('Error updating outfit:', error)
+      setError(error instanceof Error ? error.message : 'Failed to update outfit')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleAddItem = (item: ClothingItem, slot: string) => {
+    setOutfitSlots(prev => ({
+      ...prev,
+      [slot]: item
+    }))
+  }
+
+  const handleRemoveItem = (slot: string) => {
+    setOutfitSlots(prev => ({
+      ...prev,
+      [slot]: null
+    }))
+  }
+
+  const handleAddAccessory = (item: ClothingItem) => {
+    setAccessories(prev => [...prev, item])
+  }
+
+  const handleRemoveAccessory = (index: number) => {
+    setAccessories(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const filteredItems = availableItems.filter(item => {
+    const matchesSearch = searchQuery === '' || 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
+
+  // No full page loading needed here as data is passed via props
+  // Error handling specific to save operation is done within handleSave
+
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <div className="min-h-screen pt-16 bg-background">
+        <div className="max-w-7xl mx-auto p-3 sm:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4 sm:gap-6">
+            {/* Left Column - Catalog - Hidden on Mobile */}
+            <div className="hidden lg:block">
+              <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-full">
+                <div className="p-3 sm:p-4 border-b border-border">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search wardrobe..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                  {/* Add category filter dropdown if needed */}
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {filteredItems.map(item => (
+                      <DraggableItem key={item.id} item={item} currency={currency} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Builder */}
+            <OutfitBuilder
+              initialName={name}
+              onNameChange={setName}
+              slots={outfitSlots}
+              accessories={accessories}
+              initialSeasons={selectedSeasons}
+              initialOccasions={selectedOccasions}
+              initialTags={tags}
+              onAddItem={handleAddItem}
+              onRemoveItem={handleRemoveItem}
+              onAddAccessory={handleAddAccessory}
+              onRemoveAccessory={handleRemoveAccessory}
+              onSeasonsChange={setSelectedSeasons}
+              onOccasionsChange={setSelectedOccasions}
+              onTagsChange={setTags}
+              onSave={handleSave}
+              isSaving={saving}
+              currency={currency}
+              initialDescription={description}
+              onDescriptionChange={setDescription}
+              initialIsPublic={isPublic}
+              onIsPublicChange={setIsPublic}
+              availableItems={initialAvailableItems}
+            />
+          </div>
+        </div>
+      </div>
+    </DndProvider>
+  )
+} 

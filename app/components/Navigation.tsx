@@ -110,9 +110,9 @@ export default function Navigation() {
           <div className="flex items-center space-x-4 sm:space-x-8">
             <Link 
               href="/" 
-              className="text-xl flex items-center gap-1 font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
+              className="text-xl flex items-center font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
             >
-                {/* <Image src="/logo.png" alt="Fitbook Logo" width={32} height={32} /> */}
+                <Image src="/logo3.png" alt="Fitbook Logo" className="invert" width={32} height={32} />
                 Fitbook
             </Link>
 
@@ -121,7 +121,7 @@ export default function Navigation() {
                 <NavLink href="/catalog"><span className="hover:text-accent-purple transition-colors">Catalog</span></NavLink>
                 <NavLink href="/outfits"><span className="hover:text-accent-purple transition-colors">Outfits</span></NavLink>
                 <NavLink href="/lookbooks" disabled>Lookbooks</NavLink>
-                <NavLink href="/discover" disabled>Discover</NavLink>
+                <NavLink href="/discover"><span className="hover:text-accent-purple transition-colors">Discover</span></NavLink>
               </div>
             )}
           </div>
