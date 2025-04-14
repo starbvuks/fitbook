@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 
 const createItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -138,60 +139,77 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const userId = session.user.id
+
+  const { searchParams } = new URL(request.url)
+  const limit = parseInt(searchParams.get('limit') || '30')
+  const cursor = searchParams.get('cursor') as string | undefined
+  const category = searchParams.get('category')
+  const isOwned = searchParams.get('isOwned')
+  const searchQuery = searchParams.get('query')
+  const minPrice = searchParams.get('minPrice')
+  const maxPrice = searchParams.get('maxPrice')
+  const sortBy = searchParams.get('sortBy') || 'createdAt'
+  const sortOrder = searchParams.get('sortOrder') || 'desc'
+
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const whereClause: Prisma.WardrobeItemWhereInput = {
+      userId: userId,
+      ...(category && category !== 'all' && { category: category }),
+      ...(isOwned !== null && isOwned !== undefined && { isOwned: isOwned === 'true' }),
+      ...(searchQuery && {
+        OR: [
+          { name: { contains: searchQuery, mode: 'insensitive' } },
+          { brand: { contains: searchQuery, mode: 'insensitive' } },
+          { tags: { some: { name: { contains: searchQuery, mode: 'insensitive' } } } }
+        ]
+      }),
+      ...(minPrice && { price: { gte: parseFloat(minPrice) } }),
+      ...(maxPrice && { price: { lte: parseFloat(maxPrice) } })
+    }
+    
+    if (minPrice && maxPrice) {
+      whereClause.price = {
+        gte: parseFloat(minPrice),
+        lte: parseFloat(maxPrice)
+      }
+    }
+    
+    const orderByClause: Prisma.WardrobeItemOrderByWithRelationInput = {}
+    if (sortBy === 'price' || sortBy === 'createdAt' || sortBy === 'lastWorn' || sortBy === 'timesWorn') {
+       orderByClause[sortBy] = sortOrder as Prisma.SortOrder;
+    } else {
+        orderByClause['createdAt'] = 'desc';
     }
 
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
-    const search = searchParams.get('search')
-    const isOwned = searchParams.get('isOwned')
-    const minPrice = searchParams.get('minPrice')
-    const maxPrice = searchParams.get('maxPrice')
-
     const items = await prisma.wardrobeItem.findMany({
-      where: {
-        userId: session.user.id,
-        ...(category && { category }),
-        ...(isOwned !== null && { isOwned: isOwned === 'true' }),
-        ...(minPrice && { price: { gte: parseFloat(minPrice) } }),
-        ...(maxPrice && { price: { lte: parseFloat(maxPrice) } }),
-        ...(search && {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { brand: { contains: search, mode: 'insensitive' } },
-            { tags: { some: { name: { contains: search, mode: 'insensitive' } } } },
-          ],
-        }),
-      },
-      select: {
-        id: true,
-        name: true,
-        brand: true,
-        price: true,
-        category: true,
-        isOwned: true,
-        purchaseUrl: true,
-        images: {
-          select: { url: true },
-          orderBy: { isPrimary: 'desc' },
-          take: 1,
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      where: whereClause,
+      take: limit,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      orderBy: orderByClause,
+      include: {
+        images: true,
+        tags: true,
+        seasons: true,
+        occasions: true
+      }
     })
 
-    return NextResponse.json(items)
+    let nextCursor: typeof cursor | null = null
+    if (items.length === limit) {
+      nextCursor = items[limit - 1].id
+    }
+
+    return NextResponse.json({ items, nextCursor })
+
   } catch (error) {
-    console.error('Error fetching items:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch items' },
-      { status: 500 }
-    )
+    console.error('Error fetching wardrobe items:', error)
+    return NextResponse.json({ error: 'Failed to fetch items' }, { status: 500 })
   }
 }
 
@@ -214,7 +232,6 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Item ID is required' }, { status: 400 })
     }
 
-    // Verify item ownership
     const existingItem = await prisma.wardrobeItem.findFirst({
       where: {
         id: itemId,
@@ -226,12 +243,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Item not found' }, { status: 404 })
     }
 
-    // Transform the data to match Prisma's expected types
     const updateData = {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.category !== undefined && { category: data.category }),
       ...(data.brand !== undefined && { brand: data.brand }),
-      ...(data.price !== undefined && { price: data.price ?? 0 }), // Convert null to 0
+      ...(data.price !== undefined && { price: data.price ?? 0 }),
       ...(data.purchaseUrl !== undefined && { purchaseUrl: data.purchaseUrl }),
       ...(data.size !== undefined && { size: data.size }),
       ...(data.material !== undefined && { material: data.material }),
@@ -240,7 +256,7 @@ export async function PATCH(request: NextRequest) {
       ...(data.notes !== undefined && { notes: data.notes }),
       ...(data.seasons !== undefined && {
         seasons: {
-          set: [], // Clear existing connections
+          set: [],
           connectOrCreate: data.seasons.map(season => ({
             where: { name: season },
             create: { name: season },
@@ -249,7 +265,7 @@ export async function PATCH(request: NextRequest) {
       }),
       ...(data.occasions !== undefined && {
         occasions: {
-          set: [], // Clear existing connections
+          set: [],
           connectOrCreate: data.occasions.map(occasion => ({
             where: { name: occasion },
             create: { name: occasion },
@@ -258,7 +274,7 @@ export async function PATCH(request: NextRequest) {
       }),
       ...(data.tags !== undefined && {
         tags: {
-          set: [], // Clear existing connections
+          set: [],
           connectOrCreate: data.tags.map(tag => ({
             where: { name: tag },
             create: { name: tag },

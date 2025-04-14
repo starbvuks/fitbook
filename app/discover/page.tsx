@@ -305,17 +305,18 @@ export default function DiscoverPage() {
   return (
     <div className="min-h-screen pt-20 sm:pt-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-4 lg:px-8">
-        {/* Header remains the same */}
+        {/* Header */}
         <div className="flex flex-col gap-2 sm:gap-4 mb-3 sm:mb-6">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl md:text-3xl font-display font-bold">Discover</h1>
             <div className="flex items-center gap-2 sm:gap-4">
-              <div className="relative rounded-full border border-border bg-background px-2 sm:px-3 py-1.5 text-sm flex items-center w-[220px] sm:w-[250px]">
-                <Search className="h-4 w-4 text-muted-foreground mr-1.5 sm:mr-2" />
+              {/* Add focus styles to wrapper div */}
+              <div className="relative rounded-full border border-border bg-background px-2 sm:px-3 py-1.5 text-sm flex items-center w-[220px] sm:w-[250px] focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+                <Search className="h-4 w-4 text-muted-foreground mr-1.5 sm:mr-2 flex-shrink-0" />
                 <input 
                   type="text" 
                   placeholder="Search outfits..." 
-                  className="bg-transparent outline-none flex-1 text-xs sm:text-sm"
+                  className="bg-transparent outline-none flex-1 text-xs sm:text-sm placeholder:text-muted-foreground" // Added placeholder style
                   value={searchQuery}
                   onChange={handleSearchChange}
                  />
@@ -325,13 +326,19 @@ export default function DiscoverPage() {
           </div>
         </div>
 
-        {/* Masonry Grid / Loading / Empty States */}
-        {loading && !isSearching ? (
+        {/* Masonry Grid / Loading / Empty States */} 
+        {/* Adjust logic to show skeleton only on initial load and handle empty state separately */} 
+        {loading && !isSearching && outfits.length === 0 ? (
           <DiscoverSkeleton /> // Use the skeleton loader here
         ) : error ? (
-          <div className="text-center py-12 text-red-500"><p>{error}</p></div>
-        ) : outfits.length === 0 ? (
-          <div className="text-center py-12"><p className="text-muted-foreground mb-4">{searchQuery ? 'No outfits found for your search.' : 'No public outfits found.'}</p></div>
+          <div className="text-center py-12 text-destructive"><p>{error}</p></div>
+        ) : !loading && outfits.length === 0 ? ( // Check for empty state *after* loading
+          <div className="text-center py-16">
+              <p className="text-muted-foreground mb-4 text-lg">
+                {searchQuery ? 'No outfits found for your search.' : 'No fits to discover... yet!'}
+              </p>
+              {/* Optional: Add a button or suggestion */} 
+          </div>
         ) : (
           <div className="mt-12 sm:mt-0 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 ">
             {outfits.map((outfit) => (

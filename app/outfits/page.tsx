@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useToast } from '@/components/ui/use-toast'
@@ -23,7 +23,8 @@ import {
   User as UserIcon,
   Bookmark,
   BookmarkX,
-  Loader2
+  Loader2,
+  ChevronDown
 } from 'lucide-react'
 import {
   AlertDialog,
@@ -40,7 +41,15 @@ import {
   SegmentedControl,
   SegmentedControlItem
 } from "../components/ui/segmented-control"
-import type { Outfit, Season, Occasion, Currency, ClothingItem, SeasonName, OccasionName } from '@/app/models/types'
+import type {
+  Outfit,
+  Season,
+  Occasion,
+  Currency,
+  User,
+  SeasonName,
+  OccasionName
+} from '@/app/models/types'
 import { formatPrice } from '@/lib/utils'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
@@ -48,9 +57,16 @@ import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import OutfitCard from '@/app/components/OutfitCard'
 import { cn } from '@/lib/utils'
 import SkeletonCard from '@/app/components/SkeletonCard'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { debounce } from 'lodash'
+import { useRouter } from 'next/navigation'
 
 const SEASONS: SeasonName[] = ['spring', 'summer', 'fall', 'winter']
 const OCCASIONS: OccasionName[] = ['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding']
+
+// Define DisplayOutfit locally
+type DisplayOutfit = Outfit & { isSaved: boolean };
 
 // Skeleton Loader Component for Outfits
 function OutfitsSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
@@ -81,12 +97,12 @@ export default function OutfitsPage() {
   const { toast } = useToast()
   const { data: session } = useSession()
   const userId = session?.user?.id
+  const router = useRouter()
 
   const [myOutfits, setMyOutfits] = useState<Outfit[]>([])
-  const [savedOutfitsList, setSavedOutfitsList] = useState<Outfit[]>([])
+  const [savedOutfits, setSavedOutfits] = useState<Outfit[]>([])
   const [displayMode, setDisplayMode] = useState<'myOutfits' | 'savedOutfits' | 'all'>('myOutfits')
-  const [loadingMyOutfits, setLoadingMyOutfits] = useState(true)
-  const [loadingSavedOutfits, setLoadingSavedOutfits] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [seasons, setSeasons] = useState<Season[]>([])
   const [occasions, setOccasions] = useState<Occasion[]>([])
@@ -103,8 +119,21 @@ export default function OutfitsPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [isNavigating, setIsNavigating] = useState(false)
 
+  // --- Pagination State --- 
+  const [myOutfitsCursor, setMyOutfitsCursor] = useState<string | null>(null)
+  const [savedOutfitsCursor, setSavedOutfitsCursor] = useState<string | null>(null)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  // We need separate cursors if we fetch 'My' and 'Saved' separately
+  // For 'All' view, we might need a combined fetch or handle pagination carefully
+  // Let's simplify: Fetch all initially, implement scroll only if viewFilter is 'my' or 'saved'?
+  // Or: Fetch only the *active* filter type with pagination.
+  // Let's try fetching the active filter type paginated.
+  // --- End Pagination State ---
+
   // Combined loading state
-  const loading = loadingMyOutfits || loadingSavedOutfits
+  const loadingOutfits = loading;
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -128,65 +157,115 @@ export default function OutfitsPage() {
     fetchUserProfile()
   }, [])
 
+  // --- Update Fetch Logic for Pagination --- 
+  const fetchOutfitsData = useCallback(async (filterType: 'my' | 'saved', cursor: string | null, append = false) => {
+    if (!append) setLoading(true);
+    else setLoadingMore(true);
+    setError(null);
+
+    const endpoint = filterType === 'my' ? '/api/outfits' : '/api/outfits/saved';
+    const params = new URLSearchParams();
+    params.set('limit', '20'); // Example limit
+    if (append && cursor) params.set('cursor', cursor);
+
+    try {
+      const response = await fetch(`${endpoint}?${params.toString()}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to fetch ${filterType} outfits`);
+      }
+      const data = await response.json(); // Expects { outfits: Outfit[] | SavedOutfitStub[], nextCursor: string | null }
+
+      if (filterType === 'my') {
+        setMyOutfits(prev => append ? [...prev, ...data.outfits] : data.outfits);
+        setMyOutfitsCursor(data.nextCursor);
+      } else {
+        setSavedOutfits(prev => append ? [...prev, ...data.outfits] : data.outfits);
+        setSavedOutfitsCursor(data.nextCursor);
+      }
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      // Clear relevant state on error?
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
+
+  // Initial fetch based on viewFilter
   useEffect(() => {
-    let isMounted = true;
-    
-    const fetchMyOutfits = async () => {
-      try {
-        setLoadingMyOutfits(true)
-        const response = await fetch('/api/outfits')
-        if (!response.ok) throw new Error('Failed to fetch your outfits')
-        const data = await response.json()
-        if (isMounted) setMyOutfits(data.outfits || [])
-      } catch (err) {
-        if (isMounted) {
-          console.error('Error fetching my outfits:', err)
-          setError(prev => prev || (err instanceof Error ? err.message : 'Error fetching outfits'))
+    if (displayMode === 'myOutfits') {
+      fetchOutfitsData('my', null);
+    } else if (displayMode === 'savedOutfits') {
+      fetchOutfitsData('saved', null);
+    } else { // 'all' - Fetch both without pagination for now
+      setLoading(true);
+      Promise.all([
+        fetch('/api/outfits?limit=100').then(res => res.ok ? res.json() : {outfits: []}), // Fetch a large number initially
+        fetch('/api/outfits/saved?limit=100').then(res => res.ok ? res.json() : {outfits: []})
+      ]).then(([myData, savedData]) => {
+        setMyOutfits(myData.outfits || []);
+        setSavedOutfits(savedData.outfits || []);
+        // No cursors for 'all' view currently
+        setMyOutfitsCursor(null);
+        setSavedOutfitsCursor(null);
+      }).catch(err => {
+         setError('Failed to fetch all outfits');
+      }).finally(() => setLoading(false));
+    }
+    // Reset items when filter changes to avoid showing wrong data during load
+    // If fetching only active: 
+    // setItemsToShow([]); // New state variable needed
+    // setCursor(null); 
+  }, [displayMode, fetchOutfitsData]);
+
+  // --- Infinite Scroll Observer --- 
+  useEffect(() => {
+    const currentCursor = displayMode === 'myOutfits' ? myOutfitsCursor : savedOutfitsCursor;
+    // Only fetch if not loading, cursor exists, and not in 'all' mode (fetch isn't designed for 'all')
+    if (loadingMore || !currentCursor || displayMode === 'all') return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && currentCursor && !loadingMore) {
+          // Map displayMode to the expected argument type for fetchOutfitsData
+          const fetchType = displayMode === 'myOutfits' ? 'my' : 'saved'; 
+          fetchOutfitsData(fetchType, currentCursor, true); // Pass true to append
         }
-      } finally {
-        if (isMounted) setLoadingMyOutfits(false)
-      }
+      },
+      { threshold: 0.5 } 
+    );
+
+    observerRef.current = observer;
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
-    const fetchSavedOutfits = async () => {
-       try {
-        setLoadingSavedOutfits(true)
-        const response = await fetch('/api/outfits/saved')
-        if (!response.ok) throw new Error('Failed to fetch saved outfits')
-        const data = await response.json()
-        if (isMounted) setSavedOutfitsList(data.outfits || [])
-      } catch (err) {
-        if (isMounted) {
-          console.error('Error fetching saved outfits:', err)
-          setError(prev => prev || (err instanceof Error ? err.message : 'Error fetching saved outfits'))
-        }
-      } finally {
-        if (isMounted) setLoadingSavedOutfits(false)
-      }
-    }
-
-    fetchMyOutfits()
-    fetchSavedOutfits()
-    
-    return () => { isMounted = false; }
-  }, [])
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+      if (observerRef.current) observerRef.current.disconnect();
+    };
+  }, [displayMode, myOutfitsCursor, savedOutfitsCursor, loadingMore, fetchOutfitsData]);
+  // --- End Infinite Scroll Observer ---
 
   // Determine which outfits to display based on the mode
-  const outfitsToDisplay = (() => {
+  const outfitsToDisplay: DisplayOutfit[] = useMemo(() => {
     switch (displayMode) {
       case 'myOutfits':
-        return myOutfits;
+        return myOutfits.map(o => ({...o, isSaved: false}));
       case 'savedOutfits':
-        return savedOutfitsList;
+        return savedOutfits.map(o => ({...o, isSaved: true}));
       case 'all':
         // Combine and deduplicate
-        const combined = [...myOutfits, ...savedOutfitsList];
+        const combined = [...myOutfits.map(o => ({...o, isSaved: false})), ...savedOutfits.map(o => ({...o, isSaved: true}))];
         const uniqueOutfits = Array.from(new Map(combined.map(o => [o.id, o])).values());
         return uniqueOutfits;
       default:
-        return myOutfits;
+        return myOutfits.map(o => ({...o, isSaved: false}));
     }
-  })();
+  }, [displayMode, myOutfits, savedOutfits]);
 
   // Apply filters and sorting to the selected list
   const filteredOutfits = outfitsToDisplay.filter(outfit => {
@@ -229,8 +308,8 @@ export default function OutfitsPage() {
   // Function to unsave an outfit (used for saved outfits)
   const handleUnsaveOutfit = async (outfitId: string) => {
     // Optimistic UI update - remove from saved list
-    const originalSavedOutfits = [...savedOutfitsList];
-    setSavedOutfitsList(prev => prev.filter(o => o.id !== outfitId));
+    const originalSavedOutfits = [...savedOutfits];
+    setSavedOutfits(prev => prev.filter(o => o.id !== outfitId));
 
     try {
       const response = await fetch(`/api/outfits/save`, {
@@ -252,14 +331,14 @@ export default function OutfitsPage() {
       } else {
          // Should not happen in this flow, but handle unexpected success
          console.warn("API indicated outfit was saved during an unsave operation.");
-         setSavedOutfitsList(originalSavedOutfits); // Revert
+         setSavedOutfits(originalSavedOutfits); // Revert
          toast({ title: "Error", description: "Unexpected response from server.", variant: "destructive" });
       }
 
     } catch (error) {
       console.error('Error unsaving outfit:', error);
       // Revert UI on error
-      setSavedOutfitsList(originalSavedOutfits);
+      setSavedOutfits(originalSavedOutfits);
       toast({
         title: 'Error Unsaving Outfit',
         description: error instanceof Error ? error.message : 'Could not unsave outfit.',
@@ -279,9 +358,9 @@ export default function OutfitsPage() {
   
       // Optimistic UI update - remove from myOutfits and potentially savedOutfitsList
       const originalMyOutfits = [...myOutfits];
-      const originalSavedOutfits = [...savedOutfitsList];
+      const originalSavedOutfits = [...savedOutfits];
       setMyOutfits(prev => prev.filter(o => o.id !== outfitId));
-      setSavedOutfitsList(prev => prev.filter(o => o.id !== outfitId)); // Also remove if saved
+      setSavedOutfits(prev => prev.filter(o => o.id !== outfitId)); // Also remove if saved
       
       try {
           const response = await fetch(`/api/outfits/${outfitId}`, {
@@ -302,7 +381,7 @@ export default function OutfitsPage() {
           console.error('Error deleting outfit:', error);
           // Revert UI on error
           setMyOutfits(originalMyOutfits);
-          setSavedOutfitsList(originalSavedOutfits);
+          setSavedOutfits(originalSavedOutfits);
           toast({
               title: 'Error Deleting Outfit',
               description: error instanceof Error ? error.message : 'Could not delete outfit.',
@@ -340,9 +419,9 @@ export default function OutfitsPage() {
   };
 
   if (error) {
-    return (
-      <div className="min-h-screen pt-16 bg-background-soft">
-        <div className="max-w-7xl mx-auto p-6">
+  return (
+    <div className="min-h-screen pt-16 bg-background-soft">
+      <div className="max-w-7xl mx-auto p-6">
           <div className="text-center py-12">
             <p className="text-red-500 mb-4">{error}</p>
             <button
@@ -440,8 +519,8 @@ export default function OutfitsPage() {
                 <span className="hidden sm:inline">Create Outfit</span>
                 <span className="sm:hidden">Create</span>
               </Link>
-            </div>
           </div>
+        </div>
 
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
@@ -475,7 +554,7 @@ export default function OutfitsPage() {
                   {season}
                 </button>
               ))}
-            </div>
+              </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
@@ -492,7 +571,7 @@ export default function OutfitsPage() {
               </button>
               {OCCASIONS.map((occasion) => (
                 <button
-                  key={occasion}
+                        key={occasion}
                   onClick={() => {
                     setSelectedOccasions(prev =>
                       prev.includes(occasion)
@@ -505,8 +584,8 @@ export default function OutfitsPage() {
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-card hover:bg-accent border border-border'
                   }`}
-                >
-                  {occasion}
+                      >
+                        {occasion}
                 </button>
               ))}
             </div>
@@ -544,8 +623,8 @@ export default function OutfitsPage() {
             >
               Rating
             </button>
-          </div>
-        </div>
+                  </div>
+                </div>
 
         {/* Divider */}
         <div className="h-px bg-border mb-6" />
@@ -567,8 +646,8 @@ export default function OutfitsPage() {
             </p>
             {displayMode !== 'savedOutfits' && (
                <Link href="/outfits/create" className="btn btn-primary py-2 px-4 rounded-full">
-                 Create Your First Outfit
-               </Link>
+              Create Your First Outfit
+            </Link>
             )}
              {displayMode === 'savedOutfits' && (
                <Link href="/discover" className="btn btn-secondary py-2 px-4 rounded-full">
@@ -585,7 +664,7 @@ export default function OutfitsPage() {
             {filteredOutfits.map((outfit) => {
               const isOwned = outfit.userId === userId;
               const showDelete = isOwned;
-              const isSaved = savedOutfitsList.some(saved => saved.id === outfit.id);
+              const isSaved = savedOutfits.some(saved => saved.id === outfit.id);
               const showUnsave = !isOwned && isSaved;
 
               return (
@@ -668,6 +747,16 @@ export default function OutfitsPage() {
             })}
           </div>
         )}
+
+        {/* --- Load More Trigger / Spinner --- */}
+        {/* Show only when not in 'all' view and there's a cursor */}
+        {displayMode !== 'all' && (displayMode === 'myOutfits' ? myOutfitsCursor : savedOutfitsCursor) && (
+           <div ref={loadMoreRef} className="h-10 flex justify-center items-center">
+             {loadingMore && <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />}
+           </div>
+        )}
+        {/* --- End Load More Trigger --- */}
+
       </div>
     </div>
   )

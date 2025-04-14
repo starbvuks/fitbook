@@ -5,14 +5,21 @@ import { useSession, signIn, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { Plus, Menu, X, Home, ShoppingBag, Shirt, Search, Compass, User, LogOut } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function Navigation() {
   const { data: session, status } = useSession()
-  const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [sessionChecked, setSessionChecked] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -31,7 +38,7 @@ export default function Navigation() {
     }
   }, [session, status])
 
-  // Handle click outside for profile dropdown
+  // Handle click outside for MOBILE menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -44,7 +51,12 @@ export default function Navigation() {
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    if (showMobileMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
@@ -129,69 +141,81 @@ export default function Navigation() {
           {session ? (
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="hidden sm:block">
-                <Link
-                  href="/catalog/add"
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-primary text-white hover:opacity-90 transition-opacity"
-                >
-                  <Plus className="w-4 h-4 " />
-                  <span>Add Item</span>
-                </Link>
+                <DropdownMenu >
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="z-[1000] mt-1" align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href="/catalog/add">
+                        <ShoppingBag className="w-4 h-4 mr-2" />
+                        Add Item
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/outfits/create">
+                        <Shirt className="w-4 h-4 mr-2" />
+                        Create Outfit
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              <div className="hidden sm:block">
-                <Link
-                  href="/outfits/create"
-                  className="px-4 py-2 rounded-lg border-2 border-border-bright hover:bg-accent-purple/20 transition-colors"
-                >
-                  Create Outfit
-                </Link>
-              </div>
-
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2"
-                >
-                  {session.user?.image ? (
-                    <Image
-                      src={session.user.image}
-                      alt={session.user.name || 'User'}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-accent-purple flex items-center justify-center text-white">
-                      {session.user?.name?.[0] || 'U'}
-                    </div>
-                  )}
-                </button>
-
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-4 w-48 bg-background border border-border rounded-lg shadow-lg my-1">
-                    <div className="px-4 py-2 border-b border-border">
-                      <p className="font-medium">{session.user?.name}</p>
-                      <p className="text-sm text-foreground-soft truncate">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    {session.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt={session.user.name || 'User'}
+                        fill
+                        sizes="32px"
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-accent-purple flex items-center justify-center text-white text-sm font-medium">
+                        {session.user?.name?.[0].toUpperCase() || 'U'}
+                      </div>
+                    )}
+                    <span className="sr-only">Open user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 z-[1000] mt-1" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none truncate">
+                        {session.user?.name || 'User Name'}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground truncate">
                         {session.user?.email}
                       </p>
                     </div>
-                    <Link
-                      href="/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-foreground-soft hover:text-foreground hover:bg-accent-purple/10"
-                    >
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      Profile Settings
+                      <span>Profile Settings</span>
                     </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <button
                       onClick={() => signOut({ callbackUrl: '/' })}
-                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-foreground-soft hover:text-foreground hover:bg-accent-purple/10"
+                      className="flex items-center gap-2 w-full text-left"
                     >
                       <LogOut className="w-4 h-4" />
-                      Sign Out
+                      <span>Sign Out</span>
                     </button>
-                  </div>
-                )}
-              </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Mobile Menu Button */}
               <div className="flex md:hidden">
@@ -200,10 +224,11 @@ export default function Navigation() {
                   type="button"
                   className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
                   onClick={(e) => {
-                    e.stopPropagation();
-                    setShowMobileMenu(!showMobileMenu);
+                    e.stopPropagation()
+                    setShowMobileMenu(!showMobileMenu)
                   }}
                   aria-expanded={showMobileMenu}
+                  aria-controls="mobile-menu"
                 >
                   <span className="sr-only">Open main menu</span>
                   {showMobileMenu ? (
@@ -223,10 +248,11 @@ export default function Navigation() {
                   type="button"
                   className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
                   onClick={(e) => {
-                    e.stopPropagation();
-                    setShowMobileMenu(!showMobileMenu);
+                    e.stopPropagation()
+                    setShowMobileMenu(!showMobileMenu)
                   }}
                   aria-expanded={showMobileMenu}
+                  aria-controls="mobile-menu"
                 >
                   <span className="sr-only">Open main menu</span>
                   {showMobileMenu ? (
@@ -237,110 +263,90 @@ export default function Navigation() {
                 </button>
               </div>
               
-              <button
-                onClick={() => signIn('google')}
-                className="px-4 py-2 rounded-lg border border-border-bright hover:bg-background-soft transition-colors"
-              >
+              <Button variant="outline" size="sm" onClick={() => signIn('google')}>
                 Sign In
-              </button>
+              </Button>
             </div>
           )}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {showMobileMenu && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm rounded-xl md:hidden"
-          onClick={() => setShowMobileMenu(false)}
-        >
-          <div
-            className="fixed inset-y-0  right-0 z-50 w-72 shadow-xl rounded-xl"
-            ref={mobileMenuRef}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex flex-col h-full pt-16 ">
-              <div className="space-y-1 px-3 bg-zinc-900 py-3 rounded-xl">
-                <Link 
-                  href="/catalog" 
-                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span className="text-[15px]">My Catalog</span>
-                </Link>
-                <Link 
-                  href="/outfits"
-                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <Shirt className="w-5 h-5" />
-                  <span className="text-[15px]">My Outfits</span>
-                </Link>
-                <Link 
-                  href="/discover"
-                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <Compass className="w-5 h-5" />
-                  <span className="text-[15px]">Discover</span>
-                </Link>
-                <Link 
-                  href="/outfits/create"
-                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <Plus className="w-5 h-5" />
-                  <span className="text-[15px]">Create Outfit</span>
-                </Link>
-                <Link 
-                  href="/catalog/add"
-                  className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <Plus className="w-5 h-5" />
-                  <span className="text-[15px]">Add Item</span>
-                </Link>
-              </div>
+      <div
+        id="mobile-menu"
+        className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ease-in-out ${
+          showMobileMenu ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setShowMobileMenu(false)}
+        aria-hidden={!showMobileMenu}
+      >
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-              {/* <div className="mt-auto border-t rounded-b-xl border-zinc-800 bg-zinc-900">
-                {session ? (
-                  <div className="p-3">
-                    <div className="px-4 py-3 mb-1">
-                      <p className="text-[15px] font-medium text-white">{session.user?.name}</p>
-                      <p className="text-sm text-zinc-400 truncate">
-                        {session.user?.email}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        signOut();
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      <LogOut className="w-5 h-5" />
-                      <span className="text-[15px]">Sign Out</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="p-3">
-                    <button
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        signIn('google');
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      <span className="text-[15px]">Sign In with Google</span>
-                    </button>
-                  </div>
-                )}
-              </div> */}
+        <div
+          className={`fixed inset-y-0 right-0 z-50 w-72 bg-card shadow-xl transition-transform duration-300 ease-in-out transform ${
+            showMobileMenu ? 'translate-x-0' : 'translate-x-full'
+          }`}
+          ref={mobileMenuRef}
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+               <span className="font-semibold">Menu</span>
+               <Button variant="ghost" size="icon" onClick={() => setShowMobileMenu(false)}>
+                   <X className="h-5 w-5" />
+                   <span className="sr-only">Close menu</span>
+               </Button>
+            </div>
+
+            <div className="flex-grow overflow-y-auto p-3 space-y-1">
+               {session ? (
+                   <>
+                       <MobileNavLink href="/catalog" icon={<ShoppingBag className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>My Catalog</MobileNavLink>
+                       <MobileNavLink href="/outfits" icon={<Shirt className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>My Outfits</MobileNavLink>
+                       <MobileNavLink href="/discover" icon={<Compass className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>Discover</MobileNavLink>
+                       <MobileNavLink href="/lookbooks" icon={<Compass className="w-5 h-5" />} disabled onClick={() => setShowMobileMenu(false)}>Lookbooks</MobileNavLink>
+                       <MobileNavLink href="/outfits/create" icon={<Plus className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>Create Outfit</MobileNavLink>
+                       <MobileNavLink href="/catalog/add" icon={<Plus className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>Add Item</MobileNavLink>
+                   </>
+               ) : (
+                   <MobileNavLink href="/" icon={<Home className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>Home</MobileNavLink>
+               )}
+            </div>
+
+            <div className="border-t border-border p-3">
+               {session ? (
+                   <div className="space-y-2">
+                       <MobileNavLink href="/profile" icon={<User className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>Profile Settings</MobileNavLink>
+                       <Button
+                         variant="ghost"
+                         className="w-full justify-start gap-3 text-foreground-soft hover:text-destructive hover:bg-destructive/10"
+                         onClick={() => {
+                           setShowMobileMenu(false)
+                           signOut({ callbackUrl: '/' })
+                         }}
+                       >
+                           <LogOut className="w-5 h-5" />
+                           <span className="text-[15px]">Sign Out</span>
+                       </Button>
+                   </div>
+                 ) : (
+                   <Button
+                     variant="ghost"
+                     className="w-full justify-start gap-3 text-foreground-soft hover:text-foreground hover:bg-accent"
+                     onClick={() => {
+                       setShowMobileMenu(false)
+                       signIn('google')
+                     }}
+                   >
+                     <span className="text-[15px]">Sign In with Google</span>
+                   </Button>
+                 )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </nav>
   )
 }
@@ -355,16 +361,16 @@ function NavLink({ href, children, disabled = false }: {
   if (disabled) {
     return (
       <div className="relative">
-        <button
-          className="text-foreground-soft/50 cursor-not-allowed text-neutral-600"
+        <span
+          className="text-foreground-soft/50 cursor-not-allowed"
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >
           {children}
-        </button>
+        </span>
         {showTooltip && (
-          <div className="absolute left-1/2 -translate-x-1/2 mt-2 ml-2 px-3 py-1.5 bg-background border border-border rounded-lg shadow-lg whitespace-nowrap z-50 animate-in fade-in slide-in-from-top-1">
-            <p className="text-sm">Coming Soon! 🎉</p>
+          <div className="absolute left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-popover border border-border rounded-md shadow-lg whitespace-nowrap z-50 text-sm text-popover-foreground animate-in fade-in slide-in-from-top-1">
+             Coming Soon! 🎉
           </div>
         )}
       </div>
@@ -374,7 +380,7 @@ function NavLink({ href, children, disabled = false }: {
   return (
     <Link
       href={href}
-      className="text-foreground-soft hover:text-foreground transition-colors"
+      className="text-sm font-medium text-foreground-soft hover:text-foreground transition-colors"
     >
       {children}
     </Link>
@@ -396,10 +402,10 @@ function MobileNavLink({
 }) {
   if (disabled) {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 text-foreground-soft/50 cursor-not-allowed rounded-lg">
+      <div className="flex items-center gap-3 px-4 py-2.5 text-foreground-soft/50 cursor-not-allowed rounded-lg">
         {icon}
-        <span>{children}</span>
-        <span className="ml-auto text-xs bg-background-soft px-2 py-0.5 rounded">Soon</span>
+        <span className="text-[15px]">{children}</span>
+        <span className="ml-auto text-xs bg-muted px-2 py-0.5 rounded">Soon</span>
       </div>
     )
   }
@@ -407,11 +413,11 @@ function MobileNavLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-4 py-3 text-foreground-soft hover:text-foreground hover:bg-accent-purple/10 rounded-lg transition-colors"
+      className="flex items-center gap-3 px-4 py-2.5 text-foreground-soft hover:text-foreground hover:bg-accent rounded-lg transition-colors"
       onClick={onClick}
     >
       {icon}
-      <span>{children}</span>
+      <span className="text-[15px]">{children}</span>
     </Link>
   )
 } 

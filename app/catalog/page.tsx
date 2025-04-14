@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { Plus, Filter, Search, LayoutGrid, LayoutList, Grid3X3 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { debounce } from 'lodash'
+import { Plus, Filter, Search, LayoutGrid, LayoutList, Grid3X3, Loader2, ChevronDown } from 'lucide-react'
 import type { ClothingItem, ClothingCategory, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import ItemCard from '@/app/components/ItemCard'
 import SkeletonCard from '@/app/components/SkeletonCard'
@@ -56,20 +58,32 @@ function CatalogSkeleton({ viewMode }: { viewMode: ViewMode }) {
 }
 
 export default function CatalogPage() {
+  const searchParams = useSearchParams()
+  const initialCategory = searchParams.get('category') as ClothingCategory | null
+
   const [items, setItems] = useState<ClothingItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<ClothingCategory | 'all'>('all')
   const [currency, setCurrency] = useState<Currency>('USD')
-  const [viewMode, setViewMode] = useState<ViewMode>('large')
-  const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>('all')
-  const [minPrice, setMinPrice] = useState<string>('')
-  const [maxPrice, setMaxPrice] = useState<string>('')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
-  const [maxPriceLimit, setMaxPriceLimit] = useState<number | null>(null)
-  const [selectedSeasons, setSelectedSeasons] = useState<SeasonName[]>([])
-  const [selectedOccasions, setSelectedOccasions] = useState<OccasionName[]>([])
+  
+  // Filter State
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<ClothingCategory | 'all'>(initialCategory || 'all')
+  const [selectedStatus, setSelectedStatus] = useState<'all' | 'owned' | 'want'>('all')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [sortBy, setSortBy] = useState('createdAt')
+  const [sortOrder, setSortOrder] = useState('desc')
+
+  // --- Pagination State --- 
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  // --- End Pagination State ---
+
   const router = useRouter()
 
   useEffect(() => {
@@ -82,71 +96,98 @@ export default function CatalogPage() {
         const data = await response.json()
         const userCurrency = data.currency || 'USD'
         setCurrency(userCurrency)
-        const maxPriceValue = await getMaxPriceForCurrency(userCurrency)
-        setMaxPriceLimit(maxPriceValue)
       } catch (error) {
         console.error('Error fetching user profile or max price:', error)
         setCurrency('USD')
-        setMaxPriceLimit(10000)
       }
     }
 
     fetchUserProfileAndMaxPrice()
   }, [])
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchItems = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const params = new URLSearchParams()
-        if (selectedCategory !== 'all') {
-          params.append('category', selectedCategory)
-        }
-        if (searchQuery) {
-          params.append('search', searchQuery)
-        }
-        if (ownershipFilter !== 'all') {
-          params.append('isOwned', (ownershipFilter === 'owned').toString())
-        }
-        const minPriceNum = parseFloat(minPrice)
-        if (!isNaN(minPriceNum) && minPriceNum > 0) {
-          params.append('minPrice', minPriceNum.toString())
-        }
-        const maxPriceNum = parseFloat(maxPrice)
-        if (!isNaN(maxPriceNum) && maxPriceNum >= 0) {
-          params.append('maxPrice', maxPriceNum.toString())
-        }
+  // Debounced fetch function - Updated for pagination
+  const fetchItems = useCallback(debounce(async (filters, append = false) => {
+    if (!append) setLoading(true); 
+    else setLoadingMore(true);
+    setError(null);
 
-        const response = await fetch(`/api/items?${params}`)
-        if (!response.ok) {
-          throw new Error('Failed to fetch items')
-        }
-
-        const data = await response.json()
-        if (isMounted) {
-          setItems(data)
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error('Error fetching items:', error)
-          setError('Failed to load items. Please try again.')
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    const timeoutId = setTimeout(fetchItems, 300)
+    const params = new URLSearchParams();
+    params.set('limit', '30'); // Set limit
+    if (append && filters.cursor) params.set('cursor', filters.cursor);
+    if (filters.query) params.set('query', filters.query);
+    if (filters.category && filters.category !== 'all') params.set('category', filters.category);
+    if (filters.status === 'owned') params.set('isOwned', 'true');
+    if (filters.status === 'want') params.set('isOwned', 'false');
+    if (filters.minPrice) params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+    if (filters.sortBy) params.set('sortBy', filters.sortBy);
+    if (filters.sortOrder) params.set('sortOrder', filters.sortOrder);
     
-    return () => {
-      isMounted = false;
-      clearTimeout(timeoutId)
+    try {
+      const response = await fetch(`/api/items?${params.toString()}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch items');
+      }
+      const data = await response.json(); // Expect { items: ClothingItem[], nextCursor: string | null }
+      
+      setItems(prev => append ? [...prev, ...data.items] : data.items);
+      setNextCursor(data.nextCursor); // Set the next cursor
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      if (!append) setItems([]); // Clear items on error for initial load
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
     }
-  }, [selectedCategory, searchQuery, ownershipFilter, minPrice, maxPrice])
+  }, 500), []);
+
+  // Initial fetch & refetch on filter change
+  useEffect(() => {
+    const currentFilters = {
+      query: searchQuery,
+      category: selectedCategory,
+      status: selectedStatus,
+      minPrice,
+      maxPrice,
+      sortBy,
+      sortOrder,
+      cursor: null // Reset cursor on filter change
+    };
+    fetchItems(currentFilters);
+  }, [searchQuery, selectedCategory, selectedStatus, minPrice, maxPrice, sortBy, sortOrder, fetchItems]);
+
+  // --- Infinite Scroll Observer --- 
+  useEffect(() => {
+    if (loadingMore || !nextCursor) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && nextCursor && !loadingMore) {
+          const currentFilters = { /* ... gather current filters ... */ cursor: nextCursor };
+          fetchItems(currentFilters, true); // Pass true to append
+        }
+      },
+      { threshold: 0.5 } // Adjust threshold as needed
+    );
+
+    observerRef.current = observer;
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [nextCursor, loadingMore, fetchItems, searchQuery, selectedCategory, selectedStatus, minPrice, maxPrice, sortBy, sortOrder]);
+  // --- End Infinite Scroll Observer ---
 
   const handleToggleOwnership = async (itemId: string, isOwned: boolean) => {
     try {
@@ -187,16 +228,6 @@ export default function CatalogPage() {
     }
   };
 
-  const filteredItems = items.filter(item => {
-    if (selectedSeasons.length > 0 && !item.seasons.some(season => selectedSeasons.includes(season.name))) {
-      return false
-    }
-    if (selectedOccasions.length > 0 && !item.occasions.some(occasion => selectedOccasions.includes(occasion.name))) {
-      return false
-    }
-    return true
-  })
-
   return (
     <div className="min-h-screen pt-20 bg-background">
       <div className="max-w-7xl mx-auto px-3 py-4 sm:px-6 lg:px-8">
@@ -224,24 +255,21 @@ export default function CatalogPage() {
             </div>
             
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 bg-card rounded-lg border border-border p-1">
-                {(Object.entries(viewModeConfig) as [ViewMode, typeof viewModeConfig[ViewMode]][]).map(([mode, config]) => {
-                  const Icon = config.icon
-                  return (
-                    <button
-                      key={mode}
-                      onClick={() => setViewMode(mode)}
-                      className={`p-1.5 rounded-md transition-colors ${
-                        viewMode === mode
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                      }`}
-                      title={config.label}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </button>
-                  )
-                })}
+              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg flex-shrink-0">
+                {(['grid', 'list'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={`p-1.5 rounded-md transition-colors ${
+                      viewMode === mode
+                        ? 'bg-background shadow-sm'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                    aria-label={`${mode} view`}
+                  >
+                    {mode === 'grid' ? <LayoutGrid className="w-4 h-4" /> : <LayoutList className="w-4 h-4" />}
+                  </button>
+                ))}
               </div>
               
               <Link
@@ -285,9 +313,9 @@ export default function CatalogPage() {
 
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setOwnershipFilter('all')}
+              onClick={() => setSelectedStatus('all')}
               className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                ownershipFilter === 'all'
+                selectedStatus === 'all'
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-card hover:bg-accent border border-border'
               }`}
@@ -295,9 +323,9 @@ export default function CatalogPage() {
               All Items
             </button>
             <button
-              onClick={() => setOwnershipFilter('owned')}
+              onClick={() => setSelectedStatus('owned')}
               className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                ownershipFilter === 'owned'
+                selectedStatus === 'owned'
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-card hover:bg-accent border border-border'
               }`}
@@ -305,9 +333,9 @@ export default function CatalogPage() {
               Owned
             </button>
             <button
-              onClick={() => setOwnershipFilter('wanted')}
+              onClick={() => setSelectedStatus('want')}
               className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                ownershipFilter === 'wanted'
+                selectedStatus === 'want'
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-card hover:bg-accent border border-border'
               }`}
@@ -321,7 +349,7 @@ export default function CatalogPage() {
         <div className="h-px bg-border mb-6" />
 
         {loading ? (
-          <CatalogSkeleton viewMode={viewMode} />
+          <CatalogSkeleton viewMode={viewMode === 'grid' ? 'large' : 'stack'} />
         ) : error ? (
           <div className="bg-card rounded-xl border border-border p-8 text-center">
             <p className="text-destructive mb-4">{error}</p>
@@ -333,8 +361,8 @@ export default function CatalogPage() {
             </button>
           </div>
         ) : items.length > 0 ? (
-          <div className={`grid gap-3 ${viewModeConfig[viewMode].gridCols}`}>
-            {filteredItems.map((item) => (
+          <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' : 'grid-cols-1'}`}>
+            {items.map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleItemClick(item)}
@@ -343,7 +371,7 @@ export default function CatalogPage() {
                 <ItemCard
                   item={item}
                   onToggleOwnership={handleToggleOwnership}
-                  viewMode={viewMode}
+                  viewMode={viewMode === 'grid' ? 'large' : 'stack'}
                   currency={currency}
                 />
               </div>
@@ -353,7 +381,7 @@ export default function CatalogPage() {
           <div className="bg-card rounded-xl border border-border p-6 sm:p-8 text-center">
             <h3 className="text-lg font-medium mb-2">No items found</h3>
             <p className="text-muted-foreground mb-6">
-              {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice
+              {searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all' || minPrice || maxPrice
                 ? "Try adjusting your filters"
                 : "Start adding items to your catalog"}
             </p>
@@ -362,10 +390,19 @@ export default function CatalogPage() {
               className="btn btn-primary py-2 px-4 rounded-full"
             >
               <Plus className="w-4 h-4 mr-1.5" />
-              {searchQuery || selectedCategory !== 'all' || ownershipFilter !== 'all' || minPrice || maxPrice ? 'Clear Filters' : 'Add Your First Item'}
+              {searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all' || minPrice || maxPrice ? 'Clear Filters' : 'Add Your First Item'}
             </Link>
           </div>
         )}
+
+        {/* --- Load More Trigger / Spinner --- */}
+        <div ref={loadMoreRef} className="h-10 flex justify-center items-center">
+          {loadingMore && <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />}
+          {!loadingMore && nextCursor && items.length > 0 && (
+             <span className="text-sm text-muted-foreground">Scroll down to load more...</span> // Optional indicator
+          )}
+        </div>
+        {/* --- End Load More Trigger --- */}
       </div>
     </div>
   )

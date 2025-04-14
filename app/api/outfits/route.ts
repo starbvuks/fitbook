@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { outfitSchema } from '@/lib/validations'
+import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 
 // GET /api/outfits
 export async function GET(request: NextRequest) {
@@ -14,14 +16,15 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '20')
-    const cursor = searchParams.get('cursor')
+    const cursor = searchParams.get('cursor') as string | undefined
 
     const outfits = await prisma.outfit.findMany({
       where: {
         userId: session.user.id
       },
       take: limit,
-      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
       orderBy: {
         createdAt: 'desc'
       },
@@ -52,7 +55,10 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    const nextCursor = outfits.length === limit ? outfits[outfits.length - 1].id : null
+    let nextCursor: typeof cursor | null = null
+    if (outfits.length === limit) {
+      nextCursor = outfits[limit - 1].id
+    }
 
     return NextResponse.json({
       outfits,
