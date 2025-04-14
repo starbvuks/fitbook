@@ -28,6 +28,7 @@ import { formatPrice } from '@/lib/utils'
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import ImageUpload from '@/app/components/ImageUpload'
 import type { UploadResult } from '@/lib/images'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 
 const categories = ['headwear', 'outerwear', 'tops', 'bottoms', 'shoes', 'accessories'] as const
 type Category = (typeof categories)[number]
@@ -432,47 +433,73 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
 
             <FormSection title="Basic Information">
               <div className="space-y-4">
-                {/* Ownership Toggle */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 p-3 sm:p-4 bg-muted rounded-lg">
-                  <button
-                    onClick={() => setEditedItem({ ...editedItem, isOwned: true })}
-                    className={`btn w-full sm:w-auto ${
-                      (editedItem.isOwned ?? item.isOwned)
-                        ? 'p-3 bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
-                        : 'btn-ghost p-3'
-                    }`}
-                  >
-                    <CircleCheck className="w-5 h-5 mr-2" />
-                    <span>I Own This</span>
-                  </button>
-                  <button
-                    onClick={() => setEditedItem({ ...editedItem, isOwned: false })}
-                    className={`btn w-full sm:w-auto ${
-                      !(editedItem.isOwned ?? item.isOwned)
-                        ? 'p-3 bg-sky-100 text-sky-600 hover:bg-sky-200'
-                        : 'btn-ghost p-3'
-                    }`}
-                  >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    <span>I Want This</span>
-                  </button>
-                </div>
+                {/* --- Ownership Status --- */}
+                {isEditing ? (
+                  // Render INTERACTIVE BUTTONS when editing
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 p-3 sm:p-4 bg-muted rounded-lg">
+                    <button
+                      type="button" // Ensure it doesn't submit form
+                      onClick={() => setEditedItem({ ...editedItem, isOwned: true })}
+                      className={`btn w-full sm:w-auto transition-all duration-200 ease-in-out ${
+                        (editedItem.isOwned ?? item.isOwned)
+                          ? 'p-3 bg-emerald-100 text-emerald-600 hover:bg-emerald-200 ring-2 ring-emerald-300 ring-offset-2 ring-offset-muted' // Enhanced active style
+                          : 'btn-ghost p-3 text-muted-foreground hover:bg-card' // Improved inactive style
+                      }`}
+                    >
+                      <CircleCheck className="w-5 h-5 mr-2" />
+                      <span>I Own This</span>
+                    </button>
+                    <button
+                      type="button" // Ensure it doesn't submit form
+                      onClick={() => setEditedItem({ ...editedItem, isOwned: false })}
+                       className={`btn w-full sm:w-auto transition-all duration-200 ease-in-out ${
+                         !(editedItem.isOwned ?? item.isOwned)
+                           ? 'p-3 bg-sky-100 text-sky-600 hover:bg-sky-200 ring-2 ring-sky-300 ring-offset-2 ring-offset-muted' // Enhanced active style
+                           : 'btn-ghost p-3 text-muted-foreground hover:bg-card' // Improved inactive style
+                       }`}
+                    >
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      <span>I Want This</span>
+                    </button>
+                  </div>
+                ) : (
+                  // Render STATIC INDICATOR when viewing
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 p-3 sm:p-4 bg-muted rounded-lg">
+                    {item.isOwned ? (
+                       <div className="flex items-center justify-center w-full sm:w-auto p-3 bg-emerald-100 text-emerald-600 rounded-lg font-medium">
+                         <CircleCheck className="w-5 h-5 mr-2" />
+                         <span>I Own This</span>
+                       </div>
+                     ) : (
+                       <div className="flex items-center justify-center w-full sm:w-auto p-3 bg-sky-100 text-sky-600 rounded-lg font-medium">
+                         <ShoppingCart className="w-5 h-5 mr-2" />
+                         <span>I Want This</span>
+                       </div>
+                     )}
+                     {/* Optionally add the other status dimmed out, or just show the current one */}
+                  </div>
+                )}
+                {/* --- End Ownership Status --- */}
 
                 {/* Category */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Category</label>
                   {isEditing ? (
-                    <select
+                    <Select
                       value={editedItem.category || item.category}
-                      onChange={(e) => setEditedItem({ ...editedItem, category: e.target.value as ClothingCategory })}
-                      className="select w-full"
+                      onValueChange={(value: ClothingCategory) => setEditedItem({ ...editedItem, category: value })}
                     >
-                      {categories.map((cat) => (
-                        <option key={cat} value={cat} className="capitalize">
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="select w-full font-sans">
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      <SelectContent className="font-sans">
+                        {categories.map((cat) => (
+                          <SelectItem key={cat} value={cat} className="capitalize">
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   ) : (
                     <p className="px-4 py-2.5 bg-muted rounded-lg capitalize">
                       {item.category}
@@ -594,17 +621,21 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
               <div>
                 <label className="block text-sm font-medium mb-2">Condition</label>
                 {isEditing ? (
-                  <select
+                  <Select
                     value={editedItem.condition || item.condition || 'new'}
-                    onChange={(e) => setEditedItem({ ...editedItem, condition: e.target.value })}
-                    className="select w-full"
+                    onValueChange={(value: string) => setEditedItem({ ...editedItem, condition: value })}
                   >
-                    {conditions.map((condition) => (
-                      <option key={condition.value} value={condition.value}>
-                        {condition.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="select w-full font-sans">
+                      <SelectValue placeholder="Select Condition" />
+                    </SelectTrigger>
+                    <SelectContent className="font-sans">
+                      {conditions.map((condition) => (
+                        <SelectItem key={condition.value} value={condition.value}>
+                          {condition.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <p className="px-4 py-2 bg-muted rounded-lg capitalize">
                     {item.condition || 'Not specified'}
@@ -626,7 +657,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                       className={`btn p-2 ${
                         (editedItem.seasons || item.seasons).some(s => s.name === season)
                           ? 'btn-primary'
-                          : 'btn-ghost'
+                          : 'bg-accent-purple/10 hover:btn-primary'
                       }`}
                     >
                       <span className="capitalize">{season}</span>
@@ -647,7 +678,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                       className={`btn p-2 ${
                         (editedItem.occasions || item.occasions).some(o => o.name === occasion)
                           ? 'btn-primary'
-                          : 'btn-ghost'
+                          : 'bg-accent-purple/10 hover:btn-primary'
                       }`}
                     >
                       <span className="capitalize">{occasion}</span>

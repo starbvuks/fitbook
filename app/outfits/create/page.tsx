@@ -9,12 +9,16 @@ import type { ClothingItem, Currency, Season, Occasion } from '@/app/models/type
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import OutfitBuilder from '@/app/components/OutfitBuilder'
 import DraggableItem from '@/app/components/DraggableItem'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 
 // Dynamically import DndProvider
 const DndProvider = dynamic(
   () => import('react-dnd').then(mod => mod.DndProvider),
   { ssr: false }
 )
+
+// Define categories constant here if not already globally available
+const categories = ['all', 'headwear', 'outerwear', 'tops', 'bottoms', 'shoes', 'accessories'] as const;
 
 export default function CreateOutfitPage() {
   const router = useRouter()
@@ -175,7 +179,7 @@ export default function CreateOutfitPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 sm:gap-6">
             {/* Left Column - Catalog - Hidden on Mobile */}
             <div className="hidden lg:block">
-              <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col h-[calc(100vh-8rem)] sm:h-full">
+              <div className="bg-card rounded-xl border border-border shadow-soft flex flex-col">
                 <div className="p-3 sm:p-4 border-b border-border">
                   <h2 className="text-lg font-semibold mb-3">Available Items</h2>
                   <div className="space-y-3">
@@ -191,25 +195,27 @@ export default function CreateOutfitPage() {
                         />
                       </div>
                       <div className="w-1/3">
-                        <select
+                        <Select
                           value={selectedCategory}
-                          onChange={(e) => setSelectedCategory(e.target.value)}
-                          className="select h-9 text-sm w-full"
+                          onValueChange={(value) => setSelectedCategory(value)}
                         >
-                          <option value="all">All Categories</option>
-                          <option value="headwear">Headwear</option>
-                          <option value="outerwear">Outerwear</option>
-                          <option value="tops">Tops</option>
-                          <option value="bottoms">Bottoms</option>
-                          <option value="shoes">Shoes</option>
-                          <option value="accessories">Accessories</option>
-                        </select>
+                          <SelectTrigger className="h-9 text-sm w-full">
+                            <SelectValue placeholder="All Categories" />
+                          </SelectTrigger>
+                          <SelectContent className="font-sans">
+                            {categories.map((cat) => (
+                              <SelectItem key={cat} value={cat} className="capitalize">
+                                {cat === 'all' ? 'All Categories' : cat}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+                <div className="overflow-y-auto p-3 sm:p-4 max-h-[calc(100vh-16rem)]">
                   {loading ? (
                     <div className="flex items-center justify-center h-full">
                       <LoadingSpinner text="Loading items..." />

@@ -7,6 +7,7 @@ import ImageUpload from './ImageUpload'
 import type { UploadResult } from '@/lib/images'
 import Image from 'next/image'
 import { X, ShoppingCart, CircleCheck } from 'lucide-react'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 
 interface AddItemFormProps {
   onSubmit: (formData: any) => void
@@ -209,19 +210,21 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                   Category <span className="text-destructive">*</span>
                 </label>
-                <select
+                <Select
                   value={formData.category}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, category: e.target.value as ClothingCategory })}
-                  className="select h-9 text-sm w-full"
-                  required
+                  onValueChange={(value: ClothingCategory) => setFormData({ ...formData, category: value })}
                 >
-                  <option value="">Select Category</option>
-                  {categories.map((cat: ClothingCategory) => (
-                    <option key={cat} value={cat} className="capitalize">
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-9 text-sm w-full">
+                    <SelectValue placeholder="Select Category" />
+                  </SelectTrigger>
+                  <SelectContent className="font-sans">
+                    {categories.map((cat: ClothingCategory) => (
+                      <SelectItem key={cat} value={cat} className="capitalize">
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -305,19 +308,21 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
 
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">Condition</label>
-              <select
-                id="condition"
+              <Select
                 value={formData.condition}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, condition: e.target.value })}
-                className="select h-9 text-sm w-full"
+                onValueChange={(value: string) => setFormData({ ...formData, condition: value })}
               >
-                <option value="">Select Condition</option>
-                {conditions.map((condition: { value: string; label: string }) => (
-                  <option key={condition.value} value={condition.value}>
-                    {condition.label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="h-9 text-sm w-full">
+                  <SelectValue placeholder="Select Condition" />
+                </SelectTrigger>
+                <SelectContent className="font-sans">
+                  {conditions.map((condition) => (
+                    <SelectItem key={condition.value} value={condition.value}>
+                      {condition.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </FormSection>
 
@@ -339,7 +344,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                       className={`flex items-center justify-center px-4 py-2 rounded-lg transition-colors ${
                         formData.seasons.some(s => s.id === season.id)
                           ? 'bg-accent-purple text-white'
-                          : 'bg-background-soft text-foreground-soft'
+                          : 'bg-accent-purple/10 text-foreground-soft'
                       } hover:bg-accent-purple-dark`}
                     >
                       <span className="capitalize">{season.name}</span>
@@ -364,7 +369,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                       className={`flex items-center justify-center px-4 py-2 rounded-lg transition-colors ${
                         formData.occasions.some(o => o.id === occasion.id)
                           ? 'bg-accent-purple text-white'
-                          : 'bg-background-soft text-foreground-soft'
+                          : 'bg-accent-purple/10 text-foreground-soft'
                       } hover:bg-accent-purple-dark`}
                     >
                       <span className="capitalize">{occasion.name}</span>
