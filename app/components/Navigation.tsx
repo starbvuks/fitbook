@@ -132,7 +132,7 @@ export default function Navigation() {
               <div className="hidden md:flex items-center space-x-8">
                 <NavLink href="/catalog"><span className="hover:text-accent-purple transition-colors">Catalog</span></NavLink>
                 <NavLink href="/outfits"><span className="hover:text-accent-purple transition-colors">Outfits</span></NavLink>
-                <NavLink href="/lookbooks" disabled>Lookbooks</NavLink>
+                <NavLink href="/lookbooks" disabled><span>Lookbooks</span></NavLink>
                 <NavLink href="/discover"><span className="hover:text-accent-purple transition-colors">Discover</span></NavLink>
               </div>
             )}
@@ -360,9 +360,9 @@ function NavLink({ href, children, disabled = false }: {
 
   if (disabled) {
     return (
-      <div className="relative">
+      <div className="relative mb-0.5">
         <span
-          className="text-foreground-soft/50 cursor-not-allowed"
+          className="text-sm font-medium text-neutral-600 cursor-not-allowed"
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >

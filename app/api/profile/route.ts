@@ -7,19 +7,20 @@ import { z } from 'zod'
 import type { UserProfile } from '@/app/models/types'
 
 const updateProfileSchema = z.object({
-  name: z.string().nullable(),
-  username: z.string().nullable(),
-  bio: z.string().nullable(),
-  location: z.string().nullable(),
-  website: z.string().url().nullable().or(z.literal('')).transform(v => v || null),
-  instagram: z.string().nullable().or(z.literal('')).transform(v => v || null),
-  pinterest: z.string().nullable().or(z.literal('')).transform(v => v || null),
-  tiktok: z.string().nullable().or(z.literal('')).transform(v => v || null),
-  currency: z.enum(['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']),
-  language: z.string(),
-  emailNotifications: z.boolean(),
-  publicProfile: z.boolean(),
-  image: z.string().nullable()
+  name: z.string().nullable().optional(),
+  username: z.string().nullable().optional(),
+  bio: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  website: z.string().url().nullable().or(z.literal('')).transform(v => v || null).optional(),
+  instagram: z.string().nullable().or(z.literal('')).transform(v => v || null).optional(),
+  pinterest: z.string().nullable().or(z.literal('')).transform(v => v || null).optional(),
+  tiktok: z.string().nullable().or(z.literal('')).transform(v => v || null).optional(),
+  currency: z.enum(['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']).optional(),
+  language: z.string().optional(),
+  emailNotifications: z.boolean().optional(),
+  publicProfile: z.boolean().optional(),
+  image: z.string().nullable().optional(),
+  darkMode: z.boolean().optional()
 })
 
 async function getUserStats(userId: string) {
@@ -134,41 +135,38 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: Request) {
+export async function PATCH(req: Request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.email || !session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session?.user?.email) {
+      return new Response('Unauthorized', { status: 401 })
     }
 
-    const body = await request.json()
-    console.log('Received update data:', body) // Debug log
-    
-    const data = updateProfileSchema.parse(body)
-    console.log('Parsed data:', data) // Debug log
+    const data = await req.json()
+    const validatedData = updateProfileSchema.parse(data)
 
-    const profile = await prisma.user.update({
-      where: { id: session.user.id },
+    const user = await prisma.user.update({
+      where: { email: session.user.email },
       data: {
-        name: data.name,
-        username: data.username,
-        bio: data.bio,
-        location: data.location,
-        website: data.website,
-        instagram: data.instagram,
-        pinterest: data.pinterest,
-        tiktok: data.tiktok,
-        currency: data.currency,
-        language: data.language,
-        emailNotifications: data.emailNotifications,
-        publicProfile: data.publicProfile,
-        image: data.image
+        name: validatedData.name,
+        username: validatedData.username,
+        bio: validatedData.bio,
+        location: validatedData.location,
+        website: validatedData.website,
+        instagram: validatedData.instagram,
+        pinterest: validatedData.pinterest,
+        tiktok: validatedData.tiktok,
+        currency: validatedData.currency,
+        language: validatedData.language,
+        emailNotifications: validatedData.emailNotifications,
+        publicProfile: validatedData.publicProfile,
+        darkMode: validatedData.darkMode
       },
       select: {
         id: true,
         name: true,
+        username: true,
         email: true,
-        image: true,
         bio: true,
         location: true,
         website: true,
@@ -178,32 +176,19 @@ export async function PATCH(request: Request) {
         currency: true,
         language: true,
         emailNotifications: true,
-        publicProfile: true
+        publicProfile: true,
+        darkMode: true,
+        image: true,
+        totalSpent: true
       }
     })
 
-    const stats = await getUserStats(profile.id)
-
-    return NextResponse.json({
-      ...profile,
-      stats,
-      featuredOutfits: [],
-      totalSpent: stats.totalSpent
-    })
+    return Response.json(user)
   } catch (error) {
     console.error('Error updating profile:', error)
-    
     if (error instanceof z.ZodError) {
-      console.log('Validation errors:', error.errors) // Debug log
-      return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
-        { status: 400 }
-      )
+      return new Response(JSON.stringify({ error: error.errors }), { status: 400 })
     }
-
-    return NextResponse.json(
-      { error: 'Failed to update profile' },
-      { status: 500 }
-    )
+    return new Response('Error updating profile', { status: 500 })
   }
 } 

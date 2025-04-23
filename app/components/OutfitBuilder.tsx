@@ -8,6 +8,7 @@ import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName
 import { formatPrice, cn } from '@/lib/utils'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
+import PriceDisplay from '@/app/components/PriceDisplay'
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -87,6 +88,49 @@ export default function OutfitBuilder({
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isPublic, setIsPublic] = useState(initialIsPublic)
 
+  const dropAreaRef = useRef<HTMLDivElement>(null)
+  const [{ isOver }, dropRef] = useDrop<ClothingItemWithPosition, void, { isOver: boolean }>(() => ({
+    accept: 'CLOTHING_ITEM',
+    hover: (item, monitor) => {
+      if (isMobile) return // Disable hover effects on mobile
+      if (item.category === 'accessories') {
+        const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
+        setHoveredSlot(`${targetSlot}_accessory`)
+      } else {
+        const slot = item.category === 'tops' ? 'top' : 
+                    item.category === 'bottoms' ? 'bottom' : 
+                    item.category === 'headwear' ? 'headwear' :
+                    item.category === 'outerwear' ? 'outerwear' :
+                    item.category === 'shoes' ? 'shoes' : null
+        setHoveredSlot(slot)
+      }
+    },
+    drop: (item: ClothingItemWithPosition, monitor) => {
+      if (isMobile) return // Disable drop on mobile
+      if (item.category === 'accessories') {
+        const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
+        onAddAccessory({ ...item, position: targetSlot })
+      } else {
+        const slot = item.category === 'tops' ? 'top' : 
+                    item.category === 'bottoms' ? 'bottom' : 
+                    item.category === 'headwear' ? 'headwear' :
+                    item.category === 'outerwear' ? 'outerwear' :
+                    item.category === 'shoes' ? 'shoes' : null
+        if (slot) onAddItem(item, slot)
+      }
+      setHoveredSlot(null)
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver()
+    })
+  }))
+
+  useEffect(() => {
+    if (dropAreaRef.current) {
+      dropRef(dropAreaRef.current)
+    }
+  }, [dropRef])
+
   // Update local name when initialName changes
   useEffect(() => {
     if (initialName !== outfitName) {
@@ -127,42 +171,6 @@ export default function OutfitBuilder({
   useEffect(() => {
     if (onIsPublicChange) onIsPublicChange(isPublic)
   }, [isPublic, onIsPublicChange])
-
-  const [{ isOver }, dropRef] = useDrop<ClothingItemWithPosition, void, { isOver: boolean }>(() => ({
-    accept: 'CLOTHING_ITEM',
-    hover: (item, monitor) => {
-      if (isMobile) return // Disable hover effects on mobile
-      if (item.category === 'accessories') {
-        const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
-        setHoveredSlot(`${targetSlot}_accessory`)
-      } else {
-        const slot = item.category === 'tops' ? 'top' : 
-                    item.category === 'bottoms' ? 'bottom' : 
-                    item.category === 'headwear' ? 'headwear' :
-                    item.category === 'outerwear' ? 'outerwear' :
-                    item.category === 'shoes' ? 'shoes' : null
-        setHoveredSlot(slot)
-      }
-    },
-    drop: (item: ClothingItemWithPosition, monitor) => {
-      if (isMobile) return // Disable drop on mobile
-      if (item.category === 'accessories') {
-        const targetSlot = getTargetSlot(monitor.getClientOffset()?.y)
-        onAddAccessory({ ...item, position: targetSlot })
-      } else {
-        const slot = item.category === 'tops' ? 'top' : 
-                    item.category === 'bottoms' ? 'bottom' : 
-                    item.category === 'headwear' ? 'headwear' :
-                    item.category === 'outerwear' ? 'outerwear' :
-                    item.category === 'shoes' ? 'shoes' : null
-        if (slot) onAddItem(item, slot)
-      }
-      setHoveredSlot(null)
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver()
-    })
-  }))
 
   // Helper function to determine which slot the accessory is being dropped into
   const getTargetSlot = (y: number | undefined): string => {
@@ -207,67 +215,43 @@ export default function OutfitBuilder({
     onRemove: () => void
     isAccessory?: boolean 
   }) => (
-    <div className="relative h-full group">
-      <div className={`flex h-full ${isAccessory ? 'w-full' : ''}`}>
-        {/* Image container */}
-        <div className={`relative ${isAccessory ? 'w-full h-full' : 'w-[100px] h-[96px] flex-shrink-0'}`}>
-          <Image
-            src={item.images[0].url}
-            alt={item.name}
-            fill
-            className={`object-cover ${isAccessory ? 'rounded-lg' : 'rounded-l-lg'}`}
+    <div className={cn(
+      "group relative aspect-square rounded-lg border border-border overflow-hidden",
+      isAccessory ? "w-24 h-24" : "w-full"
+    )}>
+      <Image
+        src={item.images[0].url}
+        alt={item.name}
+        fill
+        className="object-cover"
+      />
+      <div className="
+        absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100
+        transition-opacity duration-200 flex flex-col justify-center items-center p-3
+      ">
+        <h3 className="text-sm font-medium text-white text-center line-clamp-2 max-w-full">
+          {item.name}
+        </h3>
+        {item.brand && (
+          <span className="text-xs text-white/75 mt-1 text-center line-clamp-1 max-w-full">
+            {item.brand}
+          </span>
+        )}
+        <div className="text-sm font-semibold text-white mt-1">
+          <PriceDisplay
+            amount={item.price}
+            currency={item.priceCurrency || 'INR'}
+            userCurrency={currency}
+            showOriginal={false}
+            showTooltip={true}
           />
         </div>
-        
-        {isAccessory ? (
-          // Simple accessory hover overlay
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
-            <div className="text-center px-2">
-              <p className="text-white text-xs font-medium line-clamp-2">{item.name}</p>
-              <p className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</p>
-            </div>
-            <button
-              onClick={onRemove}
-              className="absolute top-1 right-1 btn btn-ghost h-6 w-6 p-0 bg-black/40 hover:bg-black/60"
-            >
-              <X className="w-3 h-3 text-white" />
-            </button>
-          </div>
-        ) : (
-          // Main item details - always visible
-          <div className="flex-1 bg-background-soft/80 p-2 rounded-r-lg">
-            <div className="flex flex-col h-full group-hover:bg-background-soft transition-colors duration-200 rounded-r-lg p-2">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0"> {/* min-w-0 ensures truncation works */}
-                  <h4 className="text-sm font-medium truncate">{item.name}</h4>
-                  {item.brand && (
-                    <p className="text-xs text-foreground-soft truncate">{item.brand}</p>
-                  )}
-                </div>
-                <button
-                  onClick={onRemove}
-                  className="ml-2 btn btn-ghost h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-              <div className="mt-auto flex items-center justify-between text-xs">
-                <span className="text-foreground-soft">{formatPrice(item.price, currency)}</span>
-                {item.isOwned ? (
-                  <div className="flex items-center gap-1 text-green-600">
-                    <CircleCheck className="w-3 h-3" />
-                    <span>Owned</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1 text-blue-600">
-                    <ShoppingCart className="w-3 h-3" />
-                    <span>Want</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        <button
+          onClick={onRemove}
+          className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white hover:bg-black/75 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
     </div>
   )
@@ -308,142 +292,127 @@ export default function OutfitBuilder({
   ]
 
   return (
-    <div 
-      ref={isMobile ? undefined : dropRef as any} // Only enable drop on desktop
-      className="flex flex-col h-full p-3 sm:p-4 bg-card rounded-xl border-2 border-border"
-      onMouseLeave={() => setHoveredSlot(null)}
-    >
-      {/* Header: Name, Price, Save (NO Download) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
-        <input
-          type="text"
-          value={outfitName}
-          onChange={(e) => setOutfitName(e.target.value)}
-          placeholder="Enter outfit name..."
-          className="text-lg font-semibold bg-transparent border-b-2 border-border focus:border-primary focus:outline-none focus:ring-0 placeholder-muted-foreground w-full sm:w-[70%]"
-        />
-        <div className="flex items-center justify-end gap-2 mt-3 sm:mt-0">
-          <div className="flex items-center gap-1.5 text-lg">
-            <span>{formatPrice(totalCost, currency)}</span>
-          </div>
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !outfitName.trim()}
+    <div className="flex flex-col gap-4">
+      {/* Outfit Builder Grid */}
+      <div
+        ref={dropAreaRef}
+        className={cn(
+          "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4",
+          isOver && "opacity-75"
+        )}
+      >
+        {/* Outfit Slots */}
+        {Object.entries(slots).map(([slot, item]) => (
+          <div
+            key={slot}
             className={cn(
-              "btn btn-primary h-8 px-3 flex items-center gap-1.5",
-              isSaving && "opacity-75 cursor-not-allowed"
+              "bg-card rounded-xl border border-border shadow-soft p-3 sm:p-4",
+              hoveredSlot === slot && "border-accent-purple"
             )}
+            onClick={() => handleSlotClick(slot)}
           >
-            {isSaving ? (
-              <>
-                <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
-                Saving...
-              </>
+            <h3 className="text-sm font-medium mb-3 capitalize">
+              {SLOT_LABELS[slot as OutfitSlot]}
+            </h3>
+            {item ? (
+              <ItemDisplay item={item} onRemove={() => onRemoveItem(slot)} />
             ) : (
-              <>
-                <Save className="w-4 h-4" />
-                Save
-              </>
+              <div className="aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center">
+                <Plus className="w-6 h-6 text-muted-foreground" />
+              </div>
             )}
-          </button>
+          </div>
+        ))}
+
+        {/* Accessories */}
+        <div className="bg-card rounded-xl border border-border shadow-soft p-3 sm:p-4">
+          <h3 className="text-sm font-medium mb-3">Accessories</h3>
+          <div className="grid grid-cols-3 gap-2">
+            {accessories.map((item, index) => (
+              <ItemDisplay
+                key={item.id}
+                item={item}
+                onRemove={() => onRemoveAccessory(index)}
+                isAccessory
+              />
+            ))}
+            <button
+              onClick={() => handleSlotClick('accessory')}
+              className="w-24 h-24 rounded-lg border-2 border-dashed border-border flex items-center justify-center hover:border-accent-purple transition-colors"
+            >
+              <Plus className="w-6 h-6 text-muted-foreground" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Error display */}
-      {error && <p className="text-sm text-red-500 mb-2">Error: {error}</p>}
-      
-      {/* Builder Area */}
-      <div 
-        className="flex-1 overflow-y-auto"
-        onMouseLeave={() => setHoveredSlot(null)}
-      >
-        {/* Mobile Outfit Preview */}
-        <div className="sm:hidden p-3 bg-background-soft border-b border-border">
-          <div className="aspect-[3/4] relative rounded-lg overflow-hidden border border-border">
-            <OutfitThumbnail 
-              items={Object.values(slots)
+      {/* Total Cost */}
+      <div className="bg-card rounded-xl border border-border shadow-soft p-3 sm:p-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Total Cost</h3>
+          <div className="text-xl font-semibold">
+            <PriceDisplay
+              amount={Object.values(slots)
                 .filter((item): item is ClothingItem => item !== null)
-                .concat(accessories)}
-              className="w-full h-full"
+                .concat(accessories)
+                .reduce((sum, item) => sum + item.price, 0)}
+              currency={'INR'}
+              userCurrency={currency}
+              showOriginal={false}
+              showTooltip={true}
             />
           </div>
         </div>
+      </div>
 
-        {/* Outfit Builder Main Content */}
-        <div className="p-3 space-y-4">
-          {/* Main Items */}
-          <div className="flex flex-col gap-4 md:gap-6">
-            {OUTFIT_SLOTS.map((slot) => (
-              <div key={slot} className="relative">
-                <div
+      {/* Item Picker Sheet */}
+      <Sheet open={isItemPickerOpen} onOpenChange={setIsItemPickerOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-xl">
+          <SheetHeader>
+            <SheetTitle>Select {selectedSlot === 'accessory' ? 'Accessory' : SLOT_LABELS[selectedSlot as OutfitSlot]}</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setViewMode('grid')}
                   className={cn(
-                    "relative flex items-center gap-4 rounded-lg border p-4 transition-colors",
-                    "hover:bg-muted/80",
-                    slots[slot] ? "bg-card" : "bg-muted/50",
-                    hoveredSlot === slot && "ring-2 ring-primary"
+                    "p-2 rounded-lg",
+                    viewMode === 'grid' ? "bg-accent-purple text-white" : "hover:bg-accent-purple/10"
                   )}
-                  onClick={() => handleSlotClick(slot)}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    setHoveredSlot(slot)
-                  }}
-                  onDragLeave={() => setHoveredSlot(null)}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    setHoveredSlot(null)
-                    const item = JSON.parse(e.dataTransfer.getData('item'))
-                    handleItemSelect(item)
-                  }}
                 >
-                  {slots[slot] ? (
-                    <>
-                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
-                        <Image
-                          src={slots[slot]!.images[0].url}
-                          alt={slots[slot]!.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <p className="font-medium">{slots[slot]!.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {formatPrice(slots[slot]!.price, currency)}
-                        </p>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onRemoveItem(slot)
-                        }}
-                        className="absolute right-2 top-2 rounded-full p-1 hover:bg-accent"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <div className="flex items-center gap-2 w-full">
-                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-muted">
-                        <Plus className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {SLOT_LABELS[slot as keyof typeof SLOT_LABELS]}
-                      </p>
-                    </div>
+                  <Grid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    "p-2 rounded-lg",
+                    viewMode === 'list' ? "bg-accent-purple text-white" : "hover:bg-accent-purple/10"
                   )}
-                </div>
+                >
+                  <List className="w-4 h-4" />
+                </button>
               </div>
-            ))}
-          </div>
-
-          {/* Accessories */}
-          <div className="mt-6">
-            <h3 className="mb-4 text-lg font-medium">Accessories</h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-              {accessories.map((item, index) => (
-                <div key={index} className="relative">
-                  <div className="relative flex items-center gap-4 rounded-lg border bg-card p-4">
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
+            </div>
+            <div className={cn(
+              "grid gap-4",
+              viewMode === 'grid' ? "grid-cols-2" : "grid-cols-1"
+            )}>
+              {availableItems
+                .filter(item => selectedSlot === 'accessory' ? item.category === 'accessories' : true)
+                .map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleItemSelect(item)}
+                    className={cn(
+                      "text-left rounded-lg border border-border hover:border-accent-purple transition-colors overflow-hidden",
+                      viewMode === 'grid' ? "aspect-square" : "flex items-center gap-4"
+                    )}
+                  >
+                    <div className={cn(
+                      "relative",
+                      viewMode === 'grid' ? "aspect-square" : "w-24 h-24"
+                    )}>
                       <Image
                         src={item.images[0].url}
                         alt={item.name}
@@ -451,260 +420,39 @@ export default function OutfitBuilder({
                         className="object-cover"
                       />
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatPrice(item.price, currency)}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onRemoveAccessory(index)}
-                      className="absolute right-2 top-2 rounded-full p-1 hover:bg-accent"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              {/* Empty accessory slots */}
-              {[...Array(Math.max(1, 3 - accessories.length))].map((_, index) => (
-                <div
-                  key={`empty-${index}`}
-                  className={cn(
-                    "relative flex items-center gap-4 rounded-lg border p-4 transition-colors",
-                    "hover:bg-muted/80 bg-muted/50",
-                    hoveredSlot === 'accessory' && "ring-2 ring-primary"
-                  )}
-                  onClick={() => handleSlotClick('accessory')}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    setHoveredSlot('accessory')
-                  }}
-                  onDragLeave={() => setHoveredSlot(null)}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    setHoveredSlot(null)
-                    const item = JSON.parse(e.dataTransfer.getData('item'))
-                    handleItemSelect(item)
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-muted">
-                      <Plus className="h-6 w-6 text-muted-foreground md:hidden" />
-                    </div>
-                    <p className="text-sm text-muted-foreground md:hidden">
-                      Tap to add accessory
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Metadata */}
-          <div className="space-y-4 pt-2">
-            <div>
-              <h3 className="text-sm font-medium mb-2">Description</h3>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add a description for this outfit..."
-                className="w-full h-20 p-2.5 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple resize-none text-sm"
-              />
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium mb-2">Seasons</h3>
-              <div className="flex flex-wrap gap-1.5">
-                {(['spring', 'summer', 'fall', 'winter'] as SeasonName[]).map((season: SeasonName) => (
-                  <button
-                    key={season}
-                    onClick={() => {
-                      const isSelected = seasons.some(s => s.name === season)
-                      setSeasons(prev => 
-                        isSelected 
-                          ? prev.filter(s => s.name !== season)
-                          : [...prev, { id: season, name: season }]
-                      )
-                    }}
-                    className={`px-2.5 py-1 rounded-full text-sm capitalize transition-colors ${
-                      seasons.some(s => s.name === season)
-                        ? 'bg-accent-purple text-white'
-                        : 'bg-accent-blue/10 text-foreground-soft hover:bg-background'
-                    }`}
-                  >
-                    {season}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium mb-2">Occasions</h3>
-              <div className="flex flex-wrap gap-1.5">
-                {(['casual', 'formal', 'business', 'party', 'sport', 'beach', 'evening', 'wedding'] as OccasionName[]).map((occasion: OccasionName) => (
-                  <button
-                    key={occasion}
-                    onClick={() => {
-                      const isSelected = occasions.some(o => o.name === occasion)
-                      setOccasions(prev => 
-                        isSelected 
-                          ? prev.filter(o => o.name !== occasion)
-                          : [...prev, { id: occasion, name: occasion }]
-                      )
-                    }}
-                    className={`px-2.5 py-1 rounded-full text-sm capitalize transition-colors ${
-                      occasions.some(o => o.name === occasion)
-                        ? 'bg-accent-purple text-white'
-                        : 'bg-accent-blue/10 text-foreground-soft hover:bg-background'
-                    }`}
-                  >
-                    {occasion}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium mb-2">Tags</h3>
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-1.5">
-                  {tags.map((tag: string) => (
-                    <div
-                      key={tag}
-                      className="px-2.5 py-1 rounded-full text-sm bg-accent-purple text-white flex items-center gap-1 group"
-                    >
-                      <span>{tag}</span>
-                      <button
-                        onClick={() => setTags(prev => prev.filter(t => t !== tag))}
-                        className="opacity-70 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  placeholder="Add tags (separate with commas)..."
-                  className="w-full p-2.5 bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-accent-purple text-sm"
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === ',' || e.key === 'Enter') {
-                      e.preventDefault()
-                      const input = e.currentTarget
-                      const value = input.value.trim()
-                      if (value && !tags.includes(value)) {
-                        setTags(prev => [...prev, value])
-                        input.value = ''
-                      }
-                    }
-                  }}
-                  onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-                    const value = e.target.value.trim()
-                    if (value && !tags.includes(value)) {
-                      setTags(prev => [...prev, value])
-                      e.target.value = ''
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Item Picker Sheet */}
-      <Sheet open={isItemPickerOpen} onOpenChange={setIsItemPickerOpen}>
-        <SheetContent side="bottom" className="h-[80vh] px-0">
-          <div className="px-4">
-            <SheetHeader>
-              <SheetTitle>Select {selectedSlot === 'accessory' ? 'Accessory' : SLOT_LABELS[selectedSlot as keyof typeof SLOT_LABELS]}</SheetTitle>
-            </SheetHeader>
-          </div>
-          <div className="flex-1 overflow-y-auto mt-4">
-            <div className="px-4 grid grid-cols-2 sm:grid-cols-3 gap-3 pb-safe">
-              <div className="col-span-full flex justify-end mb-2">
-                <button
-                  onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-                >
-                  {viewMode === 'grid' ? (
-                    <>
-                      <List className="w-4 h-4" />
-                      <span>List view</span>
-                    </>
-                  ) : (
-                    <>
-                      <Grid className="w-4 h-4" />
-                      <span>Grid view</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              <div className={cn(
-                viewMode === 'list' ? 'col-span-full space-y-2' : 'grid grid-cols-2 sm:grid-cols-3 gap-3'
-              )}>
-                {availableItems
-                  .filter(filterItemsBySlot)
-                  .map(item => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleItemSelect(item)}
-                      className={cn(
-                        "relative border border-border overflow-hidden hover:border-accent-purple transition-colors",
-                        viewMode === 'list' 
-                          ? 'flex items-center gap-3 p-2 rounded-lg' 
-                          : 'aspect-square rounded-lg'
+                    <div className={cn(
+                      viewMode === 'grid'
+                        ? "absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity duration-200 flex flex-col justify-center items-center p-3 text-white"
+                        : "flex-1 p-3"
+                    )}>
+                      <h3 className="text-sm font-medium line-clamp-2">{item.name}</h3>
+                      {item.brand && (
+                        <span className={cn(
+                          "text-xs mt-1 line-clamp-1",
+                          viewMode === 'grid' ? "text-white/75" : "text-muted-foreground"
+                        )}>
+                          {item.brand}
+                        </span>
                       )}
-                    >
                       <div className={cn(
-                        "relative",
-                        viewMode === 'list' ? 'w-16 h-16' : 'w-full h-full'
+                        "text-sm font-semibold mt-1",
+                        viewMode === 'grid' ? "text-white" : ""
                       )}>
-                        <Image
-                          src={item.images[0].url}
-                          alt={item.name}
-                          fill
-                          className="object-cover"
+                        <PriceDisplay
+                          amount={item.price}
+                          currency={item.priceCurrency || 'INR'}
+                          userCurrency={currency}
+                          showOriginal={false}
+                          showTooltip={true}
                         />
                       </div>
-                      {viewMode === 'list' ? (
-                        <div className="flex-1">
-                          <div className="text-sm font-medium line-clamp-1">{item.name}</div>
-                          <div className="text-sm text-muted-foreground mt-0.5">{formatPrice(item.price, currency)}</div>
-                        </div>
-                      ) : (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity p-2">
-                          <div className="h-full flex flex-col">
-                            <div className="flex-1">
-                              <div className="text-white text-sm font-medium line-clamp-2">{item.name}</div>
-                              <div className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-              </div>
+                    </div>
+                  </button>
+                ))}
             </div>
           </div>
         </SheetContent>
       </Sheet>
-
-      {/* Public/Private Toggle */}
-      <div className="p-4 border-t border-border">
-        <div className="flex items-center justify-between">
-           <Label htmlFor="public-toggle" className="text-sm font-medium text-muted-foreground">
-             Make Outfit Public?
-           </Label>
-           <Switch
-             id="public-toggle"
-             checked={isPublic}
-             onCheckedChange={setIsPublic}
-             aria-label="Toggle outfit visibility"
-           />
-        </div>
-      </div>
     </div>
   )
 } 

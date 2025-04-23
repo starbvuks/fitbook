@@ -38,35 +38,35 @@ model Session {
 }
 
 model User {
-  id              String        @id @default(cuid())
-  name            String?
-  username        String?       @unique
-  email           String?       @unique
-  emailVerified   DateTime?
-  image           String?
-  bio             String?       @db.Text
-  location        String?
-  website         String?
-  instagram       String?
-  pinterest       String?
-  tiktok          String?
-  currency        String        @default("INR")
-  language        String        @default("en")
-  emailNotifications Boolean    @default(true)
-  publicProfile   Boolean       @default(false)
-  darkMode        Boolean       @default(true)
-  totalSpent      Float         @default(0)
-  featuredOutfits String[]
-  featuredLookbook String?
-  accounts        Account[]
-  sessions        Session[]
-  wardrobe        WardrobeItem[]
-  outfits         Outfit[]
-  lookbooks       Lookbook[]
-  savedOutfits    SavedOutfit[]
-  upvotedOutfits  Upvote[]      @relation("UserUpvotes")
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                String    @id @default(cuid())
+  name              String?
+  username          String?   @unique
+  email             String?   @unique
+  emailVerified     DateTime?
+  image             String?
+  bio               String?
+  location          String?
+  website           String?
+  instagram         String?
+  pinterest         String?
+  tiktok            String?
+  currency          String    @default("INR")
+  language          String    @default("en")
+  emailNotifications Boolean  @default(true)
+  publicProfile     Boolean   @default(true)
+  darkMode          Boolean   @default(false)
+  totalSpent        Float     @default(0)
+  featuredOutfits   String[]
+  featuredLookbook  String?
+  accounts          Account[]
+  sessions          Session[]
+  wardrobe          WardrobeItem[]
+  outfits           Outfit[]
+  lookbooks         Lookbook[]
+  savedOutfits       SavedOutfit[]
+  upvotedOutfits    Upvote[]      @relation("UserUpvotes")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 }
 
 model WardrobeItem {
@@ -75,6 +75,7 @@ model WardrobeItem {
   category        String
   brand           String?
   price           Float
+  priceCurrency   String        @default("INR")
   purchaseUrl     String?
   size            String?
   material        String?
@@ -84,25 +85,25 @@ model WardrobeItem {
   purchaseLocation String?
   retailPrice     Float?
   onSale          Boolean?
-  lastWorn        DateTime?
-  timesWorn       Int           @default(0)
-  wearDates       DateTime[]
+  lastWorn         DateTime?
+  timesWorn        Int           @default(0)
+  wearDates        DateTime[]
   careInstructions String?      @db.Text
-  dryCleanOnly    Boolean       @default(false)
-  lastCleaned     DateTime?
-  fitRating       Int?
-  fitNotes        String?       @db.Text
-  notes           String?       @db.Text
-  userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  images          Image[]
-  colors          Color[]
-  tags            Tag[]
-  outfitItems     OutfitItem[]
-  seasons         Season[]
-  occasions       Occasion[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  dryCleanOnly     Boolean       @default(false)
+  lastCleaned      DateTime?
+  fitRating        Int?
+  fitNotes         String?       @db.Text
+  notes            String?       @db.Text
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images           Image[]
+  colors           Color[]
+  tags             Tag[]
+  outfitItems      OutfitItem[]
+  seasons          Season[]
+  occasions        Occasion[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 }
 
 model Image {
@@ -136,22 +137,23 @@ model Outfit {
   name          String
   description   String?      @db.Text
   totalCost     Float
+  costCurrency  String       @default("INR")
   rating        Int?
   timesWorn     Int          @default(0)
-  lastWorn      DateTime?
-  favorited     Boolean      @default(false)
-  isPublic      Boolean      @default(false)
-  userId        String
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items         OutfitItem[]
-  tags          Tag[]
-  lookbooks     Lookbook[]
-  seasons       Season[]
-  occasions     Occasion[]
-  savedBy       SavedOutfit[]
+  lastWorn       DateTime?
+  favorited      Boolean      @default(false)
+  isPublic       Boolean      @default(false)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items          OutfitItem[]
+  tags           Tag[]
+  lookbooks      Lookbook[]
+  seasons        Season[]
+  occasions      Occasion[]
+  savedBy        SavedOutfit[]
   upvotesReceived Upvote[]     @relation("OutfitUpvotes")
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime    @updatedAt
 }
 
 model OutfitItem {
@@ -161,6 +163,9 @@ model OutfitItem {
   wardrobeItem  WardrobeItem @relation(fields: [wardrobeItemId], references: [id], onDelete: Cascade)
   wardrobeItemId String
   position      String      // e.g., "head", "top", "bottom", etc.
+  notes         String?     @db.Text
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@unique([outfitId, position])
 }

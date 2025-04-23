@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { ExternalLink, ShoppingCart, CircleCheck, Trash2, Loader2 } from 'lucide-react'
 import type { ClothingItem, Currency } from '@/app/models/types'
-import { formatCurrency } from '@/lib/currency'
+import PriceDisplay from '@/app/components/PriceDisplay'
 import { useState } from 'react'
 import {
   AlertDialog,
@@ -199,17 +199,20 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
           )}
         </div>
         
-        <div className="flex items-center text-xs mb-1 mt-0.5">
-          <span className="capitalize text-muted-foreground/80">{item.category}</span>
-          <span className="px-1">•</span>
-          {item.brand && (
-            <span className="text-foreground-soft">{item.brand}</span>
-          )}
+        <div className="mt-1 flex items-center justify-between">
+          <div className="text-sm text-foreground-soft">
+            {item.brand || 'No Brand'}
+          </div>
+          <div className="text-sm font-medium">
+            <PriceDisplay
+              amount={item.price}
+              currency={item.priceCurrency || 'INR'}
+              userCurrency={currency}
+              showOriginal={false}
+              showTooltip={true}
+            />
+          </div>
         </div>
-      </div>
-      
-      <div className="flex items-center p-3 pt-0">
-         <span className="text-sm font-semibold">{formatCurrency(item.price, currency)}</span>
       </div>
     </div>
   )

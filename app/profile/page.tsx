@@ -8,6 +8,8 @@ import type { UserProfile, Currency } from '@/app/models/types'
 import { useRouter } from 'next/navigation'
 import ImageUpload from '@/app/components/ImageUpload'
 import { formatCurrency } from '@/lib/currency'
+import PriceDisplay from '@/app/components/PriceDisplay'
+import { toast } from '@/components/ui/use-toast'
 
 const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']
 const languages = [
@@ -54,6 +56,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showAvatarUpload, setShowAvatarUpload] = useState(false)
+  const [pendingCurrency, setPendingCurrency] = useState<Currency | null>(null)
+  const [convertedTotalSpent, setConvertedTotalSpent] = useState<number | null>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -61,32 +65,73 @@ export default function ProfilePage() {
     }
   }, [status, router])
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const response = await fetch('/api/profile')
-        
-        if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.error || 'Failed to fetch profile')
-        }
-
+  const fetchProfile = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await fetch('/api/profile')
+      
+      if (!response.ok) {
         const data = await response.json()
-        setProfile(data)
-      } catch (error) {
-        console.error('Error fetching profile:', error)
-        setError(error instanceof Error ? error.message : 'Failed to load profile')
-      } finally {
-        setLoading(false)
+        throw new Error(data.error || 'Failed to fetch profile')
       }
-    }
 
+      const data = await response.json()
+      setProfile(data)
+      setPendingCurrency(data.currency)
+      setConvertedTotalSpent(null)
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load profile')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     if (session?.user) {
       fetchProfile()
     }
   }, [session])
+
+  useEffect(() => {
+    const previewConversion = async () => {
+      if (!profile?.stats?.totalSpent || !pendingCurrency || pendingCurrency === profile.currency) {
+        setConvertedTotalSpent(null)
+        return
+      }
+
+      try {
+        const response = await fetch('/api/currency/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: profile.stats.totalSpent,
+            fromCurrency: profile.currency,
+            toCurrency: pendingCurrency
+          })
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.message || 'Failed to convert currency')
+        }
+        
+        const { amount: convertedAmount } = await response.json()
+        setConvertedTotalSpent(convertedAmount)
+      } catch (error) {
+        console.error('Error converting currency:', error)
+        setConvertedTotalSpent(null)
+        toast({
+          title: "Error",
+          description: "Failed to preview currency conversion",
+          variant: "destructive",
+        })
+      }
+    }
+
+    previewConversion()
+  }, [pendingCurrency, profile?.currency, profile?.stats?.totalSpent])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -96,21 +141,57 @@ export default function ProfilePage() {
       setSaving(true)
       setError(null)
 
-      // Only send the fields that can be updated
+      // First convert the amount if needed
+      let finalTotalSpent = profile.stats.totalSpent
+      if (pendingCurrency && pendingCurrency !== profile.currency) {
+        try {
+          const convertResponse = await fetch('/api/currency/convert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              amount: profile.stats.totalSpent,
+              fromCurrency: profile.currency,
+              toCurrency: pendingCurrency
+            })
+          })
+
+          if (!convertResponse.ok) {
+            const error = await convertResponse.json()
+            throw new Error(error.message || 'Failed to convert currency')
+          }
+
+          const { amount: convertedAmount } = await convertResponse.json()
+          finalTotalSpent = convertedAmount
+        } catch (error) {
+          console.error('Error converting currency:', error)
+          toast({
+            title: "Error",
+            description: "Failed to convert currency. Please try again.",
+            variant: "destructive",
+          })
+          return
+        }
+      }
+
+      // Now update the profile with the converted amount
       const updateData = {
-        name: profile.name || null,
-        username: profile.username || null,
-        bio: profile.bio || null,
-        location: profile.location || null,
-        website: profile.website || null,
-        instagram: profile.instagram || null,
-        pinterest: profile.pinterest || null,
-        tiktok: profile.tiktok || null,
-        currency: profile.currency,
+        name: profile.name,
+        username: profile.username,
+        bio: profile.bio,
+        location: profile.location,
+        website: profile.website,
+        instagram: profile.instagram,
+        pinterest: profile.pinterest,
+        tiktok: profile.tiktok,
+        currency: pendingCurrency || profile.currency,
         language: profile.language,
         emailNotifications: profile.emailNotifications,
         publicProfile: profile.publicProfile,
-        image: profile.image || null,
+        image: profile.image,
+        stats: {
+          ...profile.stats,
+          totalSpent: finalTotalSpent
+        }
       }
 
       const response = await fetch('/api/profile', {
@@ -120,16 +201,26 @@ export default function ProfilePage() {
       })
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to update profile')
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to update profile')
       }
 
-      const updatedProfile = await response.json()
-      setProfile(updatedProfile)
+      // After successful update, fetch the fresh profile data
+      await fetchProfile()
       router.refresh()
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      })
     } catch (error) {
       console.error('Error updating profile:', error)
       setError(error instanceof Error ? error.message : 'Failed to update profile')
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setSaving(false)
     }
@@ -198,64 +289,70 @@ export default function ProfilePage() {
             <div className="space-y-6">
               <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-neutral-800 p-4 sm:p-6">
                 <div className="text-center">
-                  <div className="relative inline-block">
-                    <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4">
-                      {profile.image ? (
-                        <Image
-                          src={profile.image}
-                          alt={profile.name || 'Profile'}
-                          fill
-                          className="object-cover rounded-full"
-                        />
-                      ) : (
-                        <div className="w-full h-full rounded-full bg-accent-purple flex items-center justify-center text-white text-3xl sm:text-4xl">
-                          {profile.name?.[0] || 'U'}
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute bottom-4 right-0">
-                      <div className="relative">
-                        <ImageUpload
-                          onUploadSuccess={handleAvatarUpload}
-                          value={profile.image || undefined}
-                        />
+                  <div className="relative w-32 h-32 mx-auto mb-4">
+                    {profile.image ? (
+                      <Image
+                        src={profile.image}
+                        alt="Profile"
+                        fill
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center">
+                        <span className="text-4xl text-gray-400">?</span>
                       </div>
-                    </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowAvatarUpload(true)}
+                      className="absolute bottom-0 right-0 p-2 bg-accent-purple text-white rounded-full hover:bg-accent-purple-dark transition-colors"
+                    >
+                      <Camera className="w-5 h-5" />
+                    </button>
                   </div>
-                  <h2 className="text-lg sm:text-xl font-medium mb-1">{profile.name || 'Unnamed User'}</h2>
-                  <p className="text-sm text-foreground-soft truncate max-w-full">{profile.email}</p>
+
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
+                    {profile.name || 'Anonymous'}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    {profile.email}
+                  </p>
                 </div>
               </div>
 
               <div className="bg-white dark:bg-black rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-gray-900 dark:text-white">Statistics</h3>
                 <div className="space-y-3 sm:space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-foreground-soft">Items</span>
-                    <span className="font-medium">{profile.stats.itemCount}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-foreground-soft">Outfits</span>
-                    <span className="font-medium">{profile.stats.outfitCount}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-foreground-soft">Lookbooks</span>
-                    <span className="font-medium">{profile.stats.lookbookCount}</span>
-                  </div>
-                  <div className="border-t border-border pt-3 sm:pt-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-foreground-soft">Total Spent</span>
-                      <span className="font-medium">
-                        {formatCurrency(profile.stats.totalSpent, profile.currency)}
-                      </span>
-                    </div>
-                    {/* <div className="flex justify-between items-center mt-2">
-                      <span className="text-foreground-soft">Most Expensive</span>
-                      <span className="font-medium">
-                        {formatCurrency(profile.stats.mostExpensiveItem, profile.currency)}
-                      </span>
-                    </div> */}
-                  </div>
+                  {profile?.stats && (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-foreground-soft">Items</span>
+                        <span className="font-medium">{profile.stats.itemCount}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-foreground-soft">Outfits</span>
+                        <span className="font-medium">{profile.stats.outfitCount}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-foreground-soft">Lookbooks</span>
+                        <span className="font-medium">{profile.stats.lookbookCount}</span>
+                      </div>
+                      <div className="border-t border-border pt-3 sm:pt-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-foreground-soft">Total Spent</span>
+                          <span className="font-medium">
+                            <PriceDisplay
+                              amount={profile.stats.totalSpent}
+                              currency={profile.currency}
+                              userCurrency={pendingCurrency || profile.currency}
+                              showOriginal={pendingCurrency !== profile.currency}
+                              showTooltip={true}
+                            />
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -301,10 +398,10 @@ export default function ProfilePage() {
                 <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-gray-900 dark:text-white">Preferences</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Currency</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Currency</label>
                     <select
-                      value={profile.currency}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, currency: e.target.value as Currency } : null)}
+                      value={pendingCurrency || profile?.currency}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPendingCurrency(e.target.value as Currency)}
                       className={`${selectStyles} h-10 sm:h-11`}
                     >
                       {currencies.map(currency => (
@@ -318,6 +415,7 @@ export default function ProfilePage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Language</label>
                     <select
+                      disabled
                       value={profile.language}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, language: e.target.value } : null)}
                       className={`${selectStyles} h-10 sm:h-11`}

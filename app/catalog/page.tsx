@@ -11,6 +11,7 @@ import SkeletonCard from '@/app/components/SkeletonCard'
 import { formatCurrency, getMaxPriceForCurrency } from '@/lib/currency'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import PriceDisplay from '@/app/components/PriceDisplay'
 
 const categories: ClothingCategory[] = [
   'headwear',
@@ -235,10 +236,14 @@ export default function CatalogPage() {
           <div>
             <h1 className="text-xl sm:text-2xl font-display font-bold mb-0.5">My Catalog</h1>
             <p className="text-sm text-muted-foreground">
-              {items.length} items · Total value: {formatCurrency(
-                items.reduce((sum: number, item: ClothingItem) => sum + item.price, 0),
-                currency
-              )}
+              {items.length} items · Total value: {' '}
+              <PriceDisplay
+                amount={items.reduce((sum: number, item: ClothingItem) => sum + item.price, 0)}
+                currency={currency}
+                userCurrency={currency}
+                showOriginal={false}
+                showTooltip={false}
+              />
             </p>
           </div>
 

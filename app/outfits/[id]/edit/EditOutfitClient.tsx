@@ -9,6 +9,7 @@ import type { ClothingItem, Currency, Season, Occasion, Outfit, Tag } from '@/ap
 import LoadingSpinner from '@/app/components/LoadingSpinner'
 import OutfitBuilder from '@/app/components/OutfitBuilder'
 import DraggableItem from '@/app/components/DraggableItem'
+import PriceDisplay from '@/app/components/PriceDisplay'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 
 // Dynamically import DndProvider
@@ -198,81 +199,134 @@ export default function EditOutfitClient({
                 <div className="p-3 sm:p-4 border-b border-border">
                   <h2 className="text-lg font-semibold mb-3">Available Items</h2>
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <input
-                          type="text"
-                          placeholder="Search wardrobe..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="input pl-9 h-9 text-sm w-full"
-                        />
-                      </div>
-                      <div className="w-1/3">
-                        <Select
-                          value={selectedCategory}
-                          onValueChange={(value) => setSelectedCategory(value)}
-                        >
-                          <SelectTrigger className="h-9 text-sm w-full">
-                            <SelectValue placeholder="All Categories" />
-                          </SelectTrigger>
-                          <SelectContent className="font-sans">
-                            {categories.map((cat) => (
-                              <SelectItem key={cat} value={cat} className="capitalize">
-                                {cat === 'all' ? 'All Categories' : cat}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Search items..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-background rounded-lg border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-accent-purple text-sm"
+                      />
                     </div>
+                    <Select
+                      value={selectedCategory}
+                      onValueChange={setSelectedCategory}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-                <div className="overflow-y-auto p-3 sm:p-4 max-h-[calc(100vh-16rem)]">
-                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-                    {filteredItems.map(item => (
-                      <DraggableItem key={item.id} item={item} currency={currency} />
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {filteredItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-background rounded-lg border border-border hover:border-accent-purple transition-colors"
+                      >
+                        <DraggableItem item={item} currency={currency}>
+                          <div className="text-white space-y-1">
+                            <div className="text-sm font-medium">{item.name}</div>
+                            <div className="text-xs opacity-75">{item.brand || 'No Brand'}</div>
+                            <div className="text-sm font-semibold">
+                              <PriceDisplay
+                                amount={item.price}
+                                currency={item.priceCurrency || 'INR'}
+                                userCurrency={currency}
+                                showOriginal={false}
+                                showTooltip={true}
+                              />
+                            </div>
+                          </div>
+                        </DraggableItem>
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Builder */}
-            <div className="bg-card rounded-xl border border-border shadow-soft h-[calc(100vh-8rem)] sm:h-[calc(100vh-6rem)]">
+            {/* Right Column - Outfit Builder */}
+            <div className="flex flex-col gap-4">
+              <div className="bg-card rounded-xl border border-border shadow-soft p-3 sm:p-4">
+                <h2 className="text-lg font-semibold mb-3">Edit Outfit</h2>
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Outfit Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3 py-2 bg-background rounded-lg border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  />
+                  <textarea
+                    placeholder="Description (optional)"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full px-3 py-2 bg-background rounded-lg border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-accent-purple resize-none h-24"
+                  />
+                </div>
+              </div>
+
               <OutfitBuilder
-                initialName={name}
-                onNameChange={setName}
                 slots={outfitSlots}
                 accessories={accessories}
-                initialSeasons={selectedSeasons}
-                initialOccasions={selectedOccasions}
-                initialTags={tags}
                 onAddItem={handleAddItem}
                 onRemoveItem={handleRemoveItem}
                 onAddAccessory={handleAddAccessory}
                 onRemoveAccessory={handleRemoveAccessory}
-                onSeasonsChange={setSelectedSeasons}
-                onOccasionsChange={setSelectedOccasions}
-                onTagsChange={setTags}
+                currency={currency}
                 onSave={handleSave}
                 isSaving={saving}
-                currency={currency}
+                initialName={name}
                 initialDescription={description}
+                onNameChange={setName}
                 onDescriptionChange={setDescription}
-                initialIsPublic={isPublic}
-                onIsPublicChange={setIsPublic}
                 availableItems={initialAvailableItems}
               />
+
+              <div className="bg-card rounded-xl border border-border shadow-soft p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Total Cost</h3>
+                  <div className="text-xl font-semibold">
+                    <PriceDisplay
+                      amount={Object.values(outfitSlots)
+                        .filter((item): item is ClothingItem => item !== null)
+                        .concat(accessories)
+                        .reduce((sum, item) => sum + item.price, 0)}
+                      currency={initialOutfit.costCurrency || 'INR'}
+                      userCurrency={currency}
+                      showOriginal={false}
+                      showTooltip={true}
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleSave(name)}
+                  disabled={saving}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-accent-purple text-white rounded-lg hover:bg-accent-purple-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <Save className="w-5 h-5" />
+                  )}
+                  Save Changes
+                </button>
+                {error && (
+                  <p className="mt-2 text-sm text-red-500">{error}</p>
+                )}
+              </div>
             </div>
           </div>
-
-          {error && saving && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-4 py-2 rounded-lg border border-destructive/20 max-w-[90%] sm:max-w-md text-center">
-              {error}
-            </div>
-          )}
         </div>
       </div>
     </DndProvider>

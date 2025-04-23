@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Calendar, Tag, Trash2, Share2, Pencil, Loader2, Star } from 'lucide-react'
-import { formatPrice, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
+import PriceDisplay from '@/app/components/PriceDisplay'
 import type { Outfit, Currency, ClothingItem } from '@/app/models/types'
 import { useToast } from '@/components/ui/use-toast'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog"
@@ -91,21 +92,27 @@ export default function OutfitCard({
                 {outfit.name}
               </h3>
               <div className='flex items-center gap-2'>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                 {formatPrice(outfit.totalCost, currency)}
-              </p>
-              <span className='text-muted-foreground'>•</span>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                 {firstSeason && (
-                   <div className="flex items-center gap-1">
-                     <Calendar className="w-3 h-3" />
-                     <span className="capitalize">{firstSeason.name}</span>
-                     {remainingSeasonsCount > 0 && (
-                       <span className="ml-0.5">+{remainingSeasonsCount}</span>
-                     )}
-                   </div>
-                 )}
-              </div>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  <PriceDisplay
+                    amount={outfit.totalCost}
+                    currency={outfit.costCurrency || 'INR'}
+                    userCurrency={currency}
+                    showOriginal={false}
+                    showTooltip={true}
+                  />
+                </p>
+                <span className='text-muted-foreground'>•</span>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  {firstSeason && (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span className="capitalize">{firstSeason.name}</span>
+                      {remainingSeasonsCount > 0 && (
+                        <span className="ml-0.5">+{remainingSeasonsCount}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             

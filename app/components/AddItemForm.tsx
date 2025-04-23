@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import type { ClothingItem, ClothingCategory, Season, Occasion } from '@/app/models/types'
+import type { ClothingItem, ClothingCategory, Season, Occasion, Currency } from '@/app/models/types'
 import ColorPalette from './ColorPalette'
 import ImageUpload from './ImageUpload'
+import PriceDisplay from './PriceDisplay'
 import type { UploadResult } from '@/lib/images'
 import Image from 'next/image'
 import { X, ShoppingCart, CircleCheck } from 'lucide-react'
@@ -20,6 +21,7 @@ interface FormData {
   category: ClothingCategory
   brand: string
   price: string
+  priceCurrency: Currency
   purchaseUrl: string
   size: string
   material: string
@@ -83,12 +85,15 @@ const occasions: Occasion[] = [
   { id: 'wedding', name: 'wedding' }
 ]
 
+const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']
+
 export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFormProps) {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     category,
     brand: '',
     price: '',
+    priceCurrency: 'INR',
     purchaseUrl: '',
     size: '',
     material: '',
@@ -121,6 +126,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
         category: formData.category,
         brand: formData.brand || undefined,
         price: formData.price ? parseFloat(formData.price) : 0,
+        priceCurrency: formData.priceCurrency,
         purchaseUrl: formData.purchaseUrl || undefined,
         size: formData.size || undefined,
         material: formData.material || undefined,
@@ -259,10 +265,43 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                   id="price"
                   value={formData.price}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, price: e.target.value })}
-                  className="input h-9 text-sm w-full"
+                  className="w-full px-3 py-2 bg-background rounded-lg border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-accent-purple"
+                  placeholder="0.00"
                   step="0.01"
+                  min="0"
                 />
               </div>
+
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Price Currency</label>
+                <Select
+                  value={formData.priceCurrency}
+                  onValueChange={(value: Currency) => setFormData({ ...formData, priceCurrency: value })}
+                >
+                  <SelectTrigger className="h-9 text-sm w-full">
+                    <SelectValue placeholder="Select Currency" />
+                  </SelectTrigger>
+                  <SelectContent className="font-sans">
+                    {currencies.map((currency: Currency) => (
+                      <SelectItem key={currency} value={currency}>
+                        {currency}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {formData.price && (
+                <div className="mt-2 text-sm text-muted-foreground">
+                  <PriceDisplay
+                    amount={parseFloat(formData.price) || 0}
+                    currency={formData.priceCurrency}
+                    userCurrency={formData.priceCurrency}
+                    showOriginal={false}
+                    showTooltip={true}
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Purchase URL</label>

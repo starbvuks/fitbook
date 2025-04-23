@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -26,7 +26,7 @@ import type {
   OutfitItem,
   ClothingItem,
 } from "@/app/models/types";
-import { formatPrice } from "@/lib/utils";
+import PriceDisplay from "@/app/components/PriceDisplay";
 import OutfitThumbnail from "@/app/components/OutfitThumbnail";
 
 interface ItemDetailsProps {
@@ -93,7 +93,13 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
           </p>
           <div className="flex items-center justify-between mt-1.5">
             <p className="font-semibold text-sm">
-              {formatPrice(item.wardrobeItem.price, currency)}
+              <PriceDisplay
+                amount={item.wardrobeItem.price}
+                currency={item.wardrobeItem.priceCurrency || 'INR'}
+                userCurrency={currency}
+                showOriginal={item.wardrobeItem.priceCurrency !== currency}
+                showTooltip={true}
+              />
             </p>
           </div>
         </div>
@@ -112,9 +118,27 @@ export default function OutfitDetailClient({
   const router = useRouter();
   const { data: session } = useSession();
   const [outfit] = useState(initialOutfit);
-  const [currency] = useState<Currency>("INR");
+  const [userCurrency, setUserCurrency] = useState<Currency>("INR");
   const { toast } = useToast();
   const outfitDisplayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchUserCurrency = async () => {
+      try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const data = await response.json();
+          setUserCurrency(data.currency);
+        }
+      } catch (error) {
+        console.error('Error fetching user currency:', error);
+      }
+    };
+
+    if (session?.user) {
+      fetchUserCurrency();
+    }
+  }, [session]);
 
   const handleShare = async () => {
     try {
@@ -317,7 +341,7 @@ export default function OutfitDetailClient({
               <h2 className="text-xl font-semibold mb-4">Outfit Items</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {sortedOutfitItems.map((item) => (
-                  <ItemDetails key={item.id} item={item} currency={currency} />
+                  <ItemDetails key={item.id} item={item} currency={userCurrency} />
                 ))}
               </div>
             </div>
@@ -329,7 +353,13 @@ export default function OutfitDetailClient({
                 <div>
                   <div className="text-sm text-foreground-soft">Total Cost</div>
                   <div className="text-xl sm:text-2xl font-semibold">
-                    {formatPrice(outfit.totalCost, currency)}
+                    <PriceDisplay
+                      amount={outfit.totalCost}
+                      currency={outfit.costCurrency || 'INR'}
+                      userCurrency={userCurrency}
+                      showOriginal={outfit.costCurrency !== userCurrency}
+                      showTooltip={true}
+                    />
                   </div>
                 </div>
               </div>

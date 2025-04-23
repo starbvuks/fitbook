@@ -41,6 +41,7 @@ export interface ClothingItem {
   category: ClothingCategory
   brand?: string
   price: number
+  priceCurrency: Currency
   purchaseUrl?: string
   size?: string
   material?: string
@@ -69,6 +70,7 @@ export interface Outfit {
   name: string
   description?: string | null
   totalCost: number
+  costCurrency: Currency
   rating?: number | null
   favorited: boolean
   timesWorn: number
