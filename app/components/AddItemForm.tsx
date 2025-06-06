@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { ClothingItem, ClothingCategory, Season, Occasion, Currency } from '@/app/models/types'
 import ColorPalette from './ColorPalette'
 import ImageUpload from './ImageUpload'
@@ -88,6 +88,7 @@ const occasions: Occasion[] = [
 const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']
 
 export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFormProps) {
+  const [userCurrency, setUserCurrency] = useState<Currency>('INR')
   const [formData, setFormData] = useState<FormData>({
     name: '',
     category: category || 'headwear',
@@ -108,6 +109,25 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
 
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Fetch user's currency preference
+  useEffect(() => {
+    const fetchUserCurrency = async () => {
+      try {
+        const response = await fetch('/api/profile')
+        if (response.ok) {
+          const data = await response.json()
+          const currency = data.currency || 'INR'
+          setUserCurrency(currency)
+          setFormData(prev => ({ ...prev, priceCurrency: currency }))
+        }
+      } catch (error) {
+        console.error('Error fetching user currency:', error)
+      }
+    }
+
+    fetchUserCurrency()
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -181,6 +201,39 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
               onUploadSuccess={(result: UploadResult) => handleImageUpload(result)}
               onUploadError={(error: Error) => setError(error.message)}
             />
+            
+            {/* Display uploaded images */}
+            {formData.images.length > 0 && (
+              <div className="mt-4">
+                <h4 className="text-sm font-medium mb-3">Uploaded Images ({formData.images.length})</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <Image
+                          src={image.url}
+                          alt={`Upload ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleImageRemove(index)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      {index === 0 && (
+                        <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                          Primary
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </FormSection>
 
           <FormSection title="Basic Information">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Camera, Save, Loader2, Globe, Instagram, Link as LinkIcon } from 'lucide-react'
 import type { UserProfile, Currency } from '@/app/models/types'
@@ -190,8 +191,20 @@ export default function ProfilePage() {
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-4xl mx-auto px-4 py-6 sm:p-6">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Profile Settings</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your account preferences and settings</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Profile Settings</h1>
+              <p className="text-gray-600 dark:text-gray-400">Manage your account preferences and settings</p>
+            </div>
+            {/* <Link
+              href={`/profile/${profile.id}`}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors border border-blue-200"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="hidden sm:inline">View Public Profile</span>
+              <span className="sm:hidden">Public</span>
+            </Link> */}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">

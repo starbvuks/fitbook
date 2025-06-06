@@ -735,19 +735,75 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
               <div>
                 <label className="block text-sm font-medium mb-2">Tags</label>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    value={(editedItem.tags || item.tags).map(tag => tag.name).join(', ')}
-                    onChange={(e) => {
-                      const tagNames = e.target.value.split(',').map(t => t.trim()).filter(Boolean)
-                      setEditedItem({
-                        ...editedItem,
-                        tags: tagNames.map(name => ({ id: '', name }))
-                      })
-                    }}
-                    placeholder="Enter tags separated by commas"
-                    className="input"
-                  />
+                  <div>
+                    {/* Display existing tags */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {(editedItem.tags || item.tags).map((tag, index) => (
+                        <div
+                          key={index}
+                          className="px-3 py-1 rounded-full text-sm bg-blue-600 text-white flex items-center gap-1 group"
+                        >
+                          <span>{typeof tag === 'string' ? tag : tag.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const currentTags = editedItem.tags || item.tags
+                              const newTags = currentTags.filter((_, i) => i !== index)
+                              setEditedItem({
+                                ...editedItem,
+                                tags: newTags
+                              })
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <input
+                      type="text"
+                      placeholder="Enter tags, separated by commas"
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                        if (e.key === ',' || e.key === 'Enter') {
+                          e.preventDefault()
+                          const input = e.currentTarget
+                          const value = input.value.trim()
+                          if (value) {
+                            const currentTags = editedItem.tags || item.tags
+                            const existingTagNames = currentTags.map(tag => 
+                              typeof tag === 'string' ? tag : tag.name
+                            )
+                            if (!existingTagNames.includes(value)) {
+                              setEditedItem({
+                                ...editedItem,
+                                tags: [...currentTags, { id: '', name: value }]
+                              })
+                              input.value = ''
+                            }
+                          }
+                        }
+                      }}
+                      onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                        const value = e.target.value.trim()
+                        if (value) {
+                          const currentTags = editedItem.tags || item.tags
+                          const existingTagNames = currentTags.map(tag => 
+                            typeof tag === 'string' ? tag : tag.name
+                          )
+                          if (!existingTagNames.includes(value)) {
+                            setEditedItem({
+                              ...editedItem,
+                              tags: [...currentTags, { id: '', name: value }]
+                            })
+                            e.target.value = ''
+                          }
+                        }
+                      }}
+                      className="input"
+                    />
+                  </div>
                 ) : (
                   <div className="px-4 py-2.5 bg-muted rounded-lg min-h-[40px] flex items-center">
                     {item.tags.length > 0 ? (
