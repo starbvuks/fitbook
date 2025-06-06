@@ -40,7 +40,7 @@ export default function Navigation() {
 
   // Handle click outside for MOBILE menu
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target as Node) &&
@@ -53,12 +53,15 @@ export default function Navigation() {
 
     if (showMobileMenu) {
       document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside, { passive: true })
     } else {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
     }
   }, [showMobileMenu])
 
@@ -79,15 +82,24 @@ export default function Navigation() {
     }
   }, [status])
 
-  // Add body lock when mobile menu is open
+  // Add body lock when mobile menu is open - improved for mobile
   useEffect(() => {
     if (showMobileMenu) {
       document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+      document.body.style.height = '100%'
     } else {
       document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      document.body.style.height = ''
     }
     return () => {
       document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      document.body.style.height = ''
     }
   }, [showMobileMenu])
 
@@ -116,7 +128,7 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-border bg-background/80 backdrop-blur-xl">
+    <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-border bg-background/80 backdrop-blur-xl touch-manipulation">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4 sm:space-x-8">
@@ -222,10 +234,14 @@ export default function Navigation() {
                 <button
                   ref={mobileMenuButtonRef}
                   type="button"
-                  className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
+                  className="touch-target inline-flex items-center justify-center rounded-md p-3 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring active:bg-accent"
                   onClick={(e) => {
                     e.stopPropagation()
+                    e.preventDefault()
                     setShowMobileMenu(!showMobileMenu)
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault()
                   }}
                   aria-expanded={showMobileMenu}
                   aria-controls="mobile-menu"
@@ -246,10 +262,14 @@ export default function Navigation() {
                 <button
                   ref={mobileMenuButtonRef}
                   type="button"
-                  className="inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring"
+                  className="touch-target inline-flex items-center justify-center rounded-md p-3 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring active:bg-accent"
                   onClick={(e) => {
                     e.stopPropagation()
+                    e.preventDefault()
                     setShowMobileMenu(!showMobileMenu)
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault()
                   }}
                   aria-expanded={showMobileMenu}
                   aria-controls="mobile-menu"
@@ -274,33 +294,55 @@ export default function Navigation() {
       {/* Mobile Menu */}
       <div
         id="mobile-menu"
-        className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ease-in-out ${
+        className={`fixed inset-0 z-[9999] md:hidden transition-opacity duration-300 ease-in-out ${
           showMobileMenu ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
-        onClick={() => setShowMobileMenu(false)}
+        onClick={(e) => {
+          e.stopPropagation()
+          setShowMobileMenu(false)
+        }}
+        onTouchStart={(e) => {
+          e.stopPropagation()
+          setShowMobileMenu(false)
+        }}
         aria-hidden={!showMobileMenu}
+        style={{ touchAction: 'none' }}
       >
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
         <div
-          className={`fixed inset-y-0 right-0 z-50 w-72 bg-card shadow-xl transition-transform duration-300 ease-in-out transform ${
+          className={`fixed inset-y-0 right-0 z-[10000] w-80 max-w-[85vw] bg-card shadow-xl transition-transform duration-300 ease-in-out transform ${
             showMobileMenu ? 'translate-x-0' : 'translate-x-full'
-          }`}
+          } h-screen-mobile touch-manipulation`}
           ref={mobileMenuRef}
           onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"
+          style={{ 
+            paddingRight: 'env(safe-area-inset-right)'
+          }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 border-b border-border">
+            <div className="flex items-center justify-between p-4 border-b border-border safe-area-inset-top">
                <span className="font-semibold">Menu</span>
-               <Button variant="ghost" size="icon" onClick={() => setShowMobileMenu(false)}>
+               <button
+                 className="touch-target inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring active:bg-accent"
+                 onClick={(e) => {
+                   e.stopPropagation()
+                   e.preventDefault()
+                   setShowMobileMenu(false)
+                 }}
+                 onTouchEnd={(e) => {
+                   e.preventDefault()
+                 }}
+               >
                    <X className="h-5 w-5" />
                    <span className="sr-only">Close menu</span>
-               </Button>
+               </button>
             </div>
 
-            <div className="flex-grow overflow-y-auto p-3 space-y-1">
+            <div className="flex-grow overflow-y-auto p-3 space-y-1 safe-area-inset-bottom">
                {session ? (
                    <>
                        <MobileNavLink href="/catalog" icon={<ShoppingBag className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>My Catalog</MobileNavLink>
@@ -315,33 +357,39 @@ export default function Navigation() {
                )}
             </div>
 
-            <div className="border-t border-border p-3">
+            <div className="border-t border-border p-3 safe-area-inset-bottom">
                {session ? (
                    <div className="space-y-2">
                        <MobileNavLink href="/profile" icon={<User className="w-5 h-5" />} onClick={() => setShowMobileMenu(false)}>Profile Settings</MobileNavLink>
-                       <Button
-                         variant="ghost"
-                         className="w-full justify-start gap-3 text-foreground-soft hover:text-destructive hover:bg-destructive/10"
-                         onClick={() => {
+                       <button
+                         className="w-full justify-start gap-3 text-foreground-soft hover:text-destructive hover:bg-destructive/10 flex items-center px-4 py-3 touch-target rounded-lg transition-colors active:bg-destructive/20"
+                         onClick={(e) => {
+                           e.preventDefault()
                            setShowMobileMenu(false)
                            signOut({ callbackUrl: '/' })
+                         }}
+                         onTouchEnd={(e) => {
+                           e.preventDefault()
                          }}
                        >
                            <LogOut className="w-5 h-5" />
                            <span className="text-[15px]">Sign Out</span>
-                       </Button>
+                       </button>
                    </div>
                  ) : (
-                   <Button
-                     variant="ghost"
-                     className="w-full justify-start gap-3 text-foreground-soft hover:text-foreground hover:bg-accent"
-                     onClick={() => {
+                   <button
+                     className="w-full justify-start gap-3 text-foreground-soft hover:text-foreground hover:bg-accent flex items-center px-4 py-3 touch-target rounded-lg transition-colors active:bg-accent"
+                     onClick={(e) => {
+                       e.preventDefault()
                        setShowMobileMenu(false)
                        signIn('google')
                      }}
+                     onTouchEnd={(e) => {
+                       e.preventDefault()
+                     }}
                    >
                      <span className="text-[15px]">Sign In with Google</span>
-                   </Button>
+                   </button>
                  )}
             </div>
           </div>
@@ -402,7 +450,7 @@ function MobileNavLink({
 }) {
   if (disabled) {
     return (
-      <div className="flex items-center gap-3 px-4 py-2.5 text-foreground-soft/50 cursor-not-allowed rounded-lg">
+      <div className="flex items-center gap-3 px-4 py-3 touch-target text-foreground-soft/50 cursor-not-allowed rounded-lg">
         {icon}
         <span className="text-[15px]">{children}</span>
         <span className="ml-auto text-xs bg-muted px-2 py-0.5 rounded">Soon</span>
@@ -413,8 +461,13 @@ function MobileNavLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-4 py-2.5 text-foreground-soft hover:text-foreground hover:bg-accent rounded-lg transition-colors"
-      onClick={onClick}
+      className="flex items-center gap-3 px-4 py-3 touch-target text-foreground-soft hover:text-foreground hover:bg-accent rounded-lg transition-colors active:bg-accent/80"
+      onClick={(e) => {
+        onClick?.()
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault()
+      }}
     >
       {icon}
       <span className="text-[15px]">{children}</span>
