@@ -362,7 +362,7 @@ function NavLink({ href, children, disabled = false }: {
     return (
       <div className="relative">
         <span
-          className="text-foreground-soft/50 cursor-not-allowed"
+          className="text-white/50 text-sm cursor-not-allowed"
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >

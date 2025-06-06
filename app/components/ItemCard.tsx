@@ -4,6 +4,7 @@ import { ExternalLink, ShoppingCart, CircleCheck, Trash2, Loader2 } from 'lucide
 import type { ClothingItem, Currency } from '@/app/models/types'
 import { formatCurrency } from '@/lib/currency'
 import { useState } from 'react'
+import PriceDisplay from './PriceDisplay'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -209,7 +210,13 @@ export default function ItemCard({ item, currency, onToggleOwnership, viewMode =
       </div>
       
       <div className="flex items-center p-3 pt-0">
-         <span className="text-sm font-semibold">{formatCurrency(item.price, currency)}</span>
+         <PriceDisplay
+           amount={item.price}
+           currency={item.priceCurrency || 'INR'}
+           userCurrency={currency}
+           showTooltip={true}
+           className="text-sm font-semibold"
+         />
       </div>
     </div>
   )

@@ -29,6 +29,7 @@ import LoadingSpinner from '@/app/components/LoadingSpinner'
 import ImageUpload from '@/app/components/ImageUpload'
 import type { UploadResult } from '@/lib/images'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import PriceDisplay from '@/app/components/PriceDisplay'
 
 const categories = ['headwear', 'outerwear', 'tops', 'bottoms', 'shoes', 'accessories'] as const
 type Category = (typeof categories)[number]
@@ -59,6 +60,8 @@ const occasions: OccasionName[] = [
   'evening',
   'wedding'
 ]
+
+const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']
 
 interface FormSection {
   title: string
@@ -163,6 +166,7 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
         category: editedItem.category ?? item.category,
         brand: editedItem.brand ?? item.brand,
         price: editedItem.price ?? item.price,
+        priceCurrency: editedItem.priceCurrency ?? item.priceCurrency ?? 'INR',
         purchaseUrl: editedItem.purchaseUrl ?? item.purchaseUrl,
         size: editedItem.size ?? item.size,
         material: editedItem.material ?? item.material,
@@ -529,21 +533,60 @@ export default function ItemDetailPage(props: { params: Promise<{ id: string }> 
                 <div>
                   <label className="block text-sm font-medium mb-2">Price</label>
                   {isEditing ? (
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        {currency}
-                      </span>
-                      <input
-                        type="number"
-                        value={editedItem.price || item.price}
-                        onChange={(e) => setEditedItem({ ...editedItem, price: parseFloat(e.target.value) })}
-                        className="input pl-12"
-                      />
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-muted-foreground mb-1">Amount</label>
+                          <input
+                            type="number"
+                            value={editedItem.price || item.price}
+                            onChange={(e) => setEditedItem({ ...editedItem, price: parseFloat(e.target.value) })}
+                            className="input"
+                            step="0.01"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-muted-foreground mb-1">Currency</label>
+                          <Select
+                            value={editedItem.priceCurrency || item.priceCurrency || 'INR'}
+                            onValueChange={(value: Currency) => setEditedItem({ ...editedItem, priceCurrency: value })}
+                          >
+                            <SelectTrigger className="input">
+                              <SelectValue placeholder="Select Currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {currencies.map((curr) => (
+                                <SelectItem key={curr} value={curr}>
+                                  {curr}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      {(editedItem.price || item.price) && (
+                        <div className="p-3 bg-muted rounded-lg">
+                          <div className="text-sm text-muted-foreground mb-1">Price Preview:</div>
+                          <PriceDisplay
+                            amount={editedItem.price || item.price}
+                            currency={editedItem.priceCurrency || item.priceCurrency || 'INR'}
+                            userCurrency={currency}
+                            showTooltip={true}
+                            className="text-lg font-semibold"
+                          />
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <p className="px-4 py-2 bg-muted rounded-lg">
-                      {formatPrice(item.price, currency)}
-                    </p>
+                    <div className="px-4 py-2 bg-muted rounded-lg">
+                      <PriceDisplay
+                        amount={item.price}
+                        currency={item.priceCurrency || 'INR'}
+                        userCurrency={currency}
+                        showTooltip={true}
+                        className="font-medium"
+                      />
+                    </div>
                   )}
                 </div>
 

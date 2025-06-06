@@ -10,6 +10,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import PriceDisplay from './PriceDisplay'
+import { getDominantCurrency } from '@/lib/currency'
 
 type ClothingItemWithPosition = ClothingItem & { position?: string }
 
@@ -224,7 +226,15 @@ export default function OutfitBuilder({
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center">
             <div className="text-center px-2">
               <p className="text-white text-xs font-medium line-clamp-2">{item.name}</p>
-              <p className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</p>
+              <div className="text-sm font-semibold text-white mt-1">
+                <PriceDisplay
+                  amount={item.price}
+                  currency={item.priceCurrency || 'INR'}
+                  userCurrency={currency}
+                  showOriginal={false}
+                  showTooltip={true}
+                />
+              </div>
             </div>
             <button
               onClick={onRemove}
@@ -252,7 +262,15 @@ export default function OutfitBuilder({
                 </button>
               </div>
               <div className="mt-auto flex items-center justify-between text-xs">
-                <span className="text-foreground-soft">{formatPrice(item.price, currency)}</span>
+                <div className="text-sm font-semibold text-white mt-1">
+                  <PriceDisplay
+                    amount={item.price}
+                    currency={item.priceCurrency || 'INR'}
+                    userCurrency={currency}
+                    showOriginal={false}
+                    showTooltip={true}
+                  />
+                </div>
                 {item.isOwned ? (
                   <div className="flex items-center gap-1 text-green-600">
                     <CircleCheck className="w-3 h-3" />
@@ -408,7 +426,13 @@ export default function OutfitBuilder({
                       <div className="flex-1 space-y-1">
                         <p className="font-medium">{slots[slot]!.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatPrice(slots[slot]!.price, currency)}
+                          <PriceDisplay
+                            amount={slots[slot]!.price}
+                            currency={slots[slot]!.priceCurrency || 'INR'}
+                            userCurrency={currency}
+                            showOriginal={false}
+                            showTooltip={true}
+                          />
                         </p>
                       </div>
                       <button
@@ -453,9 +477,15 @@ export default function OutfitBuilder({
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatPrice(item.price, currency)}
-                      </p>
+                      <div className="text-sm font-semibold text-white mt-1">
+                        <PriceDisplay
+                          amount={item.price}
+                          currency={item.priceCurrency || 'INR'}
+                          userCurrency={currency}
+                          showOriginal={false}
+                          showTooltip={true}
+                        />
+                      </div>
                     </div>
                     <button
                       onClick={() => onRemoveAccessory(index)}
@@ -610,6 +640,25 @@ export default function OutfitBuilder({
               </div>
             </div>
           </div>
+
+          {/* Total Cost */}
+          <div className="bg-card rounded-xl border border-border shadow-soft p-3 sm:p-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Total Cost</h3>
+              <div className="text-xl font-semibold">
+                <PriceDisplay
+                  amount={totalCost}
+                  currency={getDominantCurrency([
+                    ...Object.values(slots).filter((item): item is ClothingItem => item !== null),
+                    ...accessories
+                  ])}
+                  userCurrency={currency}
+                  showOriginal={false}
+                  showTooltip={true}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -671,14 +720,30 @@ export default function OutfitBuilder({
                       {viewMode === 'list' ? (
                         <div className="flex-1">
                           <div className="text-sm font-medium line-clamp-1">{item.name}</div>
-                          <div className="text-sm text-muted-foreground mt-0.5">{formatPrice(item.price, currency)}</div>
+                          <div className="text-sm text-muted-foreground mt-0.5">
+                            <PriceDisplay
+                              amount={item.price}
+                              currency={item.priceCurrency || 'INR'}
+                              userCurrency={currency}
+                              showOriginal={false}
+                              showTooltip={true}
+                            />
+                          </div>
                         </div>
                       ) : (
                         <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity p-2">
                           <div className="h-full flex flex-col">
                             <div className="flex-1">
                               <div className="text-white text-sm font-medium line-clamp-2">{item.name}</div>
-                              <div className="text-white/80 text-xs mt-1">{formatPrice(item.price, currency)}</div>
+                              <div className="text-white/80 text-xs mt-1">
+                                <PriceDisplay
+                                  amount={item.price}
+                                  currency={item.priceCurrency || 'INR'}
+                                  userCurrency={currency}
+                                  showOriginal={false}
+                                  showTooltip={true}
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>

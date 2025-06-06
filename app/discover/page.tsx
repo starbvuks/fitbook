@@ -27,6 +27,8 @@ import LoadingSpinner from '@/app/components/LoadingSpinner'
 import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import { cn } from '@/lib/utils'
 import SkeletonCard from '@/app/components/SkeletonCard' // Import SkeletonCard
+import PriceDisplay from '@/app/components/PriceDisplay'
+import { getDominantCurrency } from '@/lib/currency'
 
 // Define a type for the augmented outfit data coming from the public API
 interface PublicOutfit extends Omit<Outfit, 'user'> { // Omit the original 'user' field
@@ -390,9 +392,16 @@ export default function DiscoverPage() {
                   
                   {/* Price and actions row */}
                   <div className="flex items-center justify-between pt-1">
-                    <p className="text-xs font-medium">
-                      {formatPrice(outfit.totalCost, currency)}
-                    </p>
+                    <div className="text-xs font-medium">
+                      <PriceDisplay
+                        amount={outfit.totalCost}
+                        currency={getDominantCurrency(outfit.items
+                          .map(item => item.wardrobeItem)
+                          .filter((item): item is ClothingItem => Boolean(item)))}
+                        userCurrency={currency}
+                        showTooltip={true}
+                      />
+                    </div>
                     
                     {/* Action buttons container */}
                     <div className="flex items-center gap-1 sm:gap-2">

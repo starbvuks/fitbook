@@ -41,6 +41,7 @@ export interface ClothingItem {
   category: ClothingCategory
   brand?: string
   price: number
+  priceCurrency: Currency
   purchaseUrl?: string
   size?: string
   material?: string

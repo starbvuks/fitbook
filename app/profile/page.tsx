@@ -8,6 +8,8 @@ import type { UserProfile, Currency } from '@/app/models/types'
 import { useRouter } from 'next/navigation'
 import ImageUpload from '@/app/components/ImageUpload'
 import { formatCurrency } from '@/lib/currency'
+import PriceDisplay from '@/app/components/PriceDisplay'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']
 const languages = [
@@ -246,7 +248,12 @@ export default function ProfilePage() {
                     <div className="flex justify-between items-center">
                       <span className="text-foreground-soft">Total Spent</span>
                       <span className="font-medium">
-                        {formatCurrency(profile.stats.totalSpent, profile.currency)}
+                        <PriceDisplay
+                          amount={profile.stats.totalSpent}
+                          currency={'INR'} // Stats are stored in INR
+                          userCurrency={profile.currency}
+                          showTooltip={true}
+                        />
                       </span>
                     </div>
                     {/* <div className="flex justify-between items-center mt-2">
@@ -302,32 +309,40 @@ export default function ProfilePage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Currency</label>
-                    <select
-                      value={profile.currency}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, currency: e.target.value as Currency } : null)}
-                      className={`${selectStyles} h-10 sm:h-11`}
+                    <Select 
+                      value={profile.currency} 
+                      onValueChange={(value: Currency) => setProfile(prev => prev ? { ...prev, currency: value } : null)}
                     >
-                      {currencies.map(currency => (
-                        <option key={currency} value={currency} className="dark:bg-background">
-                          {currency}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className={`${selectStyles} h-10 sm:h-11`}>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {currencies.map(currency => (
+                          <SelectItem key={currency} value={currency}>
+                            {currency}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium mb-2">Language</label>
-                    <select
-                      value={profile.language}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProfile(prev => prev ? { ...prev, language: e.target.value } : null)}
-                      className={`${selectStyles} h-10 sm:h-11`}
+                    <Select 
+                      value={profile.language} 
+                      onValueChange={(value: string) => setProfile(prev => prev ? { ...prev, language: value } : null)}
                     >
-                      {languages.map(lang => (
-                        <option key={lang.code} value={lang.code} className="dark:bg-background">
-                          {lang.name}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className={`${selectStyles} h-10 sm:h-11`}>
+                        <SelectValue placeholder="Select language" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {languages.map(lang => (
+                          <SelectItem key={lang.code} value={lang.code}>
+                            {lang.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="flex items-center justify-between">

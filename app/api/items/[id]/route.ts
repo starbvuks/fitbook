@@ -9,6 +9,7 @@ const updateItemSchema = z.object({
   category: z.enum(['headwear','tops', 'bottoms', 'outerwear', 'shoes', 'accessories']).optional(),
   brand: z.string().nullable().optional(),
   price: z.number().nullable().optional(),
+  priceCurrency: z.enum(['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']).optional(),
   purchaseUrl: z.string().url().nullable().optional(),
   size: z.string().nullable().optional(),
   material: z.string().nullable().optional(),
@@ -112,6 +113,7 @@ export async function PATCH(request: Request) {
       ...(data.category !== undefined && { category: data.category }),
       ...(data.brand !== undefined && { brand: data.brand }),
       ...(data.price !== undefined && { price: data.price ?? 0 }), // Convert null to 0
+      ...(data.priceCurrency !== undefined && { priceCurrency: data.priceCurrency }),
       ...(data.purchaseUrl !== undefined && { purchaseUrl: data.purchaseUrl }),
       ...(data.size !== undefined && { size: data.size }),
       ...(data.material !== undefined && { material: data.material }),

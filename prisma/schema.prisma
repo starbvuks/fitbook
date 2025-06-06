@@ -75,6 +75,7 @@ model WardrobeItem {
   category        String
   brand           String?
   price           Float
+  priceCurrency   String        @default("INR")
   purchaseUrl     String?
   size            String?
   material        String?

@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import type { ClothingItem, ClothingCategory, Season, Occasion } from '@/app/models/types'
+import type { ClothingItem, ClothingCategory, Season, Occasion, Currency } from '@/app/models/types'
 import ColorPalette from './ColorPalette'
 import ImageUpload from './ImageUpload'
 import type { UploadResult } from '@/lib/images'
 import Image from 'next/image'
 import { X, ShoppingCart, CircleCheck } from 'lucide-react'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import PriceDisplay from './PriceDisplay'
 
 interface AddItemFormProps {
   onSubmit: (formData: any) => void
@@ -20,6 +21,7 @@ interface FormData {
   category: ClothingCategory
   brand: string
   price: string
+  priceCurrency: Currency
   purchaseUrl: string
   size: string
   material: string
@@ -83,12 +85,15 @@ const occasions: Occasion[] = [
   { id: 'wedding', name: 'wedding' }
 ]
 
+const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']
+
 export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFormProps) {
   const [formData, setFormData] = useState<FormData>({
     name: '',
-    category,
+    category: category || 'headwear',
     brand: '',
     price: '',
+    priceCurrency: 'INR',
     purchaseUrl: '',
     size: '',
     material: '',
@@ -98,7 +103,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
     occasions: [],
     tags: [],
     notes: '',
-    images: [],
+    images: []
   })
 
   const [error, setError] = useState<string | null>(null)
@@ -121,6 +126,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
         category: formData.category,
         brand: formData.brand || undefined,
         price: formData.price ? parseFloat(formData.price) : 0,
+        priceCurrency: formData.priceCurrency,
         purchaseUrl: formData.purchaseUrl || undefined,
         size: formData.size || undefined,
         material: formData.material || undefined,
@@ -261,7 +267,38 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, price: e.target.value })}
                   className="input h-9 text-sm w-full"
                   step="0.01"
+                  placeholder="Enter price"
                 />
+                {formData.price && (
+                  <div className="mt-2 p-2 bg-muted rounded text-sm">
+                    <span className="text-muted-foreground">Preview: </span>
+                    <PriceDisplay
+                      amount={parseFloat(formData.price)}
+                      currency={formData.priceCurrency}
+                      userCurrency="USD" // You might want to get this from user profile
+                      showTooltip={true}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Price Currency</label>
+                <Select
+                  value={formData.priceCurrency}
+                  onValueChange={(value: Currency) => setFormData({ ...formData, priceCurrency: value })}
+                >
+                  <SelectTrigger className="h-9 text-sm w-full">
+                    <SelectValue placeholder="Select Currency" />
+                  </SelectTrigger>
+                  <SelectContent className="font-sans">
+                    {currencies.map((currency: Currency) => (
+                      <SelectItem key={currency} value={currency} className="capitalize">
+                        {currency}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>

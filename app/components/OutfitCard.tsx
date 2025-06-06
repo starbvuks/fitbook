@@ -9,6 +9,8 @@ import OutfitThumbnail from '@/app/components/OutfitThumbnail'
 import type { Outfit, Currency, ClothingItem } from '@/app/models/types'
 import { useToast } from '@/components/ui/use-toast'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog"
+import PriceDisplay from './PriceDisplay'
+import { getDominantCurrency } from '@/lib/currency'
 
 interface OutfitCardProps {
   outfit: Outfit
@@ -92,7 +94,12 @@ export default function OutfitCard({
               </h3>
               <div className='flex items-center gap-2'>
               <p className="text-sm text-muted-foreground mt-0.5">
-                 {formatPrice(outfit.totalCost, currency)}
+                 <PriceDisplay
+                   amount={outfit.totalCost}
+                   currency={getDominantCurrency(sortedItems)}
+                   userCurrency={currency}
+                   showTooltip={true}
+                 />
               </p>
               <span className='text-muted-foreground'>•</span>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">

@@ -78,4 +78,20 @@ export async function getMaxPriceForCurrency(currency: Currency): Promise<number
   
   const converted = await convertCurrency(baseMaxINR, 'INR', currency)
   return Math.ceil(converted / 100) * 100
+}
+
+export function getDominantCurrency(items: Array<{ priceCurrency?: Currency }>): Currency {
+  if (items.length === 0) return 'INR'
+  
+  const currencyCount: Record<Currency, number> = {
+    USD: 0, EUR: 0, GBP: 0, JPY: 0, INR: 0, CAD: 0, AUD: 0
+  }
+  
+  items.forEach(item => {
+    const currency = item.priceCurrency || 'INR'
+    currencyCount[currency]++
+  })
+  
+  return Object.entries(currencyCount)
+    .reduce((a, b) => currencyCount[a[0] as Currency] > currencyCount[b[0] as Currency] ? a : b)[0] as Currency
 } 

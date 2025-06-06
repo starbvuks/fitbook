@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -28,6 +28,8 @@ import type {
 } from "@/app/models/types";
 import { formatPrice } from "@/lib/utils";
 import OutfitThumbnail from "@/app/components/OutfitThumbnail";
+import PriceDisplay from "@/app/components/PriceDisplay";
+import { getDominantCurrency } from "@/lib/currency";
 
 interface ItemDetailsProps {
   item: OutfitItem;
@@ -92,9 +94,14 @@ function ItemDetails({ item, currency }: ItemDetailsProps) {
             {item.wardrobeItem.brand}
           </p>
           <div className="flex items-center justify-between mt-1.5">
-            <p className="font-semibold text-sm">
-              {formatPrice(item.wardrobeItem.price, currency)}
-            </p>
+            <div className="font-semibold text-sm">
+              <PriceDisplay
+                amount={item.wardrobeItem.price}
+                currency={item.wardrobeItem.priceCurrency || 'INR'}
+                userCurrency={currency}
+                showTooltip={true}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -112,9 +119,26 @@ export default function OutfitDetailClient({
   const router = useRouter();
   const { data: session } = useSession();
   const [outfit] = useState(initialOutfit);
-  const [currency] = useState<Currency>("INR");
+  const [currency, setCurrency] = useState<Currency>("INR");
   const { toast } = useToast();
   const outfitDisplayRef = useRef<HTMLDivElement>(null);
+
+  // Fetch user's profile currency
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch('/api/profile')
+        if (response.ok) {
+          const data = await response.json()
+          setCurrency(data.currency || 'INR')
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error)
+      }
+    }
+
+    fetchUserProfile()
+  }, [])
 
   const handleShare = async () => {
     try {
@@ -217,6 +241,12 @@ export default function OutfitDetailClient({
     if (bIndex === -1) return -1;
     return aIndex - bIndex;
   });
+
+  // Get the dominant currency for the outfit
+  const outfitItems = outfit.items
+    .map(item => item.wardrobeItem)
+    .filter((item): item is ClothingItem => Boolean(item))
+  const dominantCurrency = getDominantCurrency(outfitItems)
 
   return (
     <div className="min-h-screen pt-16 bg-background">
@@ -329,7 +359,12 @@ export default function OutfitDetailClient({
                 <div>
                   <div className="text-sm text-foreground-soft">Total Cost</div>
                   <div className="text-xl sm:text-2xl font-semibold">
-                    {formatPrice(outfit.totalCost, currency)}
+                    <PriceDisplay
+                      amount={outfit.totalCost}
+                      currency={dominantCurrency}
+                      userCurrency={currency}
+                      showTooltip={true}
+                    />
                   </div>
                 </div>
               </div>

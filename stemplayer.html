@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stem Player Manager – debug build</title>
+<style>
+ body{font-family:sans-serif;max-width:740px;margin:32px auto;padding:24px;border:1px solid #ccc;border-radius:12px}
+ label,input,button,select{display:block;margin:10px 0}
+ progress{width:100%;height:20px}
+ .log{font-family:monospace;white-space:pre-wrap;background:#f4f4f4;padding:8px;border-radius:8px;margin-top:12px;max-height:300px;overflow-y:auto}
+ ul{padding-left:22px}
+ .err{color:#c00;font-weight:600}
+</style>
+</head>
+<body>
+<h2>Stem Player Manager (debug)</h2>
+<button id="connect">Connect</button>
+<button id="refresh">Refresh list</button>
+<button id="disconnect">Disconnect</button>
+
+<h3>Tracks on device</h3>
+<ul id="tracks">(not connected)</ul>
+
+<h3>Upload MP3</h3>
+<input type="file" id="file" accept=".mp3">
+<label>Album ID (A1 … A30) <input id="album" value="A1"></label>
+<label>Track ID (T1 … T14) <input id="track" value="T1"></label>
+<label>Stem (0 = full song, 1-4 = extra) <input id="stem" type="number" min="0" max="4" value="0"></label>
+<button id="upload">Upload</button>
+<progress id="bar" value="0" max="1"></progress>
+
+<h3>Storage</h3>
+<button id="storage">Check</button>
+<div id="store"></div>
+
+<div class="log" id="log"></div>
+
+<script>
+/* ---------------- shared helpers ---------------- */
+const PTYPE={
+  ACK:0, ERR:1, CTRL:4, CONNECT:2, DISC:3,
+  FILE_HDR:6, FILE_BODY:7, RESP:5
+};
+const CTRL={
+  STORAGE:2, TRACKS:3, DELETE:10
+};
+let dev;
+const enc=new TextEncoder;const dec=new TextDecoder;
+
+const log=(m,cls='')=>{
+ const box=document.getElementById('log');
+ box.innerHTML+=`<span class="${cls}">${m}</span>\n`;
+ box.scrollTop=box.scrollHeight;
+};
+
+const u16=(n)=>[n&0xff,n>>8&0xff];
+
+async function tx(type,payload){
+ if(!dev)throw'No device';
+ const len=payload.length+1;
+ const buf=new Uint8Array((len+2)%64?len+2:len+3);
+ buf.set(u16(len));
+ buf[2]=type;
+ buf.set(payload,3);
+ const r=await dev.transferOut(1,buf);
+ if(r.status!=='ok')throw'USB write';
+}
+
+async function rx(){
+ const r=await dev.transferIn(1,8192);
+ if(r.status!=='ok')throw'USB read';
+ const v=new Uint8Array(r.data.buffer);
+ const len=v[0]+(v[1]<<8);
+ const out={t:v[2],p:v.slice(3,3+len-1)};
+ log(`rx type=${out.t} len=${len}`);return out;
+}
+
+/* ---------------- session ---------------- */
+async function start(){
+ await tx(PTYPE.CONNECT,new Uint8Array);
+ const a=await rx();
+ if(a.t!==PTYPE.ACK)throw'Session ACK';
+}
+
+async function connect(){
+ try{
+  const d=await navigator.usb.requestDevice({filters:[{vendorId:0x1209}]});
+  await d.open();if(!d.configuration)await d.selectConfiguration(1);
+  await d.claimInterface(0);dev=d;
+  log('Connected to STEM PLAYER');
+  await start();await list();
+ }catch(e){log('Connect ERR '+e,'err');}
+}
+
+async function bye(){
+ if(!dev)return;
+ try{await tx(PTYPE.DISC,new Uint8Array);await rx();}catch{}
+ await dev.close();dev=null;log('Disconnected');
+}
+
+/* ---------------- track list / storage ---------------- */
+async function list(){
+ await tx(PTYPE.CTRL,new Uint8Array([CTRL.TRACKS]));
+ const a=await rx();
+ if(a.t!==PTYPE.RESP||a.p[0]!==CTRL.TRACKS)throw'Bad list resp';
+ const js=JSON.parse(dec.decode(a.p.slice(1,-1)));
+ const ul=document.getElementById('tracks');ul.innerHTML='';
+ (js.l||[]).forEach(alb=>{
+   alb.c.forEach(tr=>{
+     const li=document.createElement('li');
+     li.textContent=`${alb.a}/${tr.t}`;ul.append(li);
+   });
+ });
+}
+
+async function storage(){
+ await tx(PTYPE.CTRL,new Uint8Array([CTRL.STORAGE]));
+ const a=await rx();
+ if(a.t!==PTYPE.RESP||a.p[0]!==CTRL.STORAGE)throw'Bad storage resp';
+ const js=JSON.parse(dec.decode(a.p.slice(1,-1)));
+ document.getElementById('store').textContent=`${js.used} / ${js.total}`;
+}
+
+/* ---------------- upload ---------------- */
+function buildHeader(sz,alb,trk,stem){
+ return {a:alb,t:trk,s:stem,z:sz,tp:'stem-audio-mp3'};
+}
+
+async function upload(){
+ const f=document.getElementById('file').files[0];
+ if(!f){alert('Pick file');return;}
+ const alb=document.getElementById('album').value.trim();
+ const trk=document.getElementById('track').value.trim();
+ const stem=parseInt(document.getElementById('stem').value)||0;
+ const hdr=buildHeader(f.size,alb,trk,stem);
+ const hdrBytes=enc.encode(JSON.stringify(hdr)+'\0');
+ try{
+  /* HEADER */
+  await tx(PTYPE.FILE_HDR,hdrBytes);
+  const hRes=await rx();
+  if(hRes.t===PTYPE.ERR)throw'Device ERR '+hRes.p[0];
+  if(hRes.t!==PTYPE.ACK)throw'Header not ACKed';
+
+  /* BODY (stream in 8 KiB user-level blocks) */
+  const buff=new Uint8Array(await f.arrayBuffer());
+  let off=0;const bar=document.getElementById('bar');
+  while(off<buff.length){
+    const slice=buff.subarray(off,off+8192);
+    await tx(PTYPE.FILE_BODY,slice);
+    const r=await rx();if(r.t===PTYPE.ERR)throw'Device ERR '+r.p[0];
+    off+=slice.length;bar.value=off/buff.length;
+  }
+  bar.value=1;log('Upload ok');
+  await list();
+ }catch(e){log('Upload ERR '+e,'err');}
+}
+
+/* ---------------- UI hooks ---------------- */
+document.getElementById('connect').onclick=connect;
+document.getElementById('disconnect').onclick=bye;
+document.getElementById('refresh').onclick=list;
+document.getElementById('storage').onclick=storage;
+document.getElementById('upload').onclick=upload;
+</script>
+</body>
+</html>
