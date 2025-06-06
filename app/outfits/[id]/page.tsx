@@ -79,7 +79,22 @@ export default async function OutfitDetailPage({
       items: {
         include: {
           wardrobeItem: {
-            include: {
+            select: {
+              id: true,
+              userId: true,
+              name: true,
+              category: true,
+              brand: true,
+              price: true,
+              priceCurrency: true,
+              purchaseUrl: true,
+              size: true,
+              material: true,
+              condition: true,
+              isOwned: true,
+              notes: true,
+              createdAt: true,
+              updatedAt: true,
               images: {
                 select: {
                   id: true,
@@ -162,6 +177,7 @@ export default async function OutfitDetailPage({
         category: item.wardrobeItem.category,
         brand: item.wardrobeItem.brand || undefined,
         price: item.wardrobeItem.price,
+        priceCurrency: (item.wardrobeItem.priceCurrency as Currency) || 'INR',
         purchaseUrl: item.wardrobeItem.purchaseUrl || undefined,
         size: item.wardrobeItem.size || undefined,
         material: item.wardrobeItem.material || undefined,

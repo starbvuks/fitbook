@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -58,7 +59,7 @@ function CatalogSkeleton({ viewMode }: { viewMode: ViewMode }) {
   );
 }
 
-export default function CatalogPage() {
+function CatalogContent() {
   const searchParams = useSearchParams()
   const initialCategory = searchParams.get('category') as ClothingCategory | null
 
@@ -409,5 +410,13 @@ export default function CatalogPage() {
         {/* --- End Load More Trigger --- */}
       </div>
     </div>
+  )
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense fallback={<CatalogSkeleton viewMode="large" />}>
+      <CatalogContent />
+    </Suspense>
   )
 } 
