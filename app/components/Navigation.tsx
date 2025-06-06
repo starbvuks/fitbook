@@ -237,11 +237,7 @@ export default function Navigation() {
                   className="touch-target inline-flex items-center justify-center rounded-md p-3 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring active:bg-accent"
                   onClick={(e) => {
                     e.stopPropagation()
-                    e.preventDefault()
                     setShowMobileMenu(!showMobileMenu)
-                  }}
-                  onTouchEnd={(e) => {
-                    e.preventDefault()
                   }}
                   aria-expanded={showMobileMenu}
                   aria-controls="mobile-menu"
@@ -265,11 +261,7 @@ export default function Navigation() {
                   className="touch-target inline-flex items-center justify-center rounded-md p-3 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring active:bg-accent"
                   onClick={(e) => {
                     e.stopPropagation()
-                    e.preventDefault()
                     setShowMobileMenu(!showMobileMenu)
-                  }}
-                  onTouchEnd={(e) => {
-                    e.preventDefault()
                   }}
                   aria-expanded={showMobileMenu}
                   aria-controls="mobile-menu"
@@ -330,11 +322,7 @@ export default function Navigation() {
                  className="touch-target inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring active:bg-accent"
                  onClick={(e) => {
                    e.stopPropagation()
-                   e.preventDefault()
                    setShowMobileMenu(false)
-                 }}
-                 onTouchEnd={(e) => {
-                   e.preventDefault()
                  }}
                >
                    <X className="h-5 w-5" />
@@ -364,12 +352,8 @@ export default function Navigation() {
                        <button
                          className="w-full justify-start gap-3 text-foreground-soft hover:text-destructive hover:bg-destructive/10 flex items-center px-4 py-3 touch-target rounded-lg transition-colors active:bg-destructive/20"
                          onClick={(e) => {
-                           e.preventDefault()
                            setShowMobileMenu(false)
                            signOut({ callbackUrl: '/' })
-                         }}
-                         onTouchEnd={(e) => {
-                           e.preventDefault()
                          }}
                        >
                            <LogOut className="w-5 h-5" />
@@ -380,12 +364,8 @@ export default function Navigation() {
                    <button
                      className="w-full justify-start gap-3 text-foreground-soft hover:text-foreground hover:bg-accent flex items-center px-4 py-3 touch-target rounded-lg transition-colors active:bg-accent"
                      onClick={(e) => {
-                       e.preventDefault()
                        setShowMobileMenu(false)
                        signIn('google')
-                     }}
-                     onTouchEnd={(e) => {
-                       e.preventDefault()
                      }}
                    >
                      <span className="text-[15px]">Sign In with Google</span>
@@ -464,9 +444,6 @@ function MobileNavLink({
       className="flex items-center gap-3 px-4 py-3 touch-target text-foreground-soft hover:text-foreground hover:bg-accent rounded-lg transition-colors active:bg-accent/80"
       onClick={(e) => {
         onClick?.()
-      }}
-      onTouchEnd={(e) => {
-        e.preventDefault()
       }}
     >
       {icon}
