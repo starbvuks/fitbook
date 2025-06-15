@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -41,6 +41,63 @@ export default function CreateOutfitPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currency, setCurrency] = useState<Currency>('USD')
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [isFetchingMore, setIsFetchingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const observerRef = useRef<HTMLDivElement | null>(null)
+
+  // Fetch items (initial and paginated)
+  const fetchItems = useCallback(async (cursor?: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      const url = new URL('/api/items', window.location.origin)
+      url.searchParams.set('limit', '30')
+      if (cursor) url.searchParams.set('cursor', cursor)
+      const itemsResponse = await fetch(url.toString())
+      if (!itemsResponse.ok) throw new Error('Failed to fetch items')
+      const itemsData = await itemsResponse.json()
+      const itemsArray = Array.isArray(itemsData.items) ? itemsData.items : Array.isArray(itemsData) ? itemsData : [];
+      if (cursor) {
+        setAvailableItems(prev => [...prev, ...itemsArray])
+      } else {
+        setAvailableItems(itemsArray)
+      }
+      setNextCursor(itemsData.nextCursor || null)
+      setHasMore(!!itemsData.nextCursor)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load data')
+    } finally {
+      setLoading(false)
+      setIsFetchingMore(false)
+    }
+  }, [])
+
+  // Initial fetch
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!hasMore || loading || isFetchingMore) return
+    const observer = new window.IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && nextCursor) {
+          setIsFetchingMore(true)
+          fetchItems(nextCursor)
+        }
+      },
+      { root: null, rootMargin: '0px', threshold: 1.0 }
+    )
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
+    }
+    return () => {
+      if (observerRef.current) observer.unobserve(observerRef.current)
+    }
+  }, [hasMore, loading, isFetchingMore, nextCursor, fetchItems])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +116,8 @@ export default function CreateOutfitPage() {
 
         if (!itemsResponse.ok) throw new Error('Failed to fetch items')
         const itemsData = await itemsResponse.json()
-        setAvailableItems(itemsData)
+        const itemsArray = Array.isArray(itemsData.items) ? itemsData.items : Array.isArray(itemsData) ? itemsData : [];
+        setAvailableItems(itemsArray)
       } catch (error) {
         console.error('Error fetching data:', error)
         setError(error instanceof Error ? error.message : 'Failed to load data')
@@ -146,7 +204,7 @@ export default function CreateOutfitPage() {
     setAccessories(prev => prev.filter((_, i) => i !== index))
   }
 
-  const filteredItems = availableItems.filter(item => {
+  const filteredItems = (availableItems ?? []).filter(item => {
     const matchesSearch = searchQuery === '' || 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -216,7 +274,7 @@ export default function CreateOutfitPage() {
                 </div>
 
                 <div className="overflow-y-auto p-3 sm:p-4 max-h-[calc(100vh-16rem)]">
-                  {loading ? (
+                  {loading && !isFetchingMore ? (
                     <div className="flex items-center justify-center h-full">
                       <LoadingSpinner text="Loading items..." />
                     </div>
@@ -225,11 +283,19 @@ export default function CreateOutfitPage() {
                       No items found
                     </div>
                   ) : (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-                      {filteredItems.map(item => (
-                        <DraggableItem key={item.id} item={item} currency={currency} />
-                      ))}
-                    </div>
+                    <>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                        {filteredItems.map(item => (
+                          <DraggableItem key={item.id} item={item} currency={currency} />
+                        ))}
+                      </div>
+                      <div ref={observerRef} className="h-8 mt-7 w-full flex items-center justify-center">
+                        {isFetchingMore && <LoadingSpinner />}
+                        {!hasMore && !loading && (
+                          <span className="text-xs text-muted-foreground">No more items</span>
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
               </div>

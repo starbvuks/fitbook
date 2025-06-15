@@ -39,6 +39,9 @@ export default function PriceDisplay({
     const convertPrice = async () => {
       setLoading(true)
       try {
+        if (typeof amount !== 'number' || isNaN(amount)) {
+          throw new Error('Invalid amount for currency conversion')
+        }
         const response = await fetch('/api/currency/convert', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -50,6 +53,8 @@ export default function PriceDisplay({
         })
 
         if (!response.ok) {
+          const errorBody = await response.text()
+          console.error('Currency conversion failed:', errorBody)
           throw new Error('Failed to convert currency')
         }
 
