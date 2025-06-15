@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import Image from 'next/image'
-import { X, Save, ShoppingCart, CircleCheck, Plus, List, Grid, DollarSign } from 'lucide-react'
+import { X, Save, ShoppingCart, CircleCheck, Plus, List, Grid, DollarSign, Search } from 'lucide-react'
 import type { ClothingItem, Currency, Season, Occasion, SeasonName, OccasionName } from '@/app/models/types'
 import { formatPrice, cn } from '@/lib/utils'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import PriceDisplay from './PriceDisplay'
 import { getDominantCurrency } from '@/lib/currency'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 type ClothingItemWithPosition = ClothingItem & { position?: string }
 
@@ -88,6 +89,13 @@ export default function OutfitBuilder({
   const [isMobile, setIsMobile] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isPublic, setIsPublic] = useState(initialIsPublic)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [isFetchingMore, setIsFetchingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const observerRef = useRef<HTMLDivElement | null>(null)
+  const [availablePickerItems, setAvailablePickerItems] = useState<ClothingItem[]>([])
 
   // Update local name when initialName changes
   useEffect(() => {
@@ -324,6 +332,60 @@ export default function OutfitBuilder({
     'bottom',
     'shoes',
   ]
+
+  const categories = ['all', 'tops', 'bottoms', 'headwear', 'outerwear', 'shoes', 'accessories'];
+
+  // Fetch items (initial and paginated)
+  const fetchItems = useCallback(async (cursor?: string) => {
+    try {
+      setIsFetchingMore(true)
+      const url = new URL('/api/items', window.location.origin)
+      url.searchParams.set('limit', '30')
+      if (cursor) url.searchParams.set('cursor', cursor)
+      const itemsResponse = await fetch(url.toString())
+      if (!itemsResponse.ok) throw new Error('Failed to fetch items')
+      const itemsData = await itemsResponse.json()
+      const itemsArray = Array.isArray(itemsData.items) ? itemsData.items : Array.isArray(itemsData) ? itemsData : [];
+      if (cursor) {
+        setAvailablePickerItems(prev => [...prev, ...itemsArray])
+      } else {
+        setAvailablePickerItems(itemsArray)
+      }
+      setNextCursor(itemsData.nextCursor || null)
+      setHasMore(!!itemsData.nextCursor)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      setHasMore(false)
+    } finally {
+      setIsFetchingMore(false)
+    }
+  }, [])
+
+  // Initial fetch for mobile picker
+  useEffect(() => {
+    if (isItemPickerOpen && availablePickerItems.length === 0) {
+      fetchItems()
+    }
+  }, [isItemPickerOpen, fetchItems, availablePickerItems.length])
+
+  // Infinite scroll observer for mobile picker
+  useEffect(() => {
+    if (!hasMore || isFetchingMore || !isItemPickerOpen) return
+    const observer = new window.IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && nextCursor) {
+          fetchItems(nextCursor)
+        }
+      },
+      { root: null, rootMargin: '0px', threshold: 1.0 }
+    )
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
+    }
+    return () => {
+      if (observerRef.current) observer.unobserve(observerRef.current)
+    }
+  }, [hasMore, isFetchingMore, nextCursor, fetchItems, isItemPickerOpen])
 
   return (
     <div 
@@ -670,12 +732,27 @@ export default function OutfitBuilder({
               <SheetTitle>Select {selectedSlot === 'accessory' ? 'Accessory' : SLOT_LABELS[selectedSlot as keyof typeof SLOT_LABELS]}</SheetTitle>
             </SheetHeader>
           </div>
-          <div className="flex-1 overflow-y-auto mt-4">
-            <div className="px-4 grid grid-cols-2 sm:grid-cols-3 gap-3 pb-safe">
-              <div className="col-span-full flex justify-end mb-2">
+          {/* Search and Category Filter */}
+          <div className="px-4 pt-2 pb-0 flex flex-col gap-2 sticky top-0 z-10 bg-background">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 px-8">
+                <Search className="absolute left-11 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search items..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="input pl-9 h-9 text-sm w-full"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto mt-4 h-[65vh]">
+            <div className="py-4 px-2 pb-safe w-full">
+              <div className="col-span-full flex justify-end mb-2 mr-4">
                 <button
                   onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 pr-8 pb-3"
                 >
                   {viewMode === 'grid' ? (
                     <>
@@ -691,30 +768,41 @@ export default function OutfitBuilder({
                 </button>
               </div>
               <div className={cn(
-                viewMode === 'list' ? 'col-span-full space-y-2' : 'grid grid-cols-2 sm:grid-cols-3 gap-3'
+                viewMode === 'list'
+                  ? 'col-span-full space-y-3 w-full px-8'
+                  : 'flex flex-auto flex-wrap gap-x-4 gap-y-6 w-full justify-center'
               )}>
-                {availableItems
-                  .filter(filterItemsBySlot)
+                {availablePickerItems
+                  .filter(item => {
+                    const matchesSearch = searchQuery === '' ||
+                      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))
+                    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
+                    return filterItemsBySlot(item) && matchesSearch && matchesCategory
+                  })
                   .map(item => (
                     <button
                       key={item.id}
                       onClick={() => handleItemSelect(item)}
                       className={cn(
-                        "relative border border-border overflow-hidden hover:border-accent-purple transition-colors",
-                        viewMode === 'list' 
-                          ? 'flex items-center gap-3 p-2 rounded-lg' 
-                          : 'aspect-square rounded-lg'
+                        "relative border border-border overflow-hidden hover:border-accent-purple transition-colors p-3 w-[150px] rounded-lg flex flex-col items-center",
+                        viewMode === 'list'
+                          ? 'flex-row w-full gap-3 text-left'
+                          : ''
                       )}
                     >
                       <div className={cn(
-                        "relative",
-                        viewMode === 'list' ? 'w-16 h-16' : 'w-full h-full'
+                        "w-full",
+                        viewMode === 'list' ? 'w-16 h-16 flex-shrink-0' : ''
                       )}>
-                        <Image
+                        <img
                           src={item.images[0].url}
                           alt={item.name}
-                          fill
-                          className="object-cover"
+                          className={cn(
+                            viewMode === 'list'
+                              ? 'w-auto h-16 rounded-md object-cover'
+                              : 'w-auto h-auto rounded-md object-cover'
+                          )}
                         />
                       </div>
                       {viewMode === 'list' ? (
@@ -731,25 +819,27 @@ export default function OutfitBuilder({
                           </div>
                         </div>
                       ) : (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity p-2">
-                          <div className="h-full flex flex-col">
-                            <div className="flex-1">
-                              <div className="text-white text-sm font-medium line-clamp-2">{item.name}</div>
-                              <div className="text-white/80 text-xs mt-1">
-                                <PriceDisplay
-                                  amount={item.price}
-                                  currency={item.priceCurrency || 'INR'}
-                                  userCurrency={currency}
-                                  showOriginal={false}
-                                  showTooltip={true}
-                                />
-                              </div>
-                            </div>
+                        <div className="w-full mt-2">
+                          <div className="text-white text-sm font-medium line-clamp-2 text-center">{item.name}</div>
+                          <div className="text-white/80 text-xs mt-1 text-center">
+                            <PriceDisplay
+                              amount={item.price}
+                              currency={item.priceCurrency || 'INR'}
+                              userCurrency={currency}
+                              showOriginal={false}
+                              showTooltip={true}
+                            />
                           </div>
                         </div>
                       )}
                     </button>
                   ))}
+                <div ref={observerRef} className="h-8 w-full flex items-center justify-center">
+                  {isFetchingMore && <span className="text-xs text-muted-foreground">Loading more...</span>}
+                  {!hasMore && !isFetchingMore && (
+                    <span className="text-xs text-muted-foreground">No more items</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
