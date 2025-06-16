@@ -9,11 +9,11 @@ import { useSession } from 'next-auth/react'
 
 const floatingImages = [
   '/images/sample1.jpeg',
-  '/images/sample2.jpeg',
   '/images/sample3.png',
-  '/images/sample4.png',
+  '/images/sample2.jpeg',
   '/images/sample5.png',
   '/images/sample6.png',
+  '/images/sample4.png',
 ]
 
 const noiseSvg =
@@ -22,10 +22,10 @@ const noiseSvg =
 // More organic/randomized image configs
 const imageConfigs = [
   { top: '7%', left: '8%', size: 90, sizeMobile: 60, z: 10, blur: false, rotate: -12, floatY: 18, floatX: 6, border: true, dur: 8.5, delay: 0.2 },
-  { top: '15%', left: '75%', size: 110, sizeMobile: 70, z: 12, blur: false, rotate: 13, floatY: 22, floatX: -8, border: true, dur: 9.2, delay: 0.7 },
-  { top: '50%', left: '3%', size: 80, sizeMobile: 54, z: 8, blur: true, rotate: -7, floatY: 14, floatX: 10, border: false, dur: 7.7, delay: 1.1 },
-  { top: '60%', left: '85%', size: 85, sizeMobile: 56, z: 8, blur: true, rotate: 8, floatY: 13, floatX: -12, border: false, dur: 8.9, delay: 1.5 },
-  { top: '80%', left: '20%', size: 100, sizeMobile: 65, z: 11, blur: false, rotate: 7, floatY: 16, floatX: 7, border: true, dur: 9.7, delay: 0.5 },
+  { top: '15%', left: '75%', size: 110, sizeMobile: 70, z: 12, blur: true, rotate: 13, floatY: 22, floatX: -8, border: true, dur: 9.2, delay: 0.7 },
+  { top: '50%', left: '3%', size: 80, sizeMobile: 54, z: 8, blur: false, rotate: -7, floatY: 14, floatX: 10, border: true, dur: 7.7, delay: 1.1 },
+  { top: '60%', left: '85%', size: 85, sizeMobile: 56, z: 8, blur: false, rotate: 8, floatY: 13, floatX: -12, border: true, dur: 8.9, delay: 1.5 },
+  { top: '80%', left: '20%', size: 100, sizeMobile: 65, z: 11, blur: true, rotate: 7, floatY: 16, floatX: 7, border: true, dur: 9.7, delay: 0.5 },
   { top: '85%', left: '68%', size: 90, sizeMobile: 60, z: 10, blur: false, rotate: -10, floatY: 17, floatX: -9, border: true, dur: 8.2, delay: 1.3 },
 ]
 
