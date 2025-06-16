@@ -48,7 +48,7 @@ export default function LandingPage() {
       </div>
 
       {/* Top Nav */}
-      <nav className="w-full flex items-center justify-between px-3 sm:px-6 py-3 z-20 fixed top-0 left-0 bg-black/90 backdrop-blur-md" style={{ WebkitBackdropFilter: 'blur(12px)' }}>
+      <nav className="w-full flex items-center justify-between px-3 sm:px-6 sm:py-3 z-20 fixed top-0 left-0 bg-black/90 backdrop-blur-md" style={{ WebkitBackdropFilter: 'blur(12px)' }}>
         <div className="flex items-center gap-2">
           <span className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-accent-purple drop-shadow-lg">Fitbook</span>
         </div>
@@ -111,7 +111,7 @@ export default function LandingPage() {
       </div>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center relative z-20 px-2 sm:px-4 pt-16 sm:pt-28">
+      <main className="flex-1 flex flex-col items-center justify-center text-center relative z-20 px-2 sm:px-4 pt-8 sm:pt-28">
         {/* Animated Glow */}
         <motion.div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0"
@@ -129,7 +129,7 @@ export default function LandingPage() {
         <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-extrabold mb-4 sm:mb-6 tracking-tight text-gray-300 drop-shadow-xl relative z-10" style={{ letterSpacing: '-0.04em' }}>
           fitbook
         </h1>
-        <p className="text-lg sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-2xl mx-auto font-sans relative z-10">
+        <p className="text-base sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-2xl mx-auto font-sans relative z-10">
           Your personal outfit planner. Create, discover, and share looks with style, ease, and inspiration.
         </p>
         <div className="flex flex-row flex-wrap gap-3 sm:gap-4 items-center justify-center relative z-10 w-full max-w-xs sm:max-w-none mx-auto">
@@ -142,7 +142,7 @@ export default function LandingPage() {
               >
                 <Link
                   href="/catalog"
-                  className="btn btn-primary w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
+                  className="btn btn-primary w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
                 >
                   Go to Catalog
                 </Link>
@@ -154,7 +154,7 @@ export default function LandingPage() {
               >
                 <Link
                   href="/instructions"
-                  className="btn btn-secondary w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
+                  className="btn btn-secondary w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
                 >
                   How to Use
                 </Link>
@@ -169,7 +169,7 @@ export default function LandingPage() {
               >
                 <Link
                   href="/auth/signin"
-                  className="btn btn-primary w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
+                  className="btn btn-primary w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
                 >
                   Log In
                 </Link>
@@ -181,7 +181,7 @@ export default function LandingPage() {
               >
                 <Link
                   href="/instructions"
-                  className="btn btn-secondary w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
+                  className="btn btn-secondary w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform"
                 >
                   How to Use
                 </Link>
