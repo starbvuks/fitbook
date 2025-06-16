@@ -48,7 +48,7 @@ export default function LandingPage() {
       </div>
 
       {/* Top Nav */}
-      <nav className="w-full flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 z-20 fixed top-0 left-0 bg-black/40 backdrop-blur-md border-b border-border/30" style={{ WebkitBackdropFilter: 'blur(12px)' }}>
+      <nav className="w-full flex items-center justify-between px-3 sm:px-6 py-3 z-20 fixed top-0 left-0 bg-black/90 backdrop-blur-md" style={{ WebkitBackdropFilter: 'blur(12px)' }}>
         <div className="flex items-center gap-2">
           <span className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-accent-purple drop-shadow-lg">Fitbook</span>
         </div>
@@ -111,7 +111,7 @@ export default function LandingPage() {
       </div>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center relative z-20 px-2 sm:px-4 pt-28">
+      <main className="flex-1 flex flex-col items-center justify-center text-center relative z-20 px-2 sm:px-4 pt-16 sm:pt-28">
         {/* Animated Glow */}
         <motion.div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0"
@@ -132,7 +132,7 @@ export default function LandingPage() {
         <p className="text-lg sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-2xl mx-auto font-sans relative z-10">
           Your personal outfit planner. Create, discover, and share looks with style, ease, and inspiration.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center relative z-10 w-full max-w-xs sm:max-w-none mx-auto">
+        <div className="flex flex-row flex-wrap gap-3 sm:gap-4 items-center justify-center relative z-10 w-full max-w-xs sm:max-w-none mx-auto">
           {session ? (
             <>
               <motion.div
