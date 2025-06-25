@@ -129,7 +129,7 @@ export default function LandingPage() {
         <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-extrabold mb-4 sm:mb-6 tracking-tight text-gray-300 drop-shadow-xl relative z-10" style={{ letterSpacing: '-0.04em' }}>
           fitbook
         </h1>
-        <p className="text-base sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-2xl mx-auto font-sans relative z-10">
+        <p className="text-base sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-3xl mx-auto font-sans relative z-10">
           Your digital wardrobe - Create, discover, and finance your fits.
         </p>
         <div className="flex flex-row flex-wrap gap-3 sm:gap-4 items-center justify-center relative z-10 w-full max-w-xs sm:max-w-none mx-auto">
