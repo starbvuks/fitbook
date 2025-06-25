@@ -130,7 +130,7 @@ export default function LandingPage() {
           fitbook
         </h1>
         <p className="text-base sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-2xl mx-auto font-sans relative z-10">
-          Your personal outfit planner. Create, discover, and share looks with style, ease, and inspiration.
+          Your digital wardrobe - Create, discover, and finance your fits.
         </p>
         <div className="flex flex-row flex-wrap gap-3 sm:gap-4 items-center justify-center relative z-10 w-full max-w-xs sm:max-w-none mx-auto">
           {session ? (

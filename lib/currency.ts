@@ -23,7 +23,7 @@ async function getExchangeRates(): Promise<Record<Currency, number>> {
 
   try {
     // Using frankfurter API - completely free, no key needed
-    const response = await fetch('https://api.frankfurter.app/latest?from=INR&to=USD,EUR,GBP,JPY,CAD,AUD')
+    const response = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY,INR,CAD,AUD')
     const data = await response.json()
 
     if (!data.rates) {
@@ -31,7 +31,7 @@ async function getExchangeRates(): Promise<Record<Currency, number>> {
     }
 
     exchangeRates = {
-      INR: 1,
+      USD: 1,
       ...data.rates
     } as Record<Currency, number>
     
@@ -39,15 +39,15 @@ async function getExchangeRates(): Promise<Record<Currency, number>> {
     return exchangeRates
   } catch (error) {
     console.error('Error fetching exchange rates:', error)
-    // Fallback to approximate rates if API fails (rates as of March 2024, base INR)
+    // Fallback to approximate rates if API fails (rates as of March 2024, base USD)
     return {
-      USD: 0.012,
-      EUR: 0.011,
-      GBP: 0.0095,
-      JPY: 1.79,
-      INR: 1,
-      CAD: 0.016,
-      AUD: 0.018
+      USD: 1,
+      EUR: 0.92,
+      GBP: 0.79,
+      JPY: 149.5,
+      INR: 83.2,
+      CAD: 1.35,
+      AUD: 1.52
     }
   }
 }
@@ -56,8 +56,8 @@ export async function convertCurrency(amount: number, fromCurrency: Currency, to
   if (fromCurrency === toCurrency) return amount
   
   const rates = await getExchangeRates()
-  const amountInINR = fromCurrency === 'INR' ? amount : amount / rates[fromCurrency]
-  const finalAmount = toCurrency === 'INR' ? amountInINR : amountInINR * rates[toCurrency]
+  const amountInUSD = fromCurrency === 'USD' ? amount : amount / rates[fromCurrency]
+  const finalAmount = toCurrency === 'USD' ? amountInUSD : amountInUSD * rates[toCurrency]
   
   return Math.round(finalAmount * 100) / 100 // Round to 2 decimal places
 }
@@ -73,22 +73,22 @@ export function formatCurrency(amount: number, currency: Currency): string {
 }
 
 export async function getMaxPriceForCurrency(currency: Currency): Promise<number> {
-  const baseMaxINR = 1000000 // 10 Lakh INR as base max
-  if (currency === 'INR') return baseMaxINR
+  const baseMaxUSD = 12000 // $12,000 USD as base max
+  if (currency === 'USD') return baseMaxUSD
   
-  const converted = await convertCurrency(baseMaxINR, 'INR', currency)
+  const converted = await convertCurrency(baseMaxUSD, 'USD', currency)
   return Math.ceil(converted / 100) * 100
 }
 
 export function getDominantCurrency(items: Array<{ priceCurrency?: Currency }>): Currency {
-  if (items.length === 0) return 'INR'
+  if (items.length === 0) return 'USD'
   
   const currencyCount: Record<Currency, number> = {
     USD: 0, EUR: 0, GBP: 0, JPY: 0, INR: 0, CAD: 0, AUD: 0
   }
   
   items.forEach(item => {
-    const currency = item.priceCurrency || 'INR'
+    const currency = item.priceCurrency || 'USD'
     currencyCount[currency]++
   })
   

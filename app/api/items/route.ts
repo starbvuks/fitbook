@@ -12,7 +12,7 @@ const createItemSchema = z.object({
   }),
   brand: z.string().nullable().optional(),
   price: z.number().min(0, "Price must be positive"),
-  priceCurrency: z.enum(['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']).default('INR'),
+  priceCurrency: z.enum(['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']).default('USD'),
   purchaseUrl: z.string().url().nullable().optional(),
   size: z.string().nullable().optional(),
   material: z.string().nullable().optional(),

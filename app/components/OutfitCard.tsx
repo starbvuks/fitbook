@@ -40,6 +40,11 @@ export default function OutfitCard({
     })
     .slice(0, 6)
 
+  // Get all outfit items for currency calculation (not just the first 6)
+  const allOutfitItems = outfit.items
+    .map(item => item.wardrobeItem)
+    .filter((item): item is ClothingItem => item !== undefined)
+
   const handleShare = (outfitId: string) => {
     if (onShare) onShare(outfitId)
     toast({
@@ -96,7 +101,7 @@ export default function OutfitCard({
               <p className="text-sm text-muted-foreground mt-0.5">
                  <PriceDisplay
                    amount={outfit.totalCost}
-                   currency={getDominantCurrency(sortedItems)}
+                   currency={getDominantCurrency(allOutfitItems)}
                    userCurrency={currency}
                    showTooltip={true}
                  />

@@ -69,7 +69,7 @@ const mockProfile: UserProfile = {
   id: 'user1',
   name: 'Demo User',
   email: 'demo@example.com',
-  currency: 'INR',
+  currency: 'USD',
   language: 'en',
   darkMode: false,
   emailNotifications: true,

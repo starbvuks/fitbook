@@ -177,7 +177,7 @@ export default async function OutfitDetailPage({
         category: item.wardrobeItem.category,
         brand: item.wardrobeItem.brand || undefined,
         price: item.wardrobeItem.price,
-        priceCurrency: (item.wardrobeItem.priceCurrency as Currency) || 'INR',
+        priceCurrency: (item.wardrobeItem.priceCurrency as Currency) || 'USD',
         purchaseUrl: item.wardrobeItem.purchaseUrl || undefined,
         size: item.wardrobeItem.size || undefined,
         material: item.wardrobeItem.material || undefined,

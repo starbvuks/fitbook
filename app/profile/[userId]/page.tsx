@@ -208,7 +208,7 @@ export default async function PublicProfilePage({
       id: user.id,
       name: user.name,
       image: user.image || undefined,
-      currency: isCurrency(user.currency) ? user.currency : 'INR',
+      currency: isCurrency(user.currency) ? user.currency : 'USD',
       createdAt: user.createdAt
     },
     stats: {
@@ -247,7 +247,7 @@ export default async function PublicProfilePage({
           category: item.wardrobeItem.category,
           brand: item.wardrobeItem.brand || undefined,
           price: item.wardrobeItem.price,
-          priceCurrency: (item.wardrobeItem.priceCurrency as Currency) || 'INR',
+          priceCurrency: (item.wardrobeItem.priceCurrency as Currency) || 'USD',
           purchaseUrl: undefined,
           size: undefined,
           material: undefined,
@@ -282,7 +282,7 @@ export default async function PublicProfilePage({
         category: isClothingCategory(item.category) ? item.category : 'accessories',
         brand: item.brand || undefined,
         price: item.price,
-        priceCurrency: (item.priceCurrency as Currency) || 'INR',
+        priceCurrency: (item.priceCurrency as Currency) || 'USD',
         purchaseUrl: item.purchaseUrl || undefined,
         size: item.size || undefined,
         material: item.material || undefined,

@@ -143,13 +143,13 @@ export default function OutfitsPage() {
           throw new Error('Failed to fetch user profile')
         }
         const data = await response.json()
-        const userCurrency = data.currency || 'INR'
+        const userCurrency = data.currency || 'USD'
         setCurrency(userCurrency)
         const maxPriceValue = await getMaxPriceForCurrency(userCurrency)
         setMaxPriceLimit(maxPriceValue * 3)
       } catch (error) {
         console.error('Error fetching user profile:', error)
-        setCurrency('INR')
+        setCurrency('USD')
         setMaxPriceLimit(3000000) // Default maximum for outfits (3 million rupees)
       }
     }

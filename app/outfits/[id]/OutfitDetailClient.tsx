@@ -119,7 +119,7 @@ export default function OutfitDetailClient({
   const router = useRouter();
   const { data: session } = useSession();
   const [outfit] = useState(initialOutfit);
-  const [currency, setCurrency] = useState<Currency>("INR");
+  const [currency, setCurrency] = useState<Currency>("USD");
   const { toast } = useToast();
   const outfitDisplayRef = useRef<HTMLDivElement>(null);
 
@@ -130,7 +130,7 @@ export default function OutfitDetailClient({
         const response = await fetch('/api/profile')
         if (response.ok) {
           const data = await response.json()
-          setCurrency(data.currency || 'INR')
+          setCurrency(data.currency || 'USD')
         }
       } catch (error) {
         console.error('Error fetching user profile:', error)

@@ -50,7 +50,7 @@ model User {
   instagram       String?
   pinterest       String?
   tiktok          String?
-  currency        String        @default("INR")
+  currency        String        @default("USD")
   language        String        @default("en")
   emailNotifications Boolean    @default(true)
   publicProfile   Boolean       @default(false)
@@ -75,7 +75,7 @@ model WardrobeItem {
   category        String
   brand           String?
   price           Float
-  priceCurrency   String        @default("INR")
+  priceCurrency   String        @default("USD")
   purchaseUrl     String?
   size            String?
   material        String?

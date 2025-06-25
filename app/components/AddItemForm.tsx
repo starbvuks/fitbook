@@ -88,13 +88,13 @@ const occasions: Occasion[] = [
 const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'CAD', 'AUD']
 
 export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFormProps) {
-  const [userCurrency, setUserCurrency] = useState<Currency>('INR')
+  const [userCurrency, setUserCurrency] = useState<Currency>('USD')
   const [formData, setFormData] = useState<FormData>({
     name: '',
     category: category || 'headwear',
     brand: '',
     price: '',
-    priceCurrency: 'INR',
+    priceCurrency: 'USD',
     purchaseUrl: '',
     size: '',
     material: '',
@@ -117,7 +117,7 @@ export default function AddItemForm({ onSubmit, onCancel, category }: AddItemFor
         const response = await fetch('/api/profile')
         if (response.ok) {
           const data = await response.json()
-          const currency = data.currency || 'INR'
+          const currency = data.currency || 'USD'
           setUserCurrency(currency)
           setFormData(prev => ({ ...prev, priceCurrency: currency }))
         }
