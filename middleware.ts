@@ -36,6 +36,8 @@ export default withAuth(
           pathname.startsWith('/_next') ||           // Next.js internals
           pathname.startsWith('/api/auth') ||        // NextAuth API routes
           pathname.startsWith('/public') ||          // Files in /public
+          pathname.startsWith('/images') ||          // Image files
+          pathname.startsWith('/logo') ||            // Logo files
           pathname.startsWith('/instructions') ||   // Instructions page
           pathname === '/' ||                      // Landing page
           pathname.startsWith('/auth') ||           // Auth pages (signin, signout, etc.)
@@ -60,7 +62,9 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      * - api/auth routes (NextAuth.js)
+     * - images folder
+     * - logo files
      */
-    "/((?!_next/static|_next/image|favicon.ico|public|api/auth).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public|api/auth|images|logo).*)",
   ],
 } 

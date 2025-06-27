@@ -97,6 +97,9 @@ export default {
   			soft: '0 4px 12px rgba(0, 0, 0, 0.1)',
   			glow: '0 0 24px rgba(155, 135, 245, 0.15)'
   		},
+  		backgroundImage: {
+  			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+  		},
   		animation: {
   			'fade-in': 'fadeIn 0.5s ease-out',
   			'slide-up': 'slideUp 0.5s ease-out',

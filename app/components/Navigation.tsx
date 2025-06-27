@@ -103,8 +103,27 @@ export default function Navigation() {
     }
   }, [showMobileMenu])
 
-  // Don't show anything until mounted
-  if (!mounted) return null
+  // Show loading state instead of returning null
+  if (!mounted) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center space-x-8">
+              <Link 
+                href="/" 
+                className="text-xl flex items-center gap-1 font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
+              >
+                <Image src="/logo3.png" alt="Fitbook Logo" className="invert" width={32} height={32} />
+                Fitbook
+              </Link>
+            </div>
+            <div className="h-10 w-24 animate-pulse rounded-lg bg-background-soft" />
+          </div>
+        </div>
+      </nav>
+    )
+  }
 
   // Show loading state
   if (status === 'loading') {
@@ -117,6 +136,7 @@ export default function Navigation() {
                 href="/" 
                 className="text-xl flex items-center gap-1 font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent"
               >
+                <Image src="/logo3.png" alt="Fitbook Logo" className="invert" width={32} height={32} />
                 Fitbook
               </Link>
             </div>

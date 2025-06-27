@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useTheme } from 'next-themes'
 import { Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -38,7 +39,7 @@ export default function LandingPage() {
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden flex flex-col">
       {/* Radial gradient background */}
       <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-radial from-[#18122B] via-[#1E1B2E] to-[#0F0C1A] opacity-90" />
+        <div className="absolute inset-0 bg-gradient-radial from-[#18122B] via-[#1E1B2E] to-[#0F0C1A] opacity-80" />
         <img
           src={noiseSvg}
           alt="noise"
@@ -47,49 +48,20 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Top Nav */}
-      <nav className="w-full flex items-center justify-between px-3 sm:px-6 sm:py-3 z-20 fixed top-0 left-0 bg-black/90 backdrop-blur-md" style={{ WebkitBackdropFilter: 'blur(12px)' }}>
-        <div className="flex items-center gap-2">
-          <span className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-accent-purple drop-shadow-lg">Fitbook</span>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link href="/catalog" className="nav-link text-sm sm:text-base">Catalog</Link>
-          <Link href="/outfits" className="nav-link text-sm sm:text-base">Outfits</Link>
-          <Link href="/lookbooks" className="nav-link text-sm sm:text-base">Lookbooks</Link>
-          <Link href="/discover" className="nav-link text-sm sm:text-base">Discover</Link>
-          <Link href="/login" className="btn btn-ghost px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base">Log In</Link>
-          <Link href="/signup" className="btn btn-primary px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base font-semibold">Sign Up</Link>
-          <button
-            aria-label="Toggle theme"
-            className="ml-2 p-2 rounded-full bg-muted/70 hover:bg-accent transition-colors shadow-md"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
-        </div>
-      </nav>
-
       {/* Floating Images - More organic, mobile-aware */}
       <div className="absolute inset-0 pointer-events-none z-10">
         {floatingImages.map((src, i) => {
           const cfg = imageConfigs[i]
           return (
-            <motion.img
+            <motion.div
               key={src}
-              src={src}
-              alt=""
-              className={cn(
-                'absolute rounded-2xl shadow-xl object-cover',
-                cfg.blur ? 'blur-md opacity-60' : 'opacity-95',
-                cfg.border ? 'border-4 border-white/80' : ''
-              )}
+              className="absolute"
               style={{
-                width: isMobile ? cfg.sizeMobile : cfg.size,
-                height: isMobile ? cfg.sizeMobile : cfg.size,
                 top: cfg.top,
                 left: cfg.left,
                 zIndex: cfg.z,
-                rotate: `${cfg.rotate}deg`,
+                width: isMobile ? cfg.sizeMobile : cfg.size,
+                height: isMobile ? cfg.sizeMobile : cfg.size,
               }}
               initial={{ y: 0, x: 0, opacity: 0 }}
               animate={{
@@ -105,31 +77,47 @@ export default function LandingPage() {
                 ease: 'easeInOut',
                 delay: cfg.delay,
               }}
-            />
+            >
+              <Image
+                src={src}
+                alt=""
+                width={isMobile ? cfg.sizeMobile : cfg.size}
+                height={isMobile ? cfg.sizeMobile : cfg.size}
+                className={cn(
+                  'rounded-2xl shadow-xl object-cover',
+                  cfg.blur ? 'blur-md opacity-60' : 'opacity-95',
+                  cfg.border ? 'border-4 border-white/80' : ''
+                )}
+                style={{
+                  transform: `rotate(${cfg.rotate}deg)`,
+                }}
+                priority={i < 2} // Prioritize first 2 images
+              />
+            </motion.div>
           )
         })}
       </div>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center relative z-20 px-2 sm:px-4 pt-8 sm:pt-28">
+      <main className="flex-1 flex flex-col items-center justify-center text-center relative z-20 px-2 pt-8 w-full h-full">
         {/* Animated Glow */}
         <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-20"
           initial={{ opacity: 0.7, scale: 1 }}
           animate={{ opacity: [0.7, 0.9, 0.7], scale: [1, 1.08, 1] }}
           transition={{ duration: 4, repeat: Infinity, repeatType: 'mirror' }}
           style={{
             width: isMobile ? '220px' : '420px',
-            height: isMobile ? '110px' : '220px',
+            height: isMobile ? '110px' : '300px',
             borderRadius: '50%',
-            background: 'radial-gradient(ellipse at center, rgba(155,119,255,0.25) 0%, rgba(24,18,43,0.0) 80%)',
-            filter: 'blur(24px)',
+            background: 'radial-gradient(ellipse at center, rgba(171, 119, 255, 0.25) 0%, rgba(36, 18, 43, 0) 80%)',
+            filter: 'blur(32px)',
           }}
         />
         <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-extrabold mb-4 sm:mb-6 tracking-tight text-gray-300 drop-shadow-xl relative z-10" style={{ letterSpacing: '-0.04em' }}>
           fitbook
         </h1>
-        <p className="text-base sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-3xl mx-auto font-sans relative z-10">
+        <p className="text-sm sm:text-2xl text-muted-foreground mb-7 sm:mb-10 max-w-md sm:max-w-3xl mx-auto font-sans relative z-10">
           Your digital wardrobe - Create, discover, and finance your fits.
         </p>
         <div className="flex flex-row flex-wrap gap-3 sm:gap-4 items-center justify-center relative z-10 w-full max-w-xs sm:max-w-none mx-auto">

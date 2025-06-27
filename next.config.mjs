@@ -4,7 +4,8 @@ const nextConfig = {
     domains: [
       'res.cloudinary.com',
       'images.unsplash.com',
-      'lh3.googleusercontent.com'
+      'lh3.googleusercontent.com',
+      'localhost'
     ],
     remotePatterns: [
       {
@@ -20,6 +21,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
       },
       {
         protocol: 'https',
